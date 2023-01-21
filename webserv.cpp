@@ -59,9 +59,6 @@ void server::do_connect()
     char data[30000] = {0};
     snprintf(data, sizeof(data),"%s %s", response, html.c_str());
 
-
-
-
     while (1337)
     {
         std::cout << std::endl;

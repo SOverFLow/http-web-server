@@ -12,14 +12,14 @@
 
 class server
 {
-    private:
     public:
+        server();
+    private:
         int server_fd;
         int new_socket;
         long rv;
         struct sockaddr_in address;
         int address_len;
-        server();
         void do_socket(int domain, int type, int protocol);
         void do_bind_socket();
         void do_listen_socket();

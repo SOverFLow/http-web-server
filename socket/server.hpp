@@ -5,6 +5,8 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 #define PORT 8080
 

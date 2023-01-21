@@ -18,7 +18,7 @@ class server
         struct sockaddr_in address;
         int address_len;
         server();
-        void do_socket(int domain, int port, int protocol);
+        void do_socket(int domain, int type, int protocol);
         void do_bind_socket();
         void do_listen_socket();
         void do_connect();

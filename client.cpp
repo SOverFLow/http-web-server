@@ -10,9 +10,9 @@ client::client()
 }
 
 
-void client::client_socket(int domain, int port, int protocol)
+void client::client_socket(int domain, int type, int protocol)
 {
-    if ((sock = socket(domain, port, protocol)) < 0)
+    if ((sock = socket(domain, type, protocol)) < 0)
     {
         perror("Socket creation error\n");
         exit(EXIT_FAILURE);

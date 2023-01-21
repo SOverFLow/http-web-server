@@ -21,7 +21,7 @@ public:
     char buffer[1024] = {0};
 
     client();
-    void client_socket(int domain, int port, int protocol);
+    void client_socket(int domain, int type, int protocol);
     void init_socket_connection();
     void send_request();
 

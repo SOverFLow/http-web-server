@@ -10,9 +10,9 @@ server::server()
     do_connect();
 }
 
-void server::do_socket(int domain, int port, int protocol)
+void server::do_socket(int domain, int type, int protocol)
 {
-    if ((server_fd = socket(domain, port, protocol)) == 0)
+    if ((server_fd = socket(domain, type, protocol)) == 0)
     {
         perror("in socket");
         exit(EXIT_FAILURE);

@@ -30,6 +30,33 @@ void server::do_parse_http_request(std::string http_request)
     }
 }
 
+
+
+std::string server::get_file_type(std::string path)
+{
+    size_t pos = path.rfind('.');
+    if (path == "/")
+        return "text/html";
+    if (pos == std::string::npos)
+        return "text/plain";
+    std::string rest = path.substr(pos + 1);
+   //std::cout << rest << std::endl;
+    if (rest == "html")
+        return "text/html";
+    else if (rest == "jpg")
+        return "image/jpg";
+    else if (rest == "png")
+        return "image/png";
+    else if (rest == "jpge")
+        return "image/jpge";
+    else if (rest == "gif")
+        return "image/gif";
+    else
+        return "application/octet-stream";
+
+}
+
+
 std::string server::do_handle_request()
 {
     std::cout << path.substr(1) << std::endl;
@@ -38,14 +65,18 @@ std::string server::do_handle_request()
     std::stringstream buffer;
     buffer << file.rdbuf();
     std::string file_contents = buffer.str();
-    std::string response = "HTTP/1.1 200 OK\r\nContent-type: text/html\r\n\r\n";
+    std::string response = "HTTP/1.1 200 OK\r\nContent-type: ";
     if (file) {
+        response += get_file_type(path) + "\r\n\r\n";
+        std::cout << response << std::endl;
         response += file_contents;
     } else if (path == "/") {
         std::ifstream file("index.html", std::ios::binary);
         std::stringstream buffer;
         buffer << file.rdbuf();
         std::string file_contents = buffer.str();
+        response += get_file_type(path) + "\r\n\r\n";
+        std::cout << response << std::endl;
         response += file_contents;
     } else {
         std::ifstream file("404.html", std::ios::binary);
@@ -53,6 +84,7 @@ std::string server::do_handle_request()
         buffer << file.rdbuf();
         std::string file_contents = buffer.str();
         response = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n\r\n";
+        std::cout << response << std::endl;
         response += file_contents;
     }
     return response;

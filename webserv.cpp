@@ -32,11 +32,21 @@ void server::do_parse_http_request(std::string http_request)
 
 std::string server::do_handle_request()
 {
+    std::cout << path.substr(1) << std::endl;
+    std::ifstream file(path.substr(1), std::ios::binary);
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    std::string file_contents = buffer.str();
     std::string response = "HTTP/1.1 200 OK\r\nContent-type: text/html\r\n\r\n";
-    if (path == "/") {
-        response += "<h1>Welcome to the server</h1>";
-    } else if (path == "/hello") {
-        response += "<h1>Hello, World!</h1>";
+    if (file) {
+        response += file_contents;
+    } else if (path == "/") {
+        std::ifstream file("index.html", std::ios::binary);
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        std::string file_contents = buffer.str();
+        response += file_contents;
     } else {
         response = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n\r\n<h1>404 Not Found</h1>";
     }
@@ -82,7 +92,7 @@ void server::do_connect()
 {
     std::string data;
     char buffer[30000];
-    
+
     while (1337)
     {
         std::cout << std::endl;

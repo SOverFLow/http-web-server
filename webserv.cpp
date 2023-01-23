@@ -50,6 +50,10 @@ std::string server::get_file_type()
         return "image/jpge";
     else if (rest == "gif")
         return "image/gif";
+    else if (rest == "css")
+        return "text/css";
+    else if (rest == "js")
+        return "application/javascript";
     else
         return "application/octet-stream";
 
@@ -65,17 +69,19 @@ std::string server::handle_get_request()
     buffer << file.rdbuf();
     std::string file_contents = buffer.str();
     std::string response = "HTTP/1.1 200 OK\r\nContent-type: ";
+    std::string r;
     if (file) {
         response += get_file_type() + "\r\n\r\n";
         send(new_socket, response.data(), response.length(), 0);
         send(new_socket, file_contents.data(),file_contents.length(), 0);
+        return r;
     } else if (path == "/") {
         std::ifstream file("index.html", std::ios::binary);
         std::stringstream buffer;
         buffer << file.rdbuf();
         std::string file_contents = buffer.str();
         response += get_file_type() + "\r\n\r\n";
-        std::cout << response << std::endl;
+       std::cout << response << std::endl;
         response += file_contents;
     } else {
         std::ifstream file("404.html", std::ios::binary);

@@ -48,7 +48,12 @@ std::string server::do_handle_request()
         std::string file_contents = buffer.str();
         response += file_contents;
     } else {
-        response = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n\r\n<h1>404 Not Found</h1>";
+        std::ifstream file("404.html", std::ios::binary);
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        std::string file_contents = buffer.str();
+        response = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n\r\n";
+        response += file_contents;
     }
     return response;
 }

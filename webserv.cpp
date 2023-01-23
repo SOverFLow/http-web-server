@@ -10,6 +10,40 @@ server::server()
     do_connect();
 }
 
+
+void server::do_parse_http_request(std::string http_request)
+{
+    size_t pos = 0;
+    size_t next_pos = http_request.find(' ');
+    if (next_pos != std::string::npos) {
+        method = http_request.substr(0, next_pos);
+        pos = next_pos + 1;
+    }
+    next_pos = http_request.find(' ', pos);
+    if (next_pos != std::string::npos) {
+        path = http_request.substr(pos, next_pos - pos);
+        pos = next_pos + 1;
+    }
+    next_pos = http_request.find('\r', pos);
+    if (next_pos != std::string::npos) {
+        version = http_request.substr(pos, next_pos - pos);
+    }
+}
+
+std::string server::do_handle_request()
+{
+    std::string response = "HTTP/1.1 200 OK\r\nContent-type: text/html\r\n\r\n";
+    if (path == "/") {
+        response += "<h1>Welcome to the server</h1>";
+    } else if (path == "/hello") {
+        response += "<h1>Hello, World!</h1>";
+    } else {
+        response = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n\r\n<h1>404 Not Found</h1>";
+    }
+    return response;
+}
+
+
 void server::do_socket(int domain, int type, int protocol)
 {
     if ((server_fd = socket(domain, type, protocol)) == 0)
@@ -33,46 +67,36 @@ void server::do_bind_socket()
         exit(EXIT_FAILURE);
     }
 }
-
+ 
 
 void server::do_listen_socket()
 {
     if (listen(server_fd,10) < 0)
     {
         perror("in listen");
-        exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);  
     }
 }
 
 void server::do_connect()
 {
-    char response[] = "HTTP/1.0 200 OK\r\nServer: CPi\r\nContent-type: text/html\r\n\r\n";
-
-    std::ifstream t("index.html"); 
-    // char html[30000] = {0};
-    std::string html;
-    if(t) {
-      std::ostringstream ss;
-      ss << t.rdbuf();
-      html = ss.str();
-   }
-    char data[30000] = {0};
-    snprintf(data, sizeof(data),"%s %s", response, html.c_str());
-
+    std::string data;
+    char buffer[30000];
+    
     while (1337)
     {
         std::cout << std::endl;
         std::cout << "Waiting for new connection...." << std::endl;
         if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&address_len))<0 )
         {
-         perror("in accept");
+            perror("in accept");
             exit(EXIT_FAILURE);
         }
-        char buffer[30000] = {0};
-        rv = read(new_socket, buffer, 30000);
-        std::cout << buffer << std::endl;
-        write(new_socket, data, strlen(data));
-        std::cout << " message sent" << std::endl;
+        rv = recv(new_socket, buffer, 30000, 0);
+        do_parse_http_request(buffer);
+        data = do_handle_request();
+        const char *response_data = data.c_str();
+        send(new_socket, response_data, strlen(response_data), 0);
         close(new_socket);
     }
 }

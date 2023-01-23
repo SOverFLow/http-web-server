@@ -17,6 +17,9 @@ class server
     private:
         int server_fd;
         int new_socket;
+        std::string method;
+        std::string path;
+        std::string version;
         long rv;
         struct sockaddr_in address;
         int address_len;
@@ -24,5 +27,7 @@ class server
         void do_bind_socket();
         void do_listen_socket();
         void do_connect();
+        void do_parse_http_request(std::string http_request);
+        std::string do_handle_request();
 
 };

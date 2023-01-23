@@ -32,7 +32,7 @@ void server::do_parse_http_request(std::string http_request)
 
 
 
-std::string server::get_file_type(std::string path)
+std::string server::get_file_type()
 {
     size_t pos = path.rfind('.');
     if (path == "/")
@@ -40,7 +40,6 @@ std::string server::get_file_type(std::string path)
     if (pos == std::string::npos)
         return "text/plain";
     std::string rest = path.substr(pos + 1);
-   //std::cout << rest << std::endl;
     if (rest == "html")
         return "text/html";
     else if (rest == "jpg")
@@ -57,7 +56,7 @@ std::string server::get_file_type(std::string path)
 }
 
 
-std::string server::do_handle_request()
+std::string server::handle_get_request()
 {
     std::cout << path.substr(1) << std::endl;
     std::ifstream file(path.substr(1), std::ios::binary);
@@ -67,15 +66,15 @@ std::string server::do_handle_request()
     std::string file_contents = buffer.str();
     std::string response = "HTTP/1.1 200 OK\r\nContent-type: ";
     if (file) {
-        response += get_file_type(path) + "\r\n\r\n";
-        std::cout << response << std::endl;
-        response += file_contents;
+        response += get_file_type() + "\r\n\r\n";
+        send(new_socket, response.data(), response.length(), 0);
+        send(new_socket, file_contents.data(),file_contents.length(), 0);
     } else if (path == "/") {
         std::ifstream file("index.html", std::ios::binary);
         std::stringstream buffer;
         buffer << file.rdbuf();
         std::string file_contents = buffer.str();
-        response += get_file_type(path) + "\r\n\r\n";
+        response += get_file_type() + "\r\n\r\n";
         std::cout << response << std::endl;
         response += file_contents;
     } else {
@@ -141,9 +140,13 @@ void server::do_connect()
         }
         rv = recv(new_socket, buffer, 30000, 0);
         do_parse_http_request(buffer);
-        data = do_handle_request();
-        const char *response_data = data.c_str();
-        send(new_socket, response_data, strlen(response_data), 0);
+        if (method == "GET")
+        {
+            data = handle_get_request();
+            send(new_socket, data.data(), data.length(), 0);
+        }
+        else
+            std::cout << "other method not supported" << std::endl;
         close(new_socket);
     }
 }

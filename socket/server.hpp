@@ -28,7 +28,7 @@ class server
         void do_listen_socket();
         void do_connect();
         void do_parse_http_request(std::string http_request);
-        std::string do_handle_request();
-        std::string get_file_type(std::string path);
+        std::string handle_get_request();
+        std::string get_file_type();
 
 };

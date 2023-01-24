@@ -81,7 +81,7 @@ std::string server::handle_get_request()
         buffer << file.rdbuf();
         std::string file_contents = buffer.str();
         response += get_file_type() + "\r\n\r\n";
-       std::cout << response << std::endl;
+        std::cout << response << std::endl;
         response += file_contents;
     } else {
         std::ifstream file("404.html", std::ios::binary);

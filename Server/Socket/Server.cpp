@@ -1,4 +1,4 @@
-#include "server.hpp"
+#include "Server.hpp"
 
 
 Server::Server()
@@ -54,7 +54,7 @@ void Server::do_connect()
             perror("in accept");
             exit(EXIT_FAILURE);
         }
-        read_bytes = recv(new_socket, buffer.data(), BODY_SIZE, 0);
+        read_bytes = recv(new_socket, (void *)buffer.data(), BODY_SIZE, 0);
         send(new_socket, data.data(), data.length(), 0);
         close(new_socket);
     }

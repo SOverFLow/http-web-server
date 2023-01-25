@@ -66,8 +66,7 @@ std::string Response::handle_get_request(std::string Path, std::string contentTy
     }
     else
     {
-        contentType = "text/html";
-        res = check_request_path(Path) + contentType + "\r\n\r\n";
+        res = check_request_path(Path) + "text/html" + "\r\n\r\n";
         file_content = read_file_content("/Error_Pages/404.html");
         res += file_content;
     }

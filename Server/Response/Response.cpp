@@ -54,11 +54,8 @@ std::string Response::handle_get_request(std::string Path, std::string contentTy
     {
         if (Path.find(".", 0) == std::string::npos)
         {
-            std::cout << "is directory" << std::endl;
             if (Path.find("/", 1) == std::string::npos)
-            {
                 Path = Path + "/";
-            }
             std::string s = Path + "index.html";
             std::ifstream index(s.substr(1), std::ios::binary);
             if (index)

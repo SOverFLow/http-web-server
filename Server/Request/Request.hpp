@@ -20,7 +20,7 @@ class Request
         std::string Method;
         std::string Content_Type;
         std::string Path;
-        bool    is_Cgi;
+        bool    Cgi;
 };
 
 #endif

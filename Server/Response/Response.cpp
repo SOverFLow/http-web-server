@@ -1,5 +1,5 @@
 #include "Response.hpp"
-
+#include <filesystem>
 
 Response::Response(std::string Path, std::string method, std::string contentType, int new_socket)
 {
@@ -52,11 +52,32 @@ std::string Response::handle_get_request(std::string Path, std::string contentTy
 
     if (file)
     {
-        response = check_request_path(Path) + contentType + "\r\n\r\n";
-        send(socket_fd, response.data(), response.length(), 0);
-        file_content = read_file_content(Path);
-        send(socket_fd, file_content.data(), file_content.length(), 0);
-        return (res);
+        if (Path.find(".", 0) == std::string::npos)
+        {
+            std::cout << "is directory" << std::endl;
+            if (Path.find("/", 1) == std::string::npos)
+            {
+                Path = Path + "/";
+            }
+            std::string s = Path + "index.html";
+            std::ifstream index(s.substr(1), std::ios::binary);
+            if (index)
+            {
+                response = check_request_path(s) + contentType + "\r\n\r\n";
+                send(socket_fd, response.data(), response.length(), 0);
+                file_content = read_file_content(s);
+                send(socket_fd, file_content.data(), file_content.length(), 0);
+                return (res);
+            }
+        }
+        else
+        {
+            response = check_request_path(Path) + contentType + "\r\n\r\n";
+            send(socket_fd, response.data(), response.length(), 0);
+            file_content = read_file_content(Path);
+            send(socket_fd, file_content.data(), file_content.length(), 0);
+            return (res);
+        }
     }
     else if (Path == "/")
     {

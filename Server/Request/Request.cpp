@@ -15,14 +15,13 @@ Request::~Request(){}
 
 void Request::SetMethod(std::string req)
 {
+    this->Method = "No";
     if (req.find("GET", 0) != std::string::npos)
         this->Method = "GET";
     else if (req.find("POST", 0) != std::string::npos)
         this->Method = "POST";
     else if (req.find("DELETE", 0) != std::string::npos)
         this->Method = "DELETE";
-    else
-        this->Method = "NULL";
 }
 
 void Request::SetPath(std::string req)

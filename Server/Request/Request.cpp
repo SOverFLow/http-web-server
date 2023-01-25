@@ -15,11 +15,11 @@ Request::~Request(){}
 
 void Request::SetMethod(std::string req)
 {
-    if (!strncmp(&req[0], "GET", 3))
+    if (req.find("GET", 0) != std::string::npos)
         this->Method = "GET";
-    else if (!strncmp(&req[0], "POST", 4))
+    else if (req.find("POST", 0) != std::string::npos)
         this->Method = "POST";
-    else if (!strncmp(&req[0], "DELETE", 6))
+    else if (req.find("DELETE", 0) != std::string::npos)
         this->Method = "DELETE";
     else
         this->Method = "NULL";

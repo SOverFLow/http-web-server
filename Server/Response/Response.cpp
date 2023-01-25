@@ -4,11 +4,35 @@
 Response::Response(std::string Path, std::string method, std::string contentType, int new_socket)
 {
     socket_fd = new_socket;
-    std::string res_to_client;
     if (method == "GET")
     {
         res_to_client = handle_get_request(Path, contentType);
     }
+    else if (method == "POST")
+    {
+        //res_to_client = handle_post_request(Path, contentType);
+        std::cout << "Post request" << std::endl;
+    }
+    else if (method == "DELETE")
+    {
+        //res_to_client = handle_delete_request(Path, contentType);
+        std::cout << "Delete request" << std::endl;
+    }
+}
+
+void Response::handle_cgi_request(std::string cgi_path, std::string query)
+{
+    setenv("QUERY", query.data(), 1);
+    setenv("METHOD", "GET", 1);
+
+    int pid = fork();
+    if (pid == 0)
+    {
+        execve(cgi_path.data(), (char *const *)cgi_path.data(), NULL);
+        exit(0);
+    }
+    else
+        waitpid(pid,NULL,0);
 }
 
 std::string Response::read_file_content(std::string Path)

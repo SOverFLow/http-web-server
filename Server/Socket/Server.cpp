@@ -46,6 +46,7 @@ void Server::do_listen_socket()
 
 void Server::do_connect()
 {
+    std::string buff;
     while (1337)
     {
         std::cout << "Waiting for new connection...." << std::endl;
@@ -55,6 +56,11 @@ void Server::do_connect()
             exit(EXIT_FAILURE);
         }
         read_bytes = recv(new_socket, (void *)buffer.data(), BODY_SIZE, 0);
+        buff = buffer.data();
+        Request req(buff);
+        Response res(req.Path,req.Method, req.Content_Type, new_socket);
+        data = res.res_to_client;
+    
         send(new_socket, data.data(), data.length(), 0);
         close(new_socket);
     }

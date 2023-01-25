@@ -5,6 +5,8 @@
 #include <fstream>
 #include <sstream>
 #include <unistd.h>
+#include "../Request/Request.hpp"
+#include "../Response/Response.hpp"
 
 #define PORT 8080
 #define BODY_SIZE 30000

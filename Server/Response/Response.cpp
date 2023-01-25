@@ -4,7 +4,17 @@
 Response::Response(std::string Path, std::string method, std::string contentType, int new_socket)
 {
     socket_fd = new_socket;
-    if (method == "GET")
+    std::string file_content;
+
+    if (method == "No")
+    {
+        std::cout << "yes" << std::endl;
+        res_to_client = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n\r\n";
+        file_content = read_file_content("/Error_Pages/405.html");
+        res_to_client += file_content;
+    }
+
+    else if (method == "GET")
     {
         res_to_client = handle_get_request(Path, contentType);
     }

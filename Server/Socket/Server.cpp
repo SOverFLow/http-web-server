@@ -57,8 +57,9 @@ void Server::do_connect()
         }
         read_bytes = recv(new_socket, (void *)buffer.data(), BODY_SIZE, 0);
         buff = buffer.data();
+        std::cout << "yes 1" << std::endl;
         Request req(buff);
-        Response res(req.Path,req.Method, req.Content_Type, new_socket);
+        Response res(req.Path, req.Method, req.Content_Type, new_socket);
         data = res.res_to_client;
     
         send(new_socket, data.data(), data.length(), 0);

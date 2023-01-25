@@ -2,13 +2,16 @@
 
 Request::Request(std::string req)
 {
-
+    InitMime(this->mime);
+    SetMethod(req);
+    SetPath(req);
+    SetContent();
+    std::cout << this->Method << std::endl;
+    std::cout << this->Path << std::endl;
+    std::cout << this->Content_Type << std::endl;
 }
 
-Request::~Request()
-{
-
-}
+Request::~Request(){}
 
 void Request::SetMethod(std::string req)
 {
@@ -28,18 +31,30 @@ void Request::SetPath(std::string req)
     int len = 0;
     for(int i = start; req[i]; i++)
     {
-        if (req[i] != ' ')
-            len++;
+        if (req[i] == ' ')
+            break;
+        len++;
     }
     this->Path = req.substr(start, len);
 }
 
 std::string GetMime(std::string Path)
 {
-    // some code.
+    int index = 0;
+    std::string type;
+    for (int i = Path.length() - 1; i != 0; i--)
+    {
+        if (Path[i] == '.')
+        {
+            index = i;
+            break;
+        }
+    }
+    type = Path.substr(index+1, Path.length() - index);
+    return (type);
 }
 
-void Request::SetContent(std::string req)
+void Request::SetContent()
 {
     std::map<std::string, std::string>::iterator it;
     std::string tmp = GetMime(this->Path);
@@ -47,7 +62,7 @@ void Request::SetContent(std::string req)
     it = this->mime.begin();
     while (it != this->mime.end())
     {
-        if (strcmp(type, &it->first[0]))
+        if (strcmp(type, &it->first[0]) == 0)
         {
             this->Content_Type = it->second;
                 break;

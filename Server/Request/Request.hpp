@@ -8,11 +8,11 @@
 class Request
 {
     private:
-        static std::map <std::string, std::string> mime;
-    
+        std::map <std::string, std::string> mime;
+
         void InitMime(std::map<std::string, std::string> &mime);
         void SetMethod(std::string req);
-        void SetContent(std::string req);
+        void SetContent();
         void SetPath(std::string req);
     public:
         Request(std::string req);

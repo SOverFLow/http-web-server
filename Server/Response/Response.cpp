@@ -8,7 +8,6 @@ Response::Response(std::string Path, std::string method, std::string contentType
 
     if (method == "No")
     {
-        std::cout << "yes" << std::endl;
         res_to_client = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n\r\n";
         file_content = read_file_content("/Error_Pages/405.html");
         res_to_client += file_content;

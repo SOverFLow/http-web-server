@@ -10,11 +10,13 @@ Server::Server()
 
 void Server::do_socket(int domain, int type, int protocol)
 {
+    int option = 1;
     if ((server_fd = socket(domain, type, protocol)) == 0)
     {
         perror("in socket");
         exit(EXIT_FAILURE);
     }
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
 }
 
 

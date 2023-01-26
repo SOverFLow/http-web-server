@@ -5,8 +5,8 @@
 #include <fstream>
 #include <sstream>
 #include <unistd.h>
-// #include <sys/epoll.h>
 #include <fcntl.h>
+#include <sys/select.h>
 #include "../Request/Request.hpp"
 #include "../Response/Response.hpp"
 
@@ -19,6 +19,7 @@ class Server
 {
     public:
         Server();
+        void do_connect();
     private:
         int server_fd;
         int new_socket;
@@ -30,5 +31,5 @@ class Server
         void do_socket(int domain, int type, int protocol);
         void do_bind_socket();
         void do_listen_socket();
-        void do_connect();
+        void do_handel_connection(int new_socket);
 };

@@ -1,13 +1,11 @@
 #include "Server.hpp"
 
-
 Server::Server()
 {
     address_len = sizeof(address);
     do_socket(AF_INET, SOCK_STREAM, 0);
     do_bind_socket();
     do_listen_socket();
-    do_connect();
 }
 
 void Server::do_socket(int domain, int type, int protocol)
@@ -44,24 +42,52 @@ void Server::do_listen_socket()
     }
 }
 
-void Server::do_connect()
+void Server::do_handel_connection(int new_socket)
 {
     std::string buff;
+    read_bytes = recv(new_socket, (void *)buffer.data(), BODY_SIZE, 0);
+    buff = buffer.data();
+    Request req(buff);
+    Response res(req.Path, req.Method, req.Content_Type, new_socket);
+    data = res.res_to_client;
+    
+    send(new_socket, data.data(), data.length(), 0);
+    close(new_socket);
+}
+
+void Server::do_connect()
+{
+    fd_set curent_socket, ready_socket;
+    FD_ZERO(&curent_socket);
+    FD_SET(server_fd, &curent_socket);
     while (1337)
     {
-        std::cout << "Waiting for new connection...." << std::endl;
-        if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&address_len))< 0)
+        ready_socket = curent_socket;
+        if (select(FD_SETSIZE, &ready_socket, NULL, NULL, NULL) < 0)
         {
-            perror("in accept");
+            perror("error in select");
             exit(EXIT_FAILURE);
         }
-        read_bytes = recv(new_socket, (void *)buffer.data(), BODY_SIZE, 0);
-        buff = buffer.data();
-        Request req(buff);
-        Response res(req.Path, req.Method, req.Content_Type, new_socket);
-        data = res.res_to_client;
-    
-        send(new_socket, data.data(), data.length(), 0);
-        close(new_socket);
+        for (int i =0; i < FD_SETSIZE;i++)
+        {
+            if (FD_ISSET(i, &ready_socket))
+            {
+                if (i == server_fd)
+                {
+                    if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&address_len))< 0)
+                    {
+                        perror("in accept");
+                        exit(EXIT_FAILURE);
+                    }
+                    FD_SET(new_socket, &curent_socket);
+                }
+                else
+                {
+                    std::cout << "Waiting for new connection...." << std::endl;
+                    do_handel_connection(i);
+                    FD_CLR(i, &curent_socket);
+                }
+            }
+        }
     }
 }

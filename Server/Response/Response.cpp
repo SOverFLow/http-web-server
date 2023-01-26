@@ -7,7 +7,6 @@ Response::Response(std::string Path, std::string method, std::string contentType
 
     if (method == "No")
     {
-        std::cout << "dkhal hna" << std::endl;
         res_to_client = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n\r\n";
         file_content = read_file_content("/Error_Pages/405.html");
         res_to_client += file_content;
@@ -19,7 +18,6 @@ Response::Response(std::string Path, std::string method, std::string contentType
     }
     else if (method == "POST")
     {
-        std::cout << "hna" << std::endl;
         res_to_client = handle_get_request(Path, contentType);
         //res_to_client = handle_post_request(Path, contentType);
         //std::cout << "Post request" << std::endl;
@@ -65,7 +63,6 @@ std::string Response::handle_get_request(std::string Path, std::string contentTy
     size_t next_pos = Path.find('?');
     if (next_pos != std::string::npos) 
         Path = Path.substr(0, next_pos);
-
     if (file)
     {
         if (Path.find(".", 0) == std::string::npos)

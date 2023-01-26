@@ -1,5 +1,4 @@
 #include "Response.hpp"
-#include <filesystem>
 
 Response::Response(std::string Path, std::string method, std::string contentType, int new_socket)
 {
@@ -20,6 +19,8 @@ Response::Response(std::string Path, std::string method, std::string contentType
     }
     else if (method == "POST")
     {
+        std::cout << "hna" << std::endl;
+        res_to_client = handle_get_request(Path, contentType);
         //res_to_client = handle_post_request(Path, contentType);
         //std::cout << "Post request" << std::endl;
     }

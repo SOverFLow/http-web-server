@@ -6,9 +6,6 @@ Request::Request(std::string req)
     SetMethod(req);
     SetPath(req);
     SetContent();
-    std::cout << this->Method << std::endl;
-    std::cout << this->Path << std::endl;
-    std::cout << this->Content_Type << std::endl;
 }
 
 Request::~Request(){}

@@ -109,8 +109,14 @@ std::string Response::check_request_path(std::string Path)
     std::string header;
     std::ifstream file(Path.substr(1), std::ios::binary);
     if (file)
+    {
+        Status = 200;
         header = "HTTP/1.1 200 OK\r\nContent-type: ";
+    }
     else
+    {
+        Status = 404;
         header = "HTTP/1.1 404 Not Found\r\nContent-type: ";
+    }
     return (header);
 }

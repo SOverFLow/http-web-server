@@ -15,6 +15,7 @@ class Response
 private:
    std::string response;
    int socket_fd;
+   int Status;
 public:
     Response(std::string Path, std::string method, std::string contentType, int new_socket);
     std::string check_request_path(std::string Path);

@@ -1,8 +1,9 @@
 #include "Server.hpp"
 
-Server::Server()
+Server::Server(char **env)
 {
     address_len = sizeof(address);
+    server_env = env;
     do_socket(AF_INET, SOCK_STREAM, 0);
     do_bind_socket();
     do_listen_socket();
@@ -49,6 +50,8 @@ void Server::do_handel_connection(int new_socket)
     std::string buff;
     read_bytes = recv(new_socket, (void *)buffer.data(), BODY_SIZE, 0);
     buff = buffer.data();
+
+    std::cout << buff << std::endl;
     Request req(buff);
     Response res(req.Path, req.Method, req.Content_Type, new_socket, req.is_Cgi);
     data = res.res_to_client;

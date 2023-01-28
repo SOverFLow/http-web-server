@@ -18,7 +18,7 @@
 class Server
 {
     public:
-        Server();
+        Server(char **env);
         void do_connect();
     private:
         int server_fd;
@@ -28,6 +28,7 @@ class Server
         int address_len;
         std::string data;
         std::string buffer;
+        char **server_env;
         void do_socket(int domain, int type, int protocol);
         void do_bind_socket();
         void do_listen_socket();

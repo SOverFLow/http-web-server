@@ -4,11 +4,11 @@
 
 
 
-int main(int argc, char **argv)
+int main(int argc, char **argv, char **env)
 {
     (void)argc;
     (void)argv;
-    Server server;
+    Server server(env);
     server.do_connect();
     return (0);
 }

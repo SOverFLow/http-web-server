@@ -1,5 +1,21 @@
 #include "Request.hpp"
 
+std::string GetMime(std::string Path)
+{
+    int index = 0;
+    std::string type;
+    for (int i = Path.length() - 1; i != 0; i--)
+    {
+        if (Path[i] == '.')
+        {
+            index = i;
+            break;
+        }
+    }
+    type = Path.substr(index+1, Path.length() - index);
+    return (type);
+}
+
 Request::Request(std::string req)
 {
     InitMime(this->mime);
@@ -38,21 +54,6 @@ void Request::SetPath(std::string req)
     this->Path = req.substr(start, len);
 }
 
-std::string GetMime(std::string Path)
-{
-    int index = 0;
-    std::string type;
-    for (int i = Path.length() - 1; i != 0; i--)
-    {
-        if (Path[i] == '.')
-        {
-            index = i;
-            break;
-        }
-    }
-    type = Path.substr(index+1, Path.length() - index);
-    return (type);
-}
 
 void Request::SetContent()
 {

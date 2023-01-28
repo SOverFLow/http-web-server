@@ -50,7 +50,7 @@ void Server::do_handel_connection(int new_socket)
     read_bytes = recv(new_socket, (void *)buffer.data(), BODY_SIZE, 0);
     buff = buffer.data();
     Request req(buff);
-    Response res(req.Path, req.Method, req.Content_Type, new_socket);
+    Response res(req.Path, req.Method, req.Content_Type, new_socket, req.is_Cgi);
     data = res.res_to_client;
     
     send(new_socket, data.data(), data.length(), 0);
@@ -85,7 +85,7 @@ void Server::do_connect()
                 }
                 else
                 {
-                    std::cout << "Waiting for new connection...." << std::endl;
+                    std::cout << "Waiting for new connection...." << i << std::endl;
                     do_handel_connection(i);
                     FD_CLR(i, &curent_socket);
                 }

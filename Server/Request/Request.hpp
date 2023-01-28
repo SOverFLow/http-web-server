@@ -24,4 +24,6 @@ class Request
         bool    is_Cgi;
 };
 
+std::string     Cgi_Handler(std::string path, char **env);
+
 #endif

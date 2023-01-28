@@ -26,7 +26,7 @@ void    header_gen(int status_code)
         exit(1);
     }
     else if (status_code == 200)
-        std::cout << "HTTP/1.1 200 Not Found\r\nContent-type: text/html\r\n\r\n";
+        std::cout << "HTTP/1.1 200 OK\r\nContent-type: text/html\r\n\r\n";
 }
 
 int main (int ac, char **av, char **env)
@@ -46,7 +46,6 @@ int main (int ac, char **av, char **env)
     if (!strcmp(av[2], "php"))
     {
         php_cgi(av[1], env);
-
     }
     else
         std::cout << "Error: cgi not allowed" << std::endl;

@@ -50,12 +50,11 @@ void Server::do_handel_connection(int new_socket)
     std::string buff;
     read_bytes = recv(new_socket, (void *)buffer.data(), BODY_SIZE, 0);
     buff = buffer.data();
-
-    std::cout << buff << std::endl;
     Request req(buff);
-    Response res(req.Path, req.Method, req.Content_Type, new_socket, req.is_Cgi);
-    data = res.res_to_client;
-    
+    // Response res(req.Path, req.Method, req.Content_Type, new_socket, req.is_Cgi);
+    // data = res.res_to_client;
+    if (req.is_Cgi)
+        data = Cgi_Handler(req.Path, server_env);
     send(new_socket, data.data(), data.length(), 0);
     close(new_socket);
 }

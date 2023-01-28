@@ -1,9 +1,10 @@
 #include "Response.hpp"
 
-Response::Response(std::string Path, std::string method, std::string contentType, int new_socket)
+Response::Response(std::string Path, std::string method, std::string contentType, int new_socket, bool is_cgi)
 {
     socket_fd = new_socket;
     std::string file_content;
+    (void)is_cgi;
 
     if (method == "No")
     {

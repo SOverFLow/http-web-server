@@ -1,6 +1,0 @@
-
-
-void    Cgi_Handler()
-{
-    
-}

@@ -6,6 +6,10 @@ Request::Request(std::string req)
     SetMethod(req);
     SetPath(req);
     SetContent();
+    if (GetMime(this->Path) == "php")
+        this->is_Cgi = true;
+    else
+        this->is_Cgi = false;
 }
 
 Request::~Request(){}

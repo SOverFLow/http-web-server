@@ -8,13 +8,13 @@ int main(int argc, char **argv, char **env)
 {
     (void)argc;
     (void)argv;
-    char c;
-    int fd = open("out.txt", O_RDWR | O_CREAT, 0666);
-    Server server(env);
+    // char c;
+    // int fd = open("out.txt", O_RDWR | O_CREAT, 0666);
+    Server server(NULL);
     //Cgi_Handler(argv[1], env, fd);
     //std::cout << said << std::endl;
     // while(read(fd, &c, 1))
     //     std::cout << c << std::endl;
-    //server.do_connect();
+    server.client_connect();
     return (0);
 }

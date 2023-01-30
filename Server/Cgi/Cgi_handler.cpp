@@ -4,14 +4,19 @@
 #include <iostream>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdlib.h>
+#include <stdlib.h>
+#include <sys/socket.h>
 
-std::string     Cgi_Handler(std::string path, char **env)
+std::string     Cgi_Handler(std::string path, char **env, int sock)
 {
     char *buff;
+    std::string all;
+    std::string res;
     int req[2];
     pid_t pid;
-    //std::cout << (char *)path.data() << std::endl;
-    pipe(req);
+    //pipe(req);
+    write(sock, "HTTP/1.1 200 OK\r\nContent-type: text/html\r\n\r\n", 44);
     pid = fork();
     if (!pid)
     {
@@ -20,13 +25,13 @@ std::string     Cgi_Handler(std::string path, char **env)
         cmd[1] = (char *)path.data();
         cmd[2] = "php";
         cmd[3] = NULL;
-        close(req[0]);
-        dup2(1, req[1]);
-        execve("./cgi-bin/cgi-php", cmd, env);
+        dup2(sock, 1);
+        if(!execve("./cgi-bin/cgi-php", cmd, env))
+            std::cout << "Error " << std::endl;
     }
-    close(req[1]);
     waitpid(pid, NULL, 0);
-    read(req[0], buff, 1000);
-    std::string res = buff;
-    return (res);
+    res = "HTTP/1.1 200 OK\r\nContent-type: text/html\r\n\r\n";
+    std::cout << all << std::endl;
+    //std::cout << res + all << std::endl;
+    return (res + all);
 }

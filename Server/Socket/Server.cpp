@@ -54,8 +54,9 @@ void Server::do_handel_connection(int new_socket)
     // Response res(req.Path, req.Method, req.Content_Type, new_socket, req.is_Cgi);
     // data = res.res_to_client;
     if (req.is_Cgi)
-        data = Cgi_Handler(req.Path, server_env);
-    send(new_socket, data.data(), data.length(), 0);
+        data = Cgi_Handler("index.php", NULL, new_socket);
+    //std::cout << data << std::endl;
+    //send(new_socket, data.data(), data.length(), 0);
     close(new_socket);
 }
 

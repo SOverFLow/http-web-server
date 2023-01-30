@@ -40,6 +40,7 @@ int main (int ac, char **av, char **env)
     {
         status_code = 404;
         header_gen(status_code);
+        exit(1);
     }
     close(fd);
     header_gen(status_code);

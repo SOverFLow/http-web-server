@@ -46,12 +46,6 @@ void Server::handel_connection(int new_socket)
     Request req(buff);
     Response res(req.Path, req.Method, req.Content_Type, new_socket, req.is_Cgi);
     data = res.res_to_client;
-    if (req.is_Cgi)
-    {
-        std::cout << "dkhelt " << std::endl;
-        said = Cgi_Handler("index.php", NULL);
-        std::cout << said << std::endl;
-    }
     send(new_socket, data.data(), data.length(), 0);
     close(new_socket);
 }

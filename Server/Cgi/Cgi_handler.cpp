@@ -8,30 +8,29 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 
-std::string     Cgi_Handler(std::string path, char **env, int sock)
+std::string     Cgi_Handler(std::string path, char **env)
 {
     char *buff;
-    std::string all;
+    char c;
     std::string res;
     int req[2];
     pid_t pid;
-    //pipe(req);
-    write(sock, "HTTP/1.1 200 OK\r\nContent-type: text/html\r\n\r\n", 44);
+    pipe(req);
     pid = fork();
     if (!pid)
     {
         char *cmd[4];
-        cmd[0] = "cgi-php";
+        cmd[0] = "php-cgi";
         cmd[1] = (char *)path.data();
-        cmd[2] = "php";
-        cmd[3] = NULL;
-        dup2(sock, 1);
-        if(!execve("./cgi-bin/cgi-php", cmd, env))
+        cmd[2] = NULL;
+        close(req[0]);
+        dup2(req[1], 1);
+        if(!execve("./cgi-bin/php-cgi", cmd, env))
             std::cout << "Error " << std::endl;
     }
+    close(req[1]);
     waitpid(pid, NULL, 0);
-    res = "HTTP/1.1 200 OK\r\nContent-type: text/html\r\n\r\n";
-    std::cout << all << std::endl;
-    //std::cout << res + all << std::endl;
-    return (res + all);
+    while(read(req[0], &c, 1))
+        res += c;
+    return (res);
 }

@@ -4,12 +4,10 @@ Server::Server(char **env)
 {
     address_len = sizeof(address);
     server_env = env;
-    do_socket(AF_INET, SOCK_STREAM, 0);
-    do_bind_socket();
-    do_listen_socket();
+    setup_server(AF_INET, SOCK_STREAM, 0);
 }
 
-void Server::do_socket(int domain, int type, int protocol)
+void Server::setup_server(int domain, int type, int protocol)
 {
     int option = 1;
     if ((server_fd = socket(domain, type, protocol)) == 0)
@@ -18,11 +16,7 @@ void Server::do_socket(int domain, int type, int protocol)
         exit(EXIT_FAILURE);
     }
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
-}
 
-
-void Server::do_bind_socket()
-{
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
@@ -33,27 +27,25 @@ void Server::do_bind_socket()
         perror("in bind");
         exit(EXIT_FAILURE);
     }
-}
- 
 
-void Server::do_listen_socket()
-{
     if (listen(server_fd, MAX_CLIENT) < 0)
     {
         perror("in listen");
         exit(EXIT_FAILURE);  
     }
+
 }
 
-void Server::do_handel_connection(int new_socket)
+
+void Server::handel_connection(int new_socket)
 {
     std::string buff;
     std::string said;
     read_bytes = recv(new_socket, (void *)buffer.data(), BODY_SIZE, 0);
     buff = buffer.data();
     Request req(buff);
-    // Response res(req.Path, req.Method, req.Content_Type, new_socket, req.is_Cgi);
-    // data = res.res_to_client;
+    Response res(req.Path, req.Method, req.Content_Type, new_socket, req.is_Cgi);
+    data = res.res_to_client;
     if (req.is_Cgi)
     {
         std::cout << "dkhelt " << std::endl;
@@ -64,7 +56,7 @@ void Server::do_handel_connection(int new_socket)
     close(new_socket);
 }
 
-void Server::do_connect()
+void Server::client_connect()
 {
     fd_set curent_socket, ready_socket;
     FD_ZERO(&curent_socket);
@@ -93,7 +85,7 @@ void Server::do_connect()
                 else
                 {
                     std::cout << "Waiting for new connection...." << i << std::endl;
-                    do_handel_connection(i);
+                    handel_connection(i);
                     FD_CLR(i, &curent_socket);
                 }
             }

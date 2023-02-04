@@ -19,7 +19,7 @@ class Server
 {
     public:
         Server(char **env);
-        void do_connect();
+        void client_connect();
     private:
         int server_fd;
         int new_socket;
@@ -29,8 +29,7 @@ class Server
         std::string data;
         std::string buffer;
         char **server_env;
-        void do_socket(int domain, int type, int protocol);
-        void do_bind_socket();
-        void do_listen_socket();
-        void do_handel_connection(int new_socket);
+        void setup_server(int domain, int type, int protocol);
+        void log_error(int result, std::string message);
+        void handel_connection(int new_socket);
 };

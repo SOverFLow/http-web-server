@@ -40,12 +40,16 @@ void Server::setup_server(int domain, int type, int protocol)
 void Server::handel_connection(int new_socket)
 {
     std::string buff;
-    std::string said;
-    read_bytes = recv(new_socket, (void *)buffer.data(), BODY_SIZE, 0);
+    read_bytes = recv(new_socket, (void *)buffer.data(), BODY_SIZE, MSG_PEEK);
+    //read(new_socket, (void *)buffer.data(), BODY_SIZE);
     buff = buffer.data();
     Request req(buff);
     Response res(req.Path, req.Method, req.Content_Type, new_socket, req.is_Cgi);
     data = res.res_to_client;
+    if (req.is_Cgi)
+    {
+        data = Cgi_Handler("index.php", NULL);
+    }
     send(new_socket, data.data(), data.length(), 0);
     close(new_socket);
 }
@@ -55,6 +59,7 @@ void Server::client_connect()
     fd_set curent_socket, ready_socket;
     FD_ZERO(&curent_socket);
     FD_SET(server_fd, &curent_socket);
+    std::string  str;
     while (1337)
     {
         ready_socket = curent_socket;
@@ -79,7 +84,9 @@ void Server::client_connect()
                 else
                 {
                     std::cout << "Waiting for new connection...." << i << std::endl;
-                    handel_connection(i);
+                    // handel_connection(i);
+                    str = Cgi_Handler("index.php", NULL);
+                    send(i, str.data(), str.length(), 0);
                     FD_CLR(i, &curent_socket);
                 }
             }

@@ -14,17 +14,18 @@ std::string     Cgi_Handler(std::string path, char **env)
     int req[2];
     pid_t pid;
     pipe(req);
-    pid = fork();
+    if((pid = fork()) < 0)
+        std::cout << "error here " << std::endl;
     if (!pid)
     {
+        close(req[0]);
         char *cmd[4];
-        cmd[0] = "php-cgi";
+        cmd[0] = "php";
         cmd[1] = (char *)path.data();
         cmd[2] = NULL;
-        close(req[0]);
         dup2(req[1], 1);
-        if(!execve("./cgi-bin/php-cgi", cmd, env))
-            std::cout << "Error " << std::endl;
+        if(execve("./cgi-bin/php-cgi", cmd, env) < 0)
+            std::cerr << "Error " << std::endl;
     }
     close(req[1]);
     waitpid(pid, NULL, 0);

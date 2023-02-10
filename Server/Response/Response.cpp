@@ -6,13 +6,12 @@ Response::Response(std::string Path, std::string method, std::string contentType
     socket_fd = new_socket;
     std::string file_content;
 
-    if (is_cgi)
-    {
-        std::cout << "dkhelt " << std::endl;
-        res_to_client = Cgi_Handler("/Users/salamane/Desktop/webserv/index.php", NULL);
-        std::cout << res_to_client << std::endl;
-    }
-    else if (method == "No")
+    // if (is_cgi)
+    // {
+    //     res_to_client = Cgi_Handler(&Path[1], NULL);
+    //     std::cout << res_to_client << std::endl;
+    // }
+    if (method == "No")
     {
         res_to_client = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n\r\n";
         file_content = read_file_content("/Error_Pages/405.html");

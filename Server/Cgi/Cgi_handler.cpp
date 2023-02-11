@@ -20,7 +20,7 @@ std::string     Cgi_Handler(std::string path, char **env)
     {
         close(req[0]);
         char *cmd[4];
-        cmd[0] = "php";
+        cmd[0] = (char *)"php";
         cmd[1] = (char *)path.data();
         cmd[2] = NULL;
         dup2(req[1], 1);

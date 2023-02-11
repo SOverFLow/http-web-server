@@ -3,28 +3,23 @@
 
 Response::Response(std::string Path, std::string method, std::string contentType, int new_socket, bool is_cgi)
 {
-    socket_fd = new_socket;
+    this->socket_fd = new_socket;
     std::string file_content;
 
-    // if (is_cgi)
-    // {
-    //     res_to_client = Cgi_Handler(&Path[1], NULL);
-    //     std::cout << res_to_client << std::endl;
-    // }
     if (method == "No")
     {
-        res_to_client = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n\r\n";
+        this->res_to_client = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n\r\n";
         file_content = read_file_content("/Error_Pages/405.html");
-        res_to_client += file_content;
+        this->res_to_client += file_content;
     }
 
     else if (method == "GET")
     {
-        res_to_client = handle_get_request(Path, contentType);
+        this->res_to_client = handle_get_request(Path, contentType);
     }
     else if (method == "POST")
     {
-        res_to_client = handle_get_request(Path, contentType);
+        this->res_to_client = handle_get_request(Path, contentType);
         //res_to_client = handle_post_request(Path, contentType);
         //std::cout << "Post request" << std::endl;
     }
@@ -79,19 +74,19 @@ std::string Response::handle_get_request(std::string Path, std::string contentTy
             std::ifstream index(s.substr(1), std::ios::binary);
             if (index)
             {
-                response = check_request_path(s) + contentType + "\r\n\r\n";
-                send(socket_fd, response.data(), response.length(), 0);
+                this->response = check_request_path(s) + contentType + "\r\n\r\n";
+                send(this->socket_fd, this->response.data(), this->response.length(), 0);
                 file_content = read_file_content(s);
-                send(socket_fd, file_content.data(), file_content.length(), 0);
+                send(this->socket_fd, file_content.data(), file_content.length(), 0);
                 return (res);
             }
         }
         else
         {
-            response = check_request_path(Path) + contentType + "\r\n\r\n";
-            send(socket_fd, response.data(), response.length(), 0);
+            this->response = check_request_path(Path) + contentType + "\r\n\r\n";
+            send(this->socket_fd, this->response.data(), this->response.length(), 0);
             file_content = read_file_content(Path);
-            send(socket_fd, file_content.data(), file_content.length(), 0);
+            send(this->socket_fd, file_content.data(), file_content.length(), 0);
             return (res);
         }
     }
@@ -116,12 +111,12 @@ std::string Response::check_request_path(std::string Path)
     std::ifstream file(Path.substr(1), std::ios::binary);
     if (file)
     {
-        Status = 200;
+        this->Status = 200;
         header = "HTTP/1.1 200 OK\r\nContent-type: ";
     }
     else
     {
-        Status = 404;
+        this->Status = 404;
         header = "HTTP/1.1 404 Not Found\r\nContent-type: ";
     }
     return (header);

@@ -1,7 +1,10 @@
 #include "Server.hpp"
 
-Server::Server(char **env)
+Server::Server(char **env, int port, long body_size, int max_client)
 {
+    this->server_port = port;
+    this->body_size = body_size;
+    this->max_client = max_client;
     this->address_len = sizeof(this->address);
     this->server_env = env;
     setup_server(AF_INET, SOCK_STREAM, 0);
@@ -19,9 +22,7 @@ void Server::setup_server(int domain, int type, int protocol)
 
     this->address.sin_family = AF_INET;
     this->address.sin_addr.s_addr = INADDR_ANY;
-    this->address.sin_port = htons(PORT);
-    memset(this->address.sin_zero, '\0', sizeof(this->address.sin_zero));
-
+    this->address.sin_port = htons(this->server_port);
 
     if (bind(this->server_fd, (struct sockaddr *)&address, sizeof(this->address)) < 0)
     {
@@ -29,26 +30,25 @@ void Server::setup_server(int domain, int type, int protocol)
         exit(EXIT_FAILURE);
     }
 
-    if (listen(this->server_fd, MAX_CLIENT) < 0)
+    if (listen(this->server_fd, this->max_client) < 0)
     {
         perror("in listen");
         exit(EXIT_FAILURE);  
     }
-
 }
 
 
 void Server::handel_connection(int new_socket)
 {
     
-    std::string buff;
-    this->read_bytes = recv(new_socket, (void *)buffer.data(), BODY_SIZE, 0);
-    buff = buffer.data();
-    Request req(buff);
+    this->read_bytes = recv(new_socket, (void *)buffer.data(), this->body_size, 0);
+    
+    //std::cout << buffer.data() << std::endl;
+    Request req(buffer.data());
     if (!req.is_Cgi)
     {
-        Response res(req.Path, req.Method, req.Content_Type, new_socket, req.is_Cgi);
-        this->data = res.res_to_client;
+      Response res(req.Path, req.Method, req.Content_Type, new_socket, req.is_Cgi);
+      this->data = res.res_to_client;
     }
     send(new_socket, this->data.data(), this->data.length(), 0);
     close(new_socket);
@@ -84,7 +84,7 @@ void Server::client_connect()
                 }
                 else
                 {
-                    std::cout << "Waiting for new connection...." << i << std::endl;
+                    std::cout << "listening on port => " << this->server_port << std::endl;
                     this->data = Cgi_Handler("index.php", NULL);
                     handel_connection(i);
                     FD_CLR(i, &curent_socket);

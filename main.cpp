@@ -8,9 +8,10 @@ int main(int argc, char **argv, char **env)
 {
     (void)argc;
     (void)argv;
-    Server server(env);
+    Server server(env,90,20000, 10);
     server.client_connect();
-    // std::string said = Cgi_Handler(argv[1], NULL);
-    // std::cout << said << std::endl;
+
+    Server server2(env,60, 20000, 10);
+    server2.client_connect();
     return (0);
 }

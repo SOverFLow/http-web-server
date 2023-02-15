@@ -32,3 +32,5 @@ class Server
         void log_error(int result, std::string message);
         void handel_connection(int new_socket);
 };
+
+void parse_upload_post_data(std::string http_request);

@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include <vector>
 
 Server::Server(char **env, int port, long body_size, int max_client)
 {
@@ -35,11 +36,15 @@ void Server::setup_server(int domain, int type, int protocol)
         perror("in listen");
         exit(EXIT_FAILURE);  
     }
+
+    if (fcntl(this->server_fd, F_SETFL, O_NONBLOCK) == -1)
+        std::cout << "Error in the fcntl" << std::endl;
+  
 }
 
 
 void Server::handel_connection(int new_socket) {
-  char buffer[1024];
+  char buffer[30000];
   int num_bytes = recv(new_socket, buffer, sizeof(buffer), 0);
   if (num_bytes == -1) {
     perror("Error receiving data from client");
@@ -49,8 +54,12 @@ void Server::handel_connection(int new_socket) {
     close(new_socket);
     return;
   }
-
     Request req(buffer);
+    if (req.Method == "POST")
+    {
+        //std::cout << buffer << std::endl;
+        parse_upload_post_data(buffer);
+    }
     if (!req.is_Cgi)
     {
       Response res(req.Path, req.Method, req.Content_Type, new_socket, req.is_Cgi);

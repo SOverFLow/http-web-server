@@ -8,7 +8,7 @@ int main(int argc, char **argv, char **env)
 {
     (void)argc;
     (void)argv;
-    Server server(env,90,20000, 10);
+    Server server(env,8080,30000, 10);
     server.client_connect();
 
     Server server2(env,60, 20000, 10);

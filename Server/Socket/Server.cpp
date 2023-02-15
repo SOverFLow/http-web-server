@@ -38,20 +38,35 @@ void Server::setup_server(int domain, int type, int protocol)
 }
 
 
-void Server::handel_connection(int new_socket)
-{
-    
-    this->read_bytes = recv(new_socket, (void *)buffer.data(), this->body_size, 0);
-    
-    //std::cout << buffer.data() << std::endl;
-    Request req(buffer.data());
+void Server::handel_connection(int new_socket) {
+  char buffer[1024];
+  int num_bytes = recv(new_socket, buffer, sizeof(buffer), 0);
+  if (num_bytes == -1) {
+    perror("Error receiving data from client");
+    close(new_socket);
+    return;
+  } else if (num_bytes == 0) {
+    close(new_socket);
+    return;
+  }
+
+    Request req(buffer);
     if (!req.is_Cgi)
     {
       Response res(req.Path, req.Method, req.Content_Type, new_socket, req.is_Cgi);
       this->data = res.res_to_client;
     }
-    send(new_socket, this->data.data(), this->data.length(), 0);
+    else
+    {
+        this->data = Cgi_Handler(req.Path.substr(1), NULL);
+    }
+  int num_sent = send(new_socket, this->data.c_str(), this->data.size(), 0);
+  close(new_socket);
+  if (num_sent == -1) {
+    perror("Error sending data to client");
     close(new_socket);
+    return;
+  }
 }
 
 
@@ -85,7 +100,6 @@ void Server::client_connect()
                 else
                 {
                     std::cout << "listening on port => " << this->server_port << std::endl;
-                    this->data = Cgi_Handler("index.php", NULL);
                     handel_connection(i);
                     FD_CLR(i, &curent_socket);
                 }

@@ -19,5 +19,10 @@ int main(int argc, char **argv, char **env)
     std::cout << Test.Servers[1].root << std::endl;
     std::cout << Test.Servers[0].directory_answer << std::endl;
     //std::cout << Test.name << std::endl;
+    Server server(env,8080,30000, 10);
+    server.client_connect();
+
+    Server server2(env,60, 20000, 10);
+    server2.client_connect();
     return (0);
 }

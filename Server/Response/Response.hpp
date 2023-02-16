@@ -9,6 +9,8 @@
 #include <fstream>
 #include <sstream>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 class Response
 {
@@ -22,6 +24,7 @@ public:
     std::string read_file_content(std::string Path);
     std::string handle_get_request(std::string Path, std::string contentType);
     void handle_cgi_request(std::string cgi_path, std::string query);
+    std::string	handel_delete_request(std::string file_path);
     std::string res_to_client;
 };
 

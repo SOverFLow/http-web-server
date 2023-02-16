@@ -42,39 +42,41 @@ void Server::setup_server(int domain, int type, int protocol)
 }
 
 
-void Server::handel_connection(int new_socket) {
+void Server::handel_connection(int new_socket) 
+{
   char buffer[300000];
   int num_bytes = recv(new_socket, buffer, sizeof(buffer), 0);
-  if (num_bytes == -1) {
-    perror("Error receiving data from client");
-    close(new_socket);
-    return;
-  } else if (num_bytes == 0) {
-    close(new_socket);
-    return;
-  }
-    Request req(buffer);
-    if (req.Method == "POST")
+    
+    if (num_bytes == -1) 
     {
-        //std::cout << buffer << std::endl;
-        parse_upload_post_data(buffer);
+        perror("Error receiving data from client");
+        close(new_socket);
+        return;
+    } 
+    else if (num_bytes == 0) 
+    {
+        close(new_socket);
+        return;
     }
+    Request req(buffer);
+    //std::cout << buffer << std::endl;
+    if (req.Method == "POST")
+        parse_upload_post_data(buffer);
     if (!req.is_Cgi)
     {
       Response res(req.Path, req.Method, req.Content_Type, new_socket, req.is_Cgi);
       this->data = res.res_to_client;
     }
     else
-    {
         this->data = Cgi_Handler(req.Path.substr(1), NULL);
-    }
-  int num_sent = send(new_socket, this->data.c_str(), this->data.size(), 0);
-  close(new_socket);
-  if (num_sent == -1) {
-    perror("Error sending data to client");
+    int num_sent = send(new_socket, this->data.c_str(), this->data.size(), 0);
     close(new_socket);
-    return;
-  }
+    if (num_sent == -1) 
+    {
+        perror("Error sending data to client");
+        close(new_socket);
+        return;
+    }
 }
 
 

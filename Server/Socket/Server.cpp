@@ -1,5 +1,4 @@
 #include "Server.hpp"
-#include <vector>
 
 Server::Server(char **env, int port, long body_size, int max_client)
 {
@@ -44,7 +43,7 @@ void Server::setup_server(int domain, int type, int protocol)
 
 
 void Server::handel_connection(int new_socket) {
-  char buffer[30000];
+  char buffer[300000];
   int num_bytes = recv(new_socket, buffer, sizeof(buffer), 0);
   if (num_bytes == -1) {
     perror("Error receiving data from client");

@@ -22,6 +22,7 @@ void parse_upload_post_data(std::string http_request)
             if (boundary_pos != std::string::npos)
             {
                 std::string boundary = http_request.substr(boundary_pos + boundary_str.size(), pos - (boundary_pos + boundary_str.size()));
+                std::cout << "hada assi"<< boundary << std::endl;
                 std::vector<std::string> parts;
                 size_t start_pos = pos + 4;
                 size_t end_pos = http_request.find("--" + boundary + "--", start_pos);

@@ -44,20 +44,10 @@ void Server::setup_server(int domain, int type, int protocol)
 
 void Server::handel_connection(int new_socket) 
 {
-<<<<<<< HEAD
-    std::string buff;
-    read_bytes = recv(new_socket, (void *)buffer.data(), BODY_SIZE, MSG_PEEK);
-    buff = buffer.data();
-    Request req(buff);
-    Response res(req.Path, req.Method, req.Content_Type, new_socket, req.is_Cgi);
-    data = res.res_to_client;
-    if (req.is_Cgi)
-=======
   char buffer[300000];
   int num_bytes = recv(new_socket, buffer, sizeof(buffer), 0);
     
     if (num_bytes == -1) 
->>>>>>> 101fd675cbd28706bd160e85a1e7bd0f15e720fe
     {
         perror("Error receiving data from client");
         close(new_socket);

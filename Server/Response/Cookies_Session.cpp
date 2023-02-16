@@ -46,7 +46,7 @@ void   cookie_handler(std::string http_request) {
 
     std::vector<Cookie> *cookies;
 
-    parse_cookie_header(http_request, cookies);
+    //parse_cookie_header(http_request, cookies);
     //std::cout << "cookies: " << std::endl;
 
 }

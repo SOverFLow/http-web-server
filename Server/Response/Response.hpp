@@ -28,5 +28,6 @@ public:
     std::string res_to_client;
 };
 
+void   cookie_handler(std::string http_request);
 
 #endif

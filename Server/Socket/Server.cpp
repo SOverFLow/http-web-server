@@ -60,6 +60,9 @@ void Server::handel_connection(int new_socket)
     }
     Request req(buffer);
     //std::cout << buffer << std::endl;
+
+    //std::cout << "here=>" << std::endl;
+    cookie_handler(buffer);
     if (req.Method == "POST")
         parse_upload_post_data(buffer);
     if (!req.is_Cgi)

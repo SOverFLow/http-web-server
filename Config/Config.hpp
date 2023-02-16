@@ -10,6 +10,7 @@ class ServerConfig
     public:
         std::string Name;
         std::string root;
+        bool        directory_listing;
         int         port;
         std::string host;
         std::string server_names;
@@ -45,6 +46,7 @@ class ServerBlock : public ServerConfig
 class Config
 {
     public:
+        int ServerCount;
         Config( std::string Path );
         ~Config();
         void    ConfigParser( std::string Path );

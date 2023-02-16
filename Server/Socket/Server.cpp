@@ -1,13 +1,18 @@
 #include "Server.hpp"
 
-Server::Server(char **env, int port, long body_size, int max_client)
+Server::Server(Config config)
 {
-    this->server_port = port;
-    this->body_size = body_size;
-    this->max_client = max_client;
-    this->address_len = sizeof(this->address);
-    this->server_env = env;
-    setup_server(AF_INET, SOCK_STREAM, 0);
+    std::vector<ServerBlock>::iterator it;
+
+    for (it = config.Servers.begin(); it != config.Servers.end(); it++)
+    {
+        this->server_port = 8080;
+        this->body_size = 30000;
+        this->max_client = 10;
+        this->address_len = sizeof(this->address);
+        this->server_env = NULL;
+        setup_server(AF_INET, SOCK_STREAM, 0);
+    }
 }
 
 void Server::setup_server(int domain, int type, int protocol)
@@ -38,7 +43,9 @@ void Server::setup_server(int domain, int type, int protocol)
 
     if (fcntl(this->server_fd, F_SETFL, O_NONBLOCK) == -1)
         std::cout << "Error in the fcntl" << std::endl;
-  
+    
+    std::cout << "here" << std::endl;
+    this->client_connect();
 }
 
 

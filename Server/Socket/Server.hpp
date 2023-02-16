@@ -9,13 +9,13 @@
 #include <sys/select.h>
 #include "../Request/Request.hpp"
 #include "../Response/Response.hpp"
+#include "../../Config/Config.hpp"
 
 
 class Server
 {
     public:
-        Server(char **env, int port, long body_size, int max_client);
-        void client_connect();
+        Server(Config config);
     private:
         int server_fd;
         int new_socket;
@@ -31,6 +31,7 @@ class Server
         void setup_server(int domain, int type, int protocol);
         void log_error(int result, std::string message);
         void handel_connection(int new_socket);
+        void client_connect();
 };
 
 void parse_upload_post_data(std::string http_request);

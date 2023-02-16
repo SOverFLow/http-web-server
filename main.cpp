@@ -21,8 +21,7 @@ int main(int argc, char **argv, char **env)
         {
             close(fd);
             Config Test(argv[1]);
-            Server server(env,8080,30000, 10);
-            server.client_connect();
+            Server server(Test);
         }
     }
     else

@@ -44,7 +44,6 @@ void Server::setup_server(int domain, int type, int protocol)
     if (fcntl(this->server_fd, F_SETFL, O_NONBLOCK) == -1)
         std::cout << "Error in the fcntl" << std::endl;
     
-    std::cout << "here" << std::endl;
     this->client_connect();
 }
 

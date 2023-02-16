@@ -11,7 +11,7 @@ void parse_upload_post_data(std::string http_request)
 
     if (pos != std::string::npos) 
     {
-       std::cout << http_request << std::endl;
+       //std::cout << http_request << std::endl;
         http_request_done = true;
         size_t content_type_pos = http_request.find("Content-Type: multipart/form-data");
 
@@ -22,13 +22,12 @@ void parse_upload_post_data(std::string http_request)
             if (boundary_pos != std::string::npos)
             {
                 std::string boundary = http_request.substr(boundary_pos + boundary_str.size(), pos - (boundary_pos + boundary_str.size()));
-                std::cout << "hada assi"<< boundary << std::endl;
+                
                 std::vector<std::string> parts;
                 size_t start_pos = pos + 4;
                 size_t end_pos = http_request.find("--" + boundary + "--", start_pos);
                 // while (end_pos != std::string::npos) 
                 // {
-                    std::cout << "test yes => " << start_pos<< std::endl;
                     parts.push_back(http_request.substr(start_pos, end_pos - start_pos));
                     start_pos = end_pos + 2 + boundary.size();
                     end_pos = http_request.find("--" + boundary + "--", start_pos);
@@ -75,14 +74,14 @@ void parse_upload_post_data(std::string http_request)
 
                 size_t data_end = part.size() - 2;
                 std::string allPath= "uploads/" + filename;
-                std::cout << allPath << std::endl;
+    
                 int file_fd = open(allPath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0777);
                 if (file_fd == -1) {
                     std::cout << filename << " Error opening file" << std::endl;
                     return ;
                 }
                 else
-                    std::cout << "File opened" << std::endl;
+                    std::cout << filename <<" <File uploaded>" << std::endl;
                 write(file_fd, part.data() + data_start, data_end - data_start);
                 close(file_fd);
             }

@@ -25,6 +25,7 @@ ServerBlock::~ServerBlock()
 
 Config::Config( std::string Path )
 {
+    this->ServerCount = 0;
     ConfigParser( Path );
 }
 
@@ -81,6 +82,7 @@ void    Config::ConfigParser( std::string Path )
                 srv = SetServer(ConfigFile, line);
                 this->Servers.push_back(srv);
             }
+            this->ServerCount++;
         }
     }
 }

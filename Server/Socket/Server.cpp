@@ -41,7 +41,6 @@ void Server::handel_connection(int new_socket)
 {
     std::string buff;
     read_bytes = recv(new_socket, (void *)buffer.data(), BODY_SIZE, MSG_PEEK);
-    //read(new_socket, (void *)buffer.data(), BODY_SIZE);
     buff = buffer.data();
     Request req(buff);
     Response res(req.Path, req.Method, req.Content_Type, new_socket, req.is_Cgi);

@@ -59,6 +59,8 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
             Instance->root = *(++it);
         else if (*it == "directory_answer")
             Instance->directory_answer = *(++it);
+        else if (*it == "listen")
+            Instance->port = std::atoi((*(++it)).c_str());
         std::getline(ConfigFile, line);
     }
     return (*Instance);

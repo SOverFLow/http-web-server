@@ -6,8 +6,8 @@ Server::Server(Config config)
 
     for (it = config.Servers.begin(); it != config.Servers.end(); it++)
     {
-        this->server_port = 8080;
-        this->body_size = 30000;
+        this->server_port = it->port;
+        this->body_size = 1024;
         this->max_client = 10;
         this->address_len = sizeof(this->address);
         this->server_env = NULL;
@@ -40,7 +40,7 @@ void Server::setup_server(int domain, int type, int protocol)
         perror("in listen");
         exit(EXIT_FAILURE);  
     }
-
+    std::cout << "listening on port => " << this->server_port << std::endl;
     if (fcntl(this->server_fd, F_SETFL, O_NONBLOCK) == -1)
         std::cout << "Error in the fcntl" << std::endl;
     
@@ -50,7 +50,7 @@ void Server::setup_server(int domain, int type, int protocol)
 
 void Server::handel_connection(int new_socket) 
 {
-  char buffer[300000];
+  char buffer[this->body_size];
   int num_bytes = recv(new_socket, buffer, sizeof(buffer), 0);
     
     if (num_bytes == -1) 

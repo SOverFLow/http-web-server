@@ -28,6 +28,7 @@ class Server
         std::string data;
         std::string buffer;
         char **server_env;
+        std::vector<int> servers;
         void setup_server(int domain, int type, int protocol);
         void log_error(int result, std::string message);
         void handel_connection(int new_socket);

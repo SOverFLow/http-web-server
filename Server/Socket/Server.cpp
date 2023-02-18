@@ -13,6 +13,13 @@ Server::Server(Config config)
         this->server_env = NULL;
         setup_server(AF_INET, SOCK_STREAM, 0);
     }
+
+    std::vector<int>::iterator s;
+    for (s = servers.begin(); s != servers.end(); s++)
+    {
+        std::cout << "server fd = " << *s << std::endl;
+    }
+    this->client_connect();
 }
 
 void Server::setup_server(int domain, int type, int protocol)
@@ -44,7 +51,8 @@ void Server::setup_server(int domain, int type, int protocol)
     if (fcntl(this->server_fd, F_SETFL, O_NONBLOCK) == -1)
         std::cout << "Error in the fcntl" << std::endl;
     
-    this->client_connect();
+    int fd = this->server_fd;
+    servers.push_back(fd);
 }
 
 
@@ -55,6 +63,7 @@ void Server::handel_connection(int new_socket)
     
     if (num_bytes == -1) 
     {
+        std::cout<< "socket => " << new_socket << std::endl;
         perror("Error receiving data from client");
         close(new_socket);
         return;
@@ -94,7 +103,12 @@ void Server::client_connect()
     std::string  str;
     fd_set curent_socket, ready_socket;
     FD_ZERO(&curent_socket);
-    FD_SET(server_fd, &curent_socket);
+    std::vector<int>::iterator s;
+    for (s = servers.begin(); s != servers.end(); s++)
+    {
+        FD_SET(*s, &curent_socket);
+        //std::cout << "server fd = " << *s << std::endl;
+    }
     while (1337)
     {
         ready_socket = curent_socket;

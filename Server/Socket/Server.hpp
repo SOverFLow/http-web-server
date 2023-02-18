@@ -18,8 +18,6 @@ class Client
 	    socklen_t				address_len;
 	    struct sockaddr_storage	address;
 	    int						sock;
-	    std::string				request_str;
-	    //Request					request;
 };
 
 
@@ -31,10 +29,11 @@ class Server
         std::string data;
         std::vector<int> sockets;
         std::vector<Client> clients;
+        std::vector<std::string> root_paths;
         std::vector<int> setup_sockets(std::vector<ServerBlock> &servers);
         void connection(std::vector<ServerBlock> &servers);
         void clients_accept(std::vector<int> &sockets, std::vector<Client> &clients);
-        void respond_to_clients(int client_socket);
+        void respond_to_clients(int client_socket, std::string root_path);
 };
 
 void parse_upload_post_data(std::string http_request);

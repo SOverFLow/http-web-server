@@ -11,28 +11,30 @@
 #include "../Response/Response.hpp"
 #include "../../Config/Config.hpp"
 
+class Client
+{
+    public:
+        Client();
+	    socklen_t				address_len;
+	    struct sockaddr_storage	address;
+	    int						sock;
+	    std::string				request_str;
+	    //Request					request;
+};
+
 
 class Server
 {
     public:
         Server(Config config);
     private:
-        int server_fd;
-        int new_socket;
-        long read_bytes;
-        long body_size;
-        int max_client;
-        int server_port;
-        struct sockaddr_in address;
-        int address_len;
         std::string data;
-        std::string buffer;
-        char **server_env;
-        std::vector<int> servers;
-        void setup_server(int domain, int type, int protocol);
-        void log_error(int result, std::string message);
-        void handel_connection(int new_socket);
-        void client_connect();
+        std::vector<int> sockets;
+        std::vector<Client> clients;
+        std::vector<int> setup_sockets(std::vector<ServerBlock> &servers);
+        void connection(std::vector<ServerBlock> &servers);
+        void clients_accept(std::vector<int> &sockets, std::vector<Client> &clients);
+        void respond_to_clients(int client_socket);
 };
 
 void parse_upload_post_data(std::string http_request);

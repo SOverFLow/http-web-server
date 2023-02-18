@@ -38,6 +38,7 @@ class ServerBlock : public ServerConfig
 {
     public:
         std::vector<Locations> Locations;
+        int sock_fd;
         ServerBlock();
         ~ServerBlock();
     private:

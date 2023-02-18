@@ -11,8 +11,10 @@ void parse_upload_post_data(std::string http_request)
 
     if (pos != std::string::npos) 
     {
-       //std::cout << http_request << std::endl;
+       std::cout << http_request << std::endl;
         http_request_done = true;
+
+
         size_t content_type_pos = http_request.find("Content-Type: multipart/form-data");
 
         if (content_type_pos != std::string::npos) 
@@ -25,13 +27,16 @@ void parse_upload_post_data(std::string http_request)
                 
                 std::vector<std::string> parts;
                 size_t start_pos = pos + 4;
+                std::cout << "hada boundry =>"<< boundary << std::endl;
                 size_t end_pos = http_request.find("--" + boundary + "--", start_pos);
-                // while (end_pos != std::string::npos) 
-                // {
+                std::cout << "hadi end => "<< end_pos << std::endl;
+                while (end_pos != std::string::npos) 
+                {
+                    std::cout << "DKHALT HNA" << std::endl;
                     parts.push_back(http_request.substr(start_pos, end_pos - start_pos));
                     start_pos = end_pos + 2 + boundary.size();
                     end_pos = http_request.find("--" + boundary + "--", start_pos);
-                // }
+                }
             
             for (std::vector<std::string>::const_iterator it = parts.begin(); it != parts.end(); ++it) 
             {

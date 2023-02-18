@@ -13,7 +13,7 @@ class ServerConfig
         int         port;
         std::string host;
         std::string server_names;
-        std::string client_max_body_size;
+        size_t client_max_body_size;
         std::vector<std::string> index;
         std::vector<std::string> allowed_method;
         std::string directory_answer;

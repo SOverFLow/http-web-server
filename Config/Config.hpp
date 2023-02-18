@@ -8,7 +8,6 @@
 class ServerConfig
 {
     public:
-        std::string Name;
         std::string root;
         bool        directory_listing;
         int         port;
@@ -27,7 +26,8 @@ class ServerConfig
 class Locations : public ServerConfig
 {
     public:
-    Locations();
+    std::string Name;
+    Locations( std::string Name );
     ~Locations();
 
     private:

@@ -21,6 +21,7 @@ int main(int argc, char **argv, char **env)
         {
             close(fd);
             Config Test(argv[1]);
+            std::cout << Test.Servers[0].Locations[0].root << std::endl;
             Server server(Test);
         }
     }

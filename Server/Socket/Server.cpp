@@ -87,7 +87,6 @@ void Server::respond_to_clients(int client_socket)
 {
     char buffer[1024];
     int num_bytes = recv(client_socket, buffer, sizeof(buffer), 0);
-    
     if (num_bytes == -1) 
     {
         std::cout<< "socket => " << client_socket << std::endl;

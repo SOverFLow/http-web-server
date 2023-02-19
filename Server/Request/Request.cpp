@@ -47,7 +47,7 @@ void Request::SetPath(std::string req)
     int len = 0;
     for(int i = start; req[i]; i++)
     {
-        if (req[i] == ' ')
+        if (req[i] == ' ' || req[i] == '?')
             break;
         len++;
     }

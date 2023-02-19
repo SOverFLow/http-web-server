@@ -54,11 +54,6 @@ std::string Response::handle_get_request(std::string Path, std::string contentTy
     std::string file_content;
     std::string res;
 
-
-    size_t next_pos = Path.find('?');
-    if (next_pos != std::string::npos) 
-        Path = Path.substr(0, next_pos);
-    int len = Path.length();
     if (file)
     {
         if (Path.find(".", 0) == std::string::npos)
@@ -85,13 +80,10 @@ std::string Response::handle_get_request(std::string Path, std::string contentTy
             return (res);
         }
     }
-    else if (Path[len - 1] == '/')
+    else if (Path == "/")
     {
-        std::cout << "dkhalt hna" << std::endl;
-        std::string full_path = Path + "index.html";
-        std::cout << full_path << std::endl;
-        res = check_request_path(full_path) + contentType + "\r\n\r\n";
-        file_content = read_file_content(full_path);
+        res = check_request_path("/index.html") + contentType + "\r\n\r\n";
+        file_content = read_file_content("/index.html");
         res += file_content; 
     }
     else

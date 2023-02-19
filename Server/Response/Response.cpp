@@ -20,17 +20,14 @@ Response::Response(std::string Path, std::string method, std::string contentType
     else if (method == "POST")
     {
         this->res_to_client = handle_get_request(Path, contentType);
-        //res_to_client = handle_post_request(Path, contentType);
-        //std::cout << "Post request" << std::endl;
     }
     else if (method == "DELETE")
         this->res_to_client = handel_delete_request(Path);
 }
 
-
 std::string Response::read_file_content(std::string Path)
 {
-    std::ifstream file(Path, std::ios::binary);
+    std::ifstream file(Path.substr(1), std::ios::binary);
     std::stringstream buffer;
     buffer << file.rdbuf();
     std::string file_contents = buffer.str();
@@ -40,10 +37,9 @@ std::string Response::read_file_content(std::string Path)
 std::string Response::check_request_path(std::string Path)
 {
     std::string header;
-    std::ifstream file(Path, std::ios::binary);
+    std::ifstream file(Path.substr(1), std::ios::binary);
     if (file)
     {
-        std::cout << "dkhalt assidi" << std::endl;
         this->Status = 200;
         header = "HTTP/1.1 200 OK\r\nContent-type: ";
     }

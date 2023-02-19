@@ -54,10 +54,6 @@ std::string Response::handle_get_request(std::string Path, std::string contentTy
     std::string file_content;
     std::string res;
 
-
-    size_t next_pos = Path.find('?');
-    if (next_pos != std::string::npos) 
-        Path = Path.substr(0, next_pos);
     if (file)
     {
         if (Path.find(".", 0) == std::string::npos)

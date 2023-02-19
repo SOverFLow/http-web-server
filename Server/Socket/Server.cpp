@@ -78,12 +78,9 @@ void Server::clients_accept(std::vector<int> &sockets, std::vector<Client> &clie
             exit(1);
         }
         clients.push_back(new_client);
-        // std::cout << root_paths[i] << std::endl;
         respond_to_clients(new_client.sock, root_paths[i]);
     }
 }
-
-
 
 void Server::respond_to_clients(int client_socket, std::string root_path)
 {
@@ -108,14 +105,21 @@ void Server::respond_to_clients(int client_socket, std::string root_path)
     
     // cookie_handler(buffer);
     // if (req.Method == "POST")
-    //     parse_upload_post_data(buffer);         
+    //     parse_upload_post_data(buffer);    
+
+    std::cout << full_path << std::endl;     
     if (!req.is_Cgi)
     {
       Response res(full_path, req.Method, req.Content_Type, client_socket, req.is_Cgi);
       this->data = res.res_to_client;
     }
     else
+    {
+        int len = full_path.length();
+        if(full_path[len - 1] == '/')
+            full_path = full_path + "index.php";
         this->data = Cgi_Handler(full_path, NULL);
+    }
     int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
     close(client_socket);
     if (num_sent == -1) 

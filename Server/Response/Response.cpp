@@ -27,24 +27,10 @@ Response::Response(std::string Path, std::string method, std::string contentType
         this->res_to_client = handel_delete_request(Path);
 }
 
-void Response::handle_cgi_request(std::string cgi_path, std::string query)
-{
-    setenv("QUERY", query.data(), 1);
-    setenv("METHOD", "GET", 1);
-
-    int pid = fork();
-    if (pid == 0)
-    {
-        execve(cgi_path.data(), (char *const *)cgi_path.data(), NULL);
-        exit(0);
-    }
-    else
-        waitpid(pid,NULL,0);
-}
 
 std::string Response::read_file_content(std::string Path)
 {
-    std::ifstream file(Path.substr(1), std::ios::binary);
+    std::ifstream file(Path, std::ios::binary);
     std::stringstream buffer;
     buffer << file.rdbuf();
     std::string file_contents = buffer.str();
@@ -54,9 +40,10 @@ std::string Response::read_file_content(std::string Path)
 std::string Response::check_request_path(std::string Path)
 {
     std::string header;
-    std::ifstream file(Path.substr(1), std::ios::binary);
+    std::ifstream file(Path, std::ios::binary);
     if (file)
     {
+        std::cout << "dkhalt assidi" << std::endl;
         this->Status = 200;
         header = "HTTP/1.1 200 OK\r\nContent-type: ";
     }

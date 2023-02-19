@@ -56,6 +56,7 @@ std::vector<int> Server::setup_sockets(std::vector<ServerBlock> &servers)
             exit(1);  
         }
         ret_sockets.push_back(servers[i].sock_fd);
+        root_paths.push_back(servers[i].root);
         std::cout << "listening on port => " << servers[i].port << std::endl;
 
     }
@@ -77,15 +78,17 @@ void Server::clients_accept(std::vector<int> &sockets, std::vector<Client> &clie
             exit(1);
         }
         clients.push_back(new_client);
-        respond_to_clients(new_client.sock);
+        // std::cout << root_paths[i] << std::endl;
+        respond_to_clients(new_client.sock, root_paths[i]);
     }
 }
 
 
 
-void Server::respond_to_clients(int client_socket)
+void Server::respond_to_clients(int client_socket, std::string root_path)
 {
     char buffer[1024];
+    std::string full_path;
     int num_bytes = recv(client_socket, buffer, sizeof(buffer), 0);
     if (num_bytes == -1) 
     {
@@ -100,17 +103,18 @@ void Server::respond_to_clients(int client_socket)
         return;
     }
     Request req(buffer);
-
+    full_path = root_path + req.Path.substr(1);
+    
     // cookie_handler(buffer);
     // if (req.Method == "POST")
     //     parse_upload_post_data(buffer);
     if (!req.is_Cgi)
     {
-      Response res(req.Path, req.Method, req.Content_Type, client_socket, req.is_Cgi);
+      Response res(full_path, req.Method, req.Content_Type, client_socket, req.is_Cgi);
       this->data = res.res_to_client;
     }
     else
-        this->data = Cgi_Handler(req.Path.substr(1), NULL);
+        this->data = Cgi_Handler(full_path, NULL);
     int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
     close(client_socket);
     if (num_sent == -1) 

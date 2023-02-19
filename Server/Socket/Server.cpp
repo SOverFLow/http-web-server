@@ -82,8 +82,6 @@ void Server::clients_accept(std::vector<int> &sockets, std::vector<Client> &clie
     }
 }
 
-
-
 void Server::respond_to_clients(int client_socket, std::string root_path)
 {
     char buffer[1024];

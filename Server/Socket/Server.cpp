@@ -107,7 +107,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path)
     
     // cookie_handler(buffer);
     // if (req.Method == "POST")
-    //     parse_upload_post_data(buffer);
+    //     parse_upload_post_data(buffer);         
     if (!req.is_Cgi)
     {
       Response res(full_path, req.Method, req.Content_Type, client_socket, req.is_Cgi);

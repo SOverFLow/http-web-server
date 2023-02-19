@@ -78,7 +78,6 @@ void Server::clients_accept(std::vector<int> &sockets, std::vector<Client> &clie
             exit(1);
         }
         clients.push_back(new_client);
-        // std::cout << root_paths[i] << std::endl;
         respond_to_clients(new_client.sock, root_paths[i]);
     }
 }

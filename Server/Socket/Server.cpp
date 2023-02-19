@@ -104,6 +104,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path)
     }
     Request req(buffer);
     full_path = root_path + req.Path.substr(1);
+    std::cout << full_path << std::endl;
     
     // cookie_handler(buffer);
     // if (req.Method == "POST")

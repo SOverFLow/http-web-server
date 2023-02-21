@@ -20,7 +20,7 @@ ServerBlock::ServerBlock()
 
 ServerBlock::~ServerBlock()
 {
-
+    this->CgiStatus = false;
 }
 
 Config::Config( std::string Path )
@@ -66,9 +66,9 @@ Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string 
         if (splited[0] == "{")
             std::getline(ConfigFile, line);
     }
-    while (line != "}")
+    splited = ft_split(line);
+    while (splited[0] != "}")
     {
-        splited = ft_split(line);
         std::vector<std::string>::iterator it = splited.begin();
         if (*it == "root")
             Instance->root = *(++it);
@@ -76,7 +76,14 @@ Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string 
             Instance->index.insert(Instance->index.begin(), splited.begin() + 1, splited.end());
         else if (*it == "allowed_method")
             Instance->allowed_method.insert(Instance->allowed_method.begin(), splited.begin() + 1, splited.end());
+        else if (*it == "cgi")
+        {
+            Instance->CgiStatus = true;
+            Instance->CgiLang == splited[1];
+            Instance->CgiPath == splited[0];
+        }
         std::getline(ConfigFile, line);
+        splited = ft_split(line);
     }
     return (*Instance);
 
@@ -102,6 +109,12 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
             Instance->allowed_method.insert(Instance->allowed_method.begin(), splited.begin() + 1, splited.end());
         else if (*it == "location")
             Instance->Locations.push_back(SetLocation(ConfigFile, line, *(++it)));
+        else if (*it == "cgi")
+        {
+            Instance->CgiStatus = true;
+            Instance->CgiLang == splited[1];
+            Instance->CgiPath == splited[0];
+        }
         std::getline(ConfigFile, line);
     }
     return (*Instance);

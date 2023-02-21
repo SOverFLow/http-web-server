@@ -10,6 +10,7 @@ class ServerConfig
     public:
         std::string root;
         bool        directory_listing;
+        bool        CgiStatus;
         int         port;
         std::string host;
         std::string server_names;
@@ -17,6 +18,8 @@ class ServerConfig
         std::vector<std::string> index;
         std::vector<std::string> allowed_method;
         std::string directory_answer;
+        std::string CgiLang;
+        std::string CgiPath;
         ServerConfig();
         ~ServerConfig();
     private:

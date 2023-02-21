@@ -79,8 +79,8 @@ Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string 
         else if (*it == "cgi")
         {
             Instance->CgiStatus = true;
-            Instance->CgiLang == splited[1];
-            Instance->CgiPath == splited[0];
+            Instance->CgiLang = splited[1];
+            Instance->CgiPath = splited[0];
         }
         std::getline(ConfigFile, line);
         splited = ft_split(line);
@@ -112,8 +112,8 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
         else if (*it == "cgi")
         {
             Instance->CgiStatus = true;
-            Instance->CgiLang == splited[1];
-            Instance->CgiPath == splited[0];
+            Instance->CgiLang = splited[1];
+            Instance->CgiPath = splited[0];
         }
         std::getline(ConfigFile, line);
     }

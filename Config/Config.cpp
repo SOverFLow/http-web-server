@@ -20,7 +20,8 @@ ServerBlock::ServerBlock()
 
 ServerBlock::~ServerBlock()
 {
-
+    this->CgiStatus = false;
+    this->redirect = false;
 }
 
 Config::Config( std::string Path )
@@ -32,6 +33,8 @@ Config::Config( std::string Path )
 Locations::Locations( std::string Name )
 {
     this->Name = Name;
+    this->CgiStatus = false;
+    this->redirect = false;
 }
 Locations::~Locations(){}
 Config::~Config(){}
@@ -66,9 +69,9 @@ Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string 
         if (splited[0] == "{")
             std::getline(ConfigFile, line);
     }
-    while (line != "}")
+    splited = ft_split(line);
+    while (splited[0] != "}")
     {
-        splited = ft_split(line);
         std::vector<std::string>::iterator it = splited.begin();
         if (*it == "root")
             Instance->root = *(++it);
@@ -76,7 +79,27 @@ Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string 
             Instance->index.insert(Instance->index.begin(), splited.begin() + 1, splited.end());
         else if (*it == "allowed_method")
             Instance->allowed_method.insert(Instance->allowed_method.begin(), splited.begin() + 1, splited.end());
+        else if (*it == "cgi")
+        {
+            Instance->CgiStatus = true;
+            Instance->CgiLang = splited[1];
+            Instance->CgiPath = splited[2];
+        }
+        else if (splited[0] == "autoindex")
+        {
+            if (splited[1] == "on")
+                Instance->autoindex = true;
+            else 
+                Instance->autoindex = false;
+        }
+        else if (splited[0] == "return")
+        {
+            Instance->redirect = true;
+            Instance->redirect_code = std::atoi(splited[1].c_str());
+            Instance->redirect_url = splited[2];
+        }
         std::getline(ConfigFile, line);
+        splited = ft_split(line);
     }
     return (*Instance);
 
@@ -85,10 +108,9 @@ Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string 
 ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
 {
     ServerBlock *Instance = new ServerBlock();
-    std::string token;
-    while (line != "}")
+    std::vector<std::string> splited = ft_split(line);
+    while (splited[0] != "}")
     {
-        std::vector<std::string> splited = ft_split(line);
         std::vector<std::string>::iterator it = splited.begin();
         if (*it == "root")
             Instance->root = *(++it);
@@ -102,7 +124,27 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
             Instance->allowed_method.insert(Instance->allowed_method.begin(), splited.begin() + 1, splited.end());
         else if (*it == "location")
             Instance->Locations.push_back(SetLocation(ConfigFile, line, *(++it)));
+        else if (*it == "cgi")
+        {
+            Instance->CgiStatus = true;
+            Instance->CgiLang = splited[1];
+            Instance->CgiPath = splited[2];
+        }
+        else if (splited[0] == "autoindex")
+        {
+            if (splited[1] == "on")
+                Instance->autoindex = true;
+            else 
+                Instance->autoindex = false;
+        }
+        else if (splited[0] == "return")
+        {
+            Instance->redirect = true;
+            Instance->redirect_code = std::atoi(splited[1].c_str());
+            Instance->redirect_url = splited[2];
+        }
         std::getline(ConfigFile, line);
+        splited = ft_split(line);
     }
     return (*Instance);
 }

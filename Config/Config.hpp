@@ -9,14 +9,20 @@ class ServerConfig
 {
     public:
         std::string root;
-        bool        directory_listing;
+        bool        autoindex;
+        bool        redirect;
+        bool        CgiStatus;
         int         port;
+        int         redirect_code;
+        std::string redirect_url;
         std::string host;
         std::string server_names;
         size_t client_max_body_size;
         std::vector<std::string> index;
         std::vector<std::string> allowed_method;
         std::string directory_answer;
+        std::string CgiLang;
+        std::string CgiPath;
         ServerConfig();
         ~ServerConfig();
     private:

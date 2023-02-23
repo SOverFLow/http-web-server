@@ -111,15 +111,12 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     if (check_if_url_is_location(req.Path.substr(1), server.Locations))
     { 
         full_path = get_root_location(req.Path.substr(1), server.Locations);
-        std::cout << full_path << std::endl;
     }
-    // std::cout << full_path << std::endl;
     
     // cookie_handler(buffer);
     // if (req.Method == "POST")
     //     parse_upload_post_data(buffer);    
-
-    // std::cout << full_path << std::endl;     
+    
     if (!req.is_Cgi)
     {
       Response res(full_path, req.Method, req.Content_Type, client_socket, req.is_Cgi);

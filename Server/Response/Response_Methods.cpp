@@ -47,6 +47,15 @@ std::string	Response::handel_delete_request(std::string file_path)
     return (res);
 }
 
+std::string get_index_file_name(std::vector<std::string> index)
+{
+    for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); ++it) 
+    {
+        std::cout << "--> " << *it << std::endl;
+         //std::ifstream file(*it, std::ios::binary);
+    }
+    return ("");
+}
 
 std::string Response::handle_get_request(std::string Path, std::string contentType)
 {
@@ -60,6 +69,8 @@ std::string Response::handle_get_request(std::string Path, std::string contentTy
         {
             if (Path.find("/", 1) == std::string::npos)
                 Path = Path + "/";
+            
+
             std::string s = Path + "index.html";
             std::ifstream index(s.substr(1), std::ios::binary);
             if (index)
@@ -82,8 +93,14 @@ std::string Response::handle_get_request(std::string Path, std::string contentTy
     }
     else if (Path == "/")
     {
+        std::cout << "wi dkhalt" << std::endl;
+
         res = check_request_path("/index.html") + contentType + "\r\n\r\n";
-        file_content = read_file_content("/index.html");
+        if (this->Status == 404)
+            file_content = read_file_content("/Error_Pages/404.html");
+        else
+            file_content = read_file_content("/index.html");
+            
         res += file_content; 
     }
     else

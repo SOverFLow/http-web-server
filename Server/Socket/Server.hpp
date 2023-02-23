@@ -39,3 +39,9 @@ class Server
 };
 
 void parse_upload_post_data(std::string http_request);
+int set_nonblocking(int fd);
+std::vector<pollfd> create_pollfds(std::vector<ServerBlock>& servers);
+void handle_new_connection(int listening_socket, std::vector<pollfd> &fds);
+int check_if_url_is_location(std::string url, std::vector<Locations> locations);
+std::string get_root_location(std::string url, std::vector<Locations> locations);
+

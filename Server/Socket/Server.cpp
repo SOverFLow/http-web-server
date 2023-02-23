@@ -50,6 +50,7 @@ void Server::connection(std::vector<ServerBlock> &servers)
     std::vector<pollfd> pollfds = create_pollfds(servers);
     std::vector<Client> clients;
 
+    int tmp = 0;
     while(1)
     {
         int ready_count = poll(&pollfds[0], pollfds.size(), -1);
@@ -64,11 +65,11 @@ void Server::connection(std::vector<ServerBlock> &servers)
                 {
                    
                     handle_new_connection(servers[i].sock_fd, pollfds);
+                    tmp = i;
                 }
                  else 
                  {
-                    std::cout << "Connection" << std::endl;
-                    respond_to_clients(pollfds[i].fd, "/www/templete/");
+                    respond_to_clients(pollfds[i].fd, root_paths[tmp]);
                  }
             }
         }
@@ -136,13 +137,13 @@ void Server::respond_to_clients(int client_socket, std::string root_path)
     }
     Request req(buffer);
     full_path = root_path + req.Path.substr(1);
-    std::cout << full_path << std::endl;
+    // std::cout << full_path << std::endl;
     
     // cookie_handler(buffer);
     // if (req.Method == "POST")
     //     parse_upload_post_data(buffer);    
 
-    std::cout << full_path << std::endl;     
+    // std::cout << full_path << std::endl;     
     if (!req.is_Cgi)
     {
       Response res(full_path, req.Method, req.Content_Type, client_socket, req.is_Cgi);

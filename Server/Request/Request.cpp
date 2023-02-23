@@ -87,5 +87,6 @@ void Request::InitMime(std::map<std::string, std::string> &mime)
     mime["jad"] = "text/vnd.sun.j2me.app-descriptor";
     mime["wml"] = "text/vnd.wap.wml";
     mime["htc"] = "text/x-component";
+    mime["mp4"] = "video/mp4";
     mime["ico"] = "image/x-icon";
 }

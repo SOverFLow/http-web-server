@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/select.h>
+#include <poll.h>
 #include "../Request/Request.hpp"
 #include "../Response/Response.hpp"
 #include "../../Config/Config.hpp"

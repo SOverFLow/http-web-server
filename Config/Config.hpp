@@ -32,9 +32,10 @@ class ServerConfig
 class Locations : public ServerConfig
 {
     public:
-    std::string Name;
-    Locations( std::string Name );
-    ~Locations();
+        std::string Name;
+        int port;
+        Locations( std::string Name );
+        ~Locations();
 
     private:
     

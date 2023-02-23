@@ -13,37 +13,6 @@ Client::Client()
 }
 
 
-int set_nonblocking(int fd) {
-    int flags = fcntl(fd, F_GETFL, 0);
-    if (flags == -1) {
-        flags = 0;
-    }
-    return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
-}
-
-std::vector<pollfd> create_pollfds(std::vector<ServerBlock>& servers) {
-    std::vector<pollfd> pollfds;
-    for (std::vector<ServerBlock>::iterator it = servers.begin(); it != servers.end(); ++it) 
-    {
-        pollfd pfd = { it->sock_fd, POLLIN, 0 };
-        pollfds.push_back(pfd);
-    }
-    return pollfds;
-}
-
-void handle_new_connection(int listening_socket, std::vector<pollfd> &fds) {
-    int client_socket = accept(listening_socket, NULL, NULL);
-    if (client_socket < 0) {
-        perror("Error accepting new connection");
-        return;
-    }
-    set_nonblocking(client_socket);
-    pollfd pfd = {client_socket, POLLIN, 0};
-    fds.push_back(pfd);
-}
-
-
-
 void Server::connection(std::vector<ServerBlock> &servers)
 {
     this->sockets = setup_sockets(servers);
@@ -69,7 +38,7 @@ void Server::connection(std::vector<ServerBlock> &servers)
                 }
                  else 
                  {
-                    respond_to_clients(pollfds[i].fd, root_paths[tmp]);
+                    respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp]);
                  }
             }
         }
@@ -118,7 +87,7 @@ std::vector<int> Server::setup_sockets(std::vector<ServerBlock> &servers)
 }
 
 
-void Server::respond_to_clients(int client_socket, std::string root_path)
+void Server::respond_to_clients(int client_socket, std::string root_path, ServerBlock server)
 {
     char buffer[1024];
     std::string full_path;
@@ -136,7 +105,14 @@ void Server::respond_to_clients(int client_socket, std::string root_path)
         return;
     }
     Request req(buffer);
+
     full_path = root_path + req.Path.substr(1);
+
+    if (check_if_url_is_location(req.Path.substr(1), server.Locations))
+    { 
+        full_path = get_root_location(req.Path.substr(1), server.Locations);
+        std::cout << full_path << std::endl;
+    }
     // std::cout << full_path << std::endl;
     
     // cookie_handler(buffer);

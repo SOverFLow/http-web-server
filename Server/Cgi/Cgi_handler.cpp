@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+
 std::string     Cgi_Handler(std::string path, char **env)
 {
     char *buff;

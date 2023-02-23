@@ -33,9 +33,7 @@ class Server
         std::vector<std::string> root_paths;
         std::vector<int> setup_sockets(std::vector<ServerBlock> &servers);
         void connection(std::vector<ServerBlock> &servers);
-        //void handle_new_connection(int server_socket);
         void handle_client_request(int client_socket);
-        void clients_accept(std::vector<int> &sockets, std::vector<Client> &clients);
         void respond_to_clients(int client_socket, std::string root_path);
 };
 

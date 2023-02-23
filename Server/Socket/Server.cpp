@@ -13,7 +13,6 @@ Client::Client()
 }
 
 
-
 int set_nonblocking(int fd) {
     int flags = fcntl(fd, F_GETFL, 0);
     if (flags == -1) {
@@ -117,24 +116,6 @@ std::vector<int> Server::setup_sockets(std::vector<ServerBlock> &servers)
     return (ret_sockets);
 }
 
-
-
-
-void Server::clients_accept(std::vector<int> &sockets, std::vector<Client> &clients)
-{
-    for (int i = 0; i < sockets.size(); i++)
-    {
-        Client new_client;
-        new_client.sock = accept(sockets[i], (struct sockaddr *)&new_client.address, (socklen_t*)&new_client.address_len);
-        if (new_client.sock < 0)
-        {
-            std::cout << "Error in accept" << std::endl;
-            exit(1);
-        }
-        clients.push_back(new_client);
-        respond_to_clients(new_client.sock, root_paths[i]);
-    }
-}
 
 void Server::respond_to_clients(int client_socket, std::string root_path)
 {

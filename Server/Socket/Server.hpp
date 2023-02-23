@@ -35,7 +35,7 @@ class Server
         std::vector<int> setup_sockets(std::vector<ServerBlock> &servers);
         void connection(std::vector<ServerBlock> &servers);
         void handle_client_request(int client_socket);
-        void respond_to_clients(int client_socket, std::string root_path);
+        void respond_to_clients(int client_socket, std::string root_path, ServerBlock server);
 };
 
 void parse_upload_post_data(std::string http_request);

@@ -69,7 +69,7 @@ void Server::connection(std::vector<ServerBlock> &servers)
                 }
                  else 
                  {
-                    respond_to_clients(pollfds[i].fd, root_paths[tmp]);
+                    respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp]);
                  }
             }
         }
@@ -117,8 +117,19 @@ std::vector<int> Server::setup_sockets(std::vector<ServerBlock> &servers)
     return (ret_sockets);
 }
 
+int check_if_url_is_location(std::string url, std::vector<Locations> locations)
+{
 
-void Server::respond_to_clients(int client_socket, std::string root_path)
+    for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it) 
+    {
+        if (url == it->Name)
+            return (1); 
+    }
+    return (0);
+}
+
+
+void Server::respond_to_clients(int client_socket, std::string root_path, ServerBlock server)
 {
     char buffer[1024];
     std::string full_path;
@@ -136,7 +147,19 @@ void Server::respond_to_clients(int client_socket, std::string root_path)
         return;
     }
     Request req(buffer);
+
     full_path = root_path + req.Path.substr(1);
+
+    if (check_if_url_is_location(req.Path.substr(1), server.Locations))
+    { 
+        //std::cout << "had location kyna" << std::endl;
+        full_path = server.Locations.begin()->root;
+        std::cout << full_path << std::endl;
+    }
+    else
+    {
+        //std::cout << "no location kyna" << std::endl;
+    }
     // std::cout << full_path << std::endl;
     
     // cookie_handler(buffer);

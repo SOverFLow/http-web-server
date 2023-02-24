@@ -49,7 +49,6 @@ std::string	Response::handel_delete_request(std::string file_path)
 
 std::string get_index_file_name(std::vector<std::string> index, std::string path)
 {
-    std::cout << path << std::endl;
     for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); ++it) 
     {
          std::ifstream file(path.substr(1) + *it, std::ios::binary);

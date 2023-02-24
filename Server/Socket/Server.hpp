@@ -29,13 +29,15 @@ class Server
     private:
         std::string data;
         int max_socket;
+        std::string tmp_path;
+        int path_check;
         std::vector<int> sockets;
         std::vector<Client> clients;
         std::vector<std::string> root_paths;
         std::vector<int> setup_sockets(std::vector<ServerBlock> &servers);
         void connection(std::vector<ServerBlock> &servers);
         void handle_client_request(int client_socket);
-        void respond_to_clients(int client_socket, std::string root_path, ServerBlock server);
+        void respond_to_clients(int client_socket, std::string root_path, ServerBlock server, int tmp);
 };
 
 void parse_upload_post_data(std::string http_request);

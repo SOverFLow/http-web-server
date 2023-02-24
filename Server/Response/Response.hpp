@@ -19,6 +19,7 @@ private:
    std::string response;
    int socket_fd;
    int Status;
+   std::vector<std::string> index_files;
 public:
     Response(std::string Path, std::string method, std::string contentType, int new_socket, bool is_cgi);
     std::string check_request_path(std::string Path);

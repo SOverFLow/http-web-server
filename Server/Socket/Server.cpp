@@ -3,6 +3,7 @@
 
 Server::Server(Config config)
 {
+    path_check = 0;
     connection(config.Servers);
 }
 
@@ -38,7 +39,7 @@ void Server::connection(std::vector<ServerBlock> &servers)
                 }
                  else 
                  {
-                    respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp]);
+                    respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp);
                  }
             }
         }
@@ -87,7 +88,7 @@ std::vector<int> Server::setup_sockets(std::vector<ServerBlock> &servers)
 }
 
 
-void Server::respond_to_clients(int client_socket, std::string root_path, ServerBlock server)
+void Server::respond_to_clients(int client_socket, std::string root_path, ServerBlock server, int tmp)
 {
     char buffer[1024];
     std::string full_path;
@@ -107,10 +108,15 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     Request req(buffer);
 
     full_path = root_path + req.Path.substr(1);
-
     if (check_if_url_is_location(req.Path.substr(1), server.Locations))
     { 
         full_path = get_root_location(req.Path.substr(1), server.Locations);
+        tmp_path = full_path;
+        path_check = tmp;
+    }
+    else if (tmp == path_check && req.Path != "/")
+    {
+        full_path = tmp_path + req.Path;
     }
     
     // cookie_handler(buffer);

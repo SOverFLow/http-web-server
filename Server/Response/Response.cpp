@@ -1,9 +1,10 @@
 #include "Response.hpp"
 #include "../Request/Request.hpp"
 
-Response::Response(std::string Path, std::string method, std::string contentType, int new_socket, bool is_cgi)
+Response::Response(std::string Path, std::string method, std::string contentType, int new_socket, bool is_cgi, std::vector<std::string> indexs)
 {
     this->socket_fd = new_socket;
+    this->index_files = indexs;
     std::string file_content;
 
     if (method == "No")

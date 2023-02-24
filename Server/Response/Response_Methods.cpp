@@ -47,31 +47,41 @@ std::string	Response::handel_delete_request(std::string file_path)
     return (res);
 }
 
-std::string get_index_file_name(std::vector<std::string> index)
+std::string get_index_file_name(std::vector<std::string> index, std::string path)
 {
+    std::cout << path << std::endl;
     for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); ++it) 
     {
-        std::cout << "--> " << *it << std::endl;
-         //std::ifstream file(*it, std::ios::binary);
+         std::ifstream file(path.substr(1) + *it, std::ios::binary);
+         if (file)
+            return (path.substr(1) + *it);
     }
-    return ("");
+    return ("no");
 }
 
 
 void Response::serve_index(std::string Path, std::string contentType)
 {
-    //std::cout << "yes => " << Path.substr(1) << std::endl;
+    std::string correct_index;
+    correct_index = get_index_file_name(this->index_files, Path);
     std::string file_content;
     if (Path.find("/", 1) == std::string::npos)
         Path = Path + "/";
             
-    std::string s = Path + "index.html";
-    std::ifstream index(s.substr(1), std::ios::binary);
+    std::string s = correct_index;
+    std::ifstream index(s, std::ios::binary);
     if (index)
     {
-        this->response = check_request_path(s) + contentType + "\r\n\r\n";
+        this->response = check_request_path("/"+s) + contentType + "\r\n\r\n";
         send(this->socket_fd, this->response.data(), this->response.length(), 0);
-        file_content = read_file_content(s);
+        file_content = read_file_content("/"+s);
+        send(this->socket_fd, file_content.data(), file_content.length(), 0);
+    }
+    else
+    {
+        this->response = "HTTP/1.1 502 Bad Gateway\r\nContent-type: text/html\r\n\r\n";
+        send(this->socket_fd, this->response.data(), this->response.length(), 0);
+        file_content = read_file_content("/Error_Pages/502.html");
         send(this->socket_fd, file_content.data(), file_content.length(), 0);
     }
 }
@@ -81,7 +91,6 @@ void Response::serve_other_files(std::string Path, std::string contentType)
 {
     std::string file_content;
 
-    //std::cout << "others => " << Path.substr(1) << std::endl;
     this->response = check_request_path(Path) + contentType + "\r\n\r\n";
     send(this->socket_fd, this->response.data(), this->response.length(), 0);
     file_content = read_file_content(Path);

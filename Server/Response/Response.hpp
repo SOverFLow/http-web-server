@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <vector>
+#include <sys/stat.h>
 
 class Response
 {
@@ -29,9 +30,12 @@ public:
     std::string	handel_delete_request(std::string file_path);
     void serve_index(std::string Path, std::string contentType);
     void serve_other_files(std::string Path, std::string contentType);
+    void serve_root_path(std::string Path, std::string contentType);
     std::string res_to_client;
 };
 
 void   cookie_handler(std::string http_request);
+std::string get_index_file_name(std::vector<std::string> index, std::string path);
+int		CheckIsFile(const std::string& path);
 
 #endif

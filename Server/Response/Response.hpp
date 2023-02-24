@@ -27,6 +27,8 @@ public:
     std::string handle_get_request(std::string Path, std::string contentType);
     void handle_cgi_request(std::string cgi_path, std::string query);
     std::string	handel_delete_request(std::string file_path);
+    void serve_index(std::string Path, std::string contentType);
+    void serve_other_files(std::string Path, std::string contentType);
     std::string res_to_client;
 };
 

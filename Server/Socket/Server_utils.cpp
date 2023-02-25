@@ -50,3 +50,15 @@ std::string get_root_location(std::string url, std::vector<Locations> locations)
     }
     return ("");
 }
+
+
+std::vector<std::string> get_index_location(std::string url, std::vector<Locations> locations)
+{
+    std::vector<std::string> indexs;
+    for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it) 
+    {
+        if (url == it->Name)
+            return (it->index); 
+    }
+    return (indexs); 
+}

@@ -112,6 +112,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     { 
         full_path = get_root_location(req.Path.substr(1), server.Locations);
         tmp_path = full_path;
+        tmp_index = get_index_location(req.Path.substr(1), server.Locations);
         path_check = tmp;
     }
     else if (tmp == path_check && req.Path != "/")
@@ -125,18 +126,23 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     
     if (!req.is_Cgi)
     {
-        // if (tmp == path_check)
-        // {
-        //     Response res(full_path, req.Method, req.Content_Type,
-        //      client_socket, req.is_Cgi, server.Locations.begin()->index);
-        //     this->data = res.res_to_client;
-        // }
-        // else
-        // {
+        
+        if (tmp == path_check && req.Path != server.root)
+        {
+            // std::cout << "yes dkhalt" << std::endl;
+            // std::cout << "1 => " << req.Path << std::endl;
+            // std::cout << "2 => " << server.root << std::endl;
+            //std::cout << "3 => " << full_path << std::endl;
+            Response res(full_path, req.Method, req.Content_Type,
+             client_socket, req.is_Cgi, tmp_index);
+            this->data = res.res_to_client;
+        }
+        else
+        {
             Response res(full_path, req.Method, req.Content_Type,
             client_socket, req.is_Cgi, server.index);
             this->data = res.res_to_client;
-        // }
+        }
 
     }
     else

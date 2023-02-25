@@ -30,6 +30,7 @@ class Server
         std::string data;
         int max_socket;
         std::string tmp_path;
+        std::vector<std::string> tmp_index;
         int path_check;
         std::vector<int> sockets;
         std::vector<Client> clients;
@@ -46,4 +47,5 @@ std::vector<pollfd> create_pollfds(std::vector<ServerBlock>& servers);
 void handle_new_connection(int listening_socket, std::vector<pollfd> &fds);
 int check_if_url_is_location(std::string url, std::vector<Locations> locations);
 std::string get_root_location(std::string url, std::vector<Locations> locations);
+std::vector<std::string> get_index_location(std::string url, std::vector<Locations> locations);
 

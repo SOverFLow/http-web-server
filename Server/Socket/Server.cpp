@@ -124,7 +124,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     //     parse_upload_post_data(buffer);    
     
 
-
+    std::cout << "hada =>" << full_path << std::endl;
     check_if_path_is_directory(full_path, req.Path, client_socket);
 
     if (!req.is_Cgi)

@@ -71,7 +71,8 @@ void check_if_path_is_directory(std::string full_path, std::string req_path, int
     //std::cout << "req_path: " << req_path <<std::endl;
     // Check if the request path corresponds to a directory
     struct stat path_stat;
-    if (stat(full_path.c_str(), &path_stat) == 0 && S_ISDIR(path_stat.st_mode))
+    std::string all = "/Users/selhanda/Desktop/webserv" + full_path;
+    if (stat( all.c_str(), &path_stat) == 0 && S_ISDIR(path_stat.st_mode))
     {
         // if (req_path.back() != '/')
         // {
@@ -85,27 +86,33 @@ void check_if_path_is_directory(std::string full_path, std::string req_path, int
 
         // else
         // {
-            std::cout << "Im in" << std::endl;
+            //std::cout << "Im in" << std::endl;
             // Generate an HTML document listing the files and subdirectories in the directory
+            std::cout << "yes" << std::endl;
             std::stringstream response;
             response << "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
             response << "<html>\n<head>\n<title>Index of " << req_path << "</title>\n</head>\n<body>\n<h1>Index of " << req_path << "</h1>\n<hr />\n<ul>\n";
             DIR *dir;
             struct dirent *ent;
-            if ((dir = opendir(full_path.c_str())) != NULL)
+            std::cout << "Directory =>" << full_path << std::endl;
+            if ((dir = opendir(all.c_str())) != NULL)
             {
+                std::cout << "yes 2" << std::endl;
                 while ((ent = readdir(dir)) != NULL)
                 {
                     std::string filename = ent->d_name;
                     if (filename != "." && filename != "..")
                     {
-                        std::string path = req_path + filename;
+                        std::string path = filename;
+                        // std::cout << "path = " << path << std::endl;
+                         std::cout << "full_path = " << full_path << std::endl;
                         if (S_ISDIR(ent->d_type))
                         {
-                            response << "<li><a href=\"" << path << "/\">" << filename << "/</a></li>\n";
+                            response << "<li><a href=\"" <<  path << "/\">" << filename << "/</a></li>\n";
                         }
                         else
                         {
+
                             response << "<li><a href=\"" << path << "\">" << filename << "</a></li>\n";
                         }
                     }

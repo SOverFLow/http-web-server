@@ -1,6 +1,5 @@
 #include "Server.hpp"
 
-
 Server::Server(Config config)
 {
     path_check = 0;
@@ -124,6 +123,10 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     // if (req.Method == "POST")
     //     parse_upload_post_data(buffer);    
     
+
+
+    check_if_path_is_directory(full_path, req.Path, client_socket);
+
     if (!req.is_Cgi)
     {
         

@@ -1,6 +1,5 @@
 #include "Response.hpp"
 
-
 int		CheckIsFile(const std::string& path)
 {
 	struct stat s;
@@ -28,6 +27,7 @@ std::string get_index_file_name(std::vector<std::string> index, std::string path
     }
     return ("no");
 }
+
 
 void Response::serve_index(std::string Path, std::string contentType)
 {

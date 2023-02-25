@@ -67,22 +67,25 @@ std::vector<std::string> get_index_location(std::string url, std::vector<Locatio
 
 void check_if_path_is_directory(std::string full_path, std::string req_path, int client_socket)
 {
+    //std::cout << "full_path: " << full_path <<std::endl;
+    //std::cout << "req_path: " << req_path <<std::endl;
     // Check if the request path corresponds to a directory
     struct stat path_stat;
     if (stat(full_path.c_str(), &path_stat) == 0 && S_ISDIR(path_stat.st_mode))
     {
-        if (req_path.back() != '/')
-        {
-            // If the path doesn't end in a trailing slash, redirect to the same path with a trailing slash
-            std::string redirect_path = req_path + "/";
-            std::string response = "HTTP/1.1 301 Moved Permanently\r\nLocation: " + redirect_path + "\r\n\r\n";
-            send(client_socket, response.c_str(), response.length(), 0);
-            close(client_socket);
-            return;
-        }
+        // if (req_path.back() != '/')
+        // {
+        //     // If the path doesn't end in a trailing slash, redirect to the same path with a trailing slash
+        //     std::string redirect_path = req_path + "/";
+        //     std::string response = "HTTP/1.1 301 Moved Permanently\r\nLocation: " + redirect_path + "\r\n\r\n";
+        //     send(client_socket, response.c_str(), response.length(), 0);
+        //     close(client_socket);
+        //     return;
+        // }
 
-        else
-        {
+        // else
+        // {
+            std::cout << "Im in" << std::endl;
             // Generate an HTML document listing the files and subdirectories in the directory
             std::stringstream response;
             response << "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
@@ -114,6 +117,6 @@ void check_if_path_is_directory(std::string full_path, std::string req_path, int
             send(client_socket, response_str.c_str(), response_str.length(), 0);
             close(client_socket);
             return;
-        }
+        // }
     }
 }

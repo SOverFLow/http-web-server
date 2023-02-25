@@ -48,9 +48,9 @@ void Response::serve_index(std::string Path, std::string contentType)
     }
     else
     {
-        this->response = "HTTP/1.1 502 Bad Gateway\r\nContent-type: text/html\r\n\r\n";
+        this->response = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n\r\n";
         send(this->socket_fd, this->response.data(), this->response.length(), 0);
-        file_content = read_file_content("/Error_Pages/502.html");
+        file_content = read_file_content("/Error_Pages/403.html");
         send(this->socket_fd, file_content.data(), file_content.length(), 0);
     }
 }
@@ -85,9 +85,9 @@ void Response::serve_root_path(std::string Path, std::string contentType)
     }
     else
     {
-        this->response = "HTTP/1.1 502 Bad Gateway\r\nContent-type: text/html\r\n\r\n";
+        this->response = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n\r\n";
         send(this->socket_fd, this->response.data(), this->response.length(), 0);
-        file_content = read_file_content("/Error_Pages/502.html");
+        file_content = read_file_content("/Error_Pages/403.html");
         send(this->socket_fd, file_content.data(), file_content.length(), 0);
     }
 }

@@ -125,18 +125,18 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     
     if (!req.is_Cgi)
     {
-        if (tmp == path_check)
-        {
-            Response res(full_path, req.Method, req.Content_Type,
-             client_socket, req.is_Cgi, server.Locations.begin()->index);
-            this->data = res.res_to_client;
-        }
-        else
-        {
+        // if (tmp == path_check)
+        // {
+        //     Response res(full_path, req.Method, req.Content_Type,
+        //      client_socket, req.is_Cgi, server.Locations.begin()->index);
+        //     this->data = res.res_to_client;
+        // }
+        // else
+        // {
             Response res(full_path, req.Method, req.Content_Type,
             client_socket, req.is_Cgi, server.index);
             this->data = res.res_to_client;
-        }
+        // }
 
     }
     else

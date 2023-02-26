@@ -13,6 +13,7 @@
 #include <sys/wait.h>
 #include <vector>
 #include <sys/stat.h>
+#include <dirent.h>
 
 class Response
 {
@@ -21,8 +22,13 @@ private:
    int socket_fd;
    int Status;
    std::vector<std::string> index_files;
+   bool auto_index;
+   std::string full_path;
+   std::string req_path;
 public:
-    Response(std::string Path, std::string method, std::string contentType, int new_socket, bool is_cgi, std::vector<std::string> indexs);
+    Response(std::string Path, std::string method, std::string contentType, int new_socket, 
+    bool is_cgi, std::vector<std::string> indexs, bool autoindex,
+    std::string full_path, std::string req_path);
     std::string check_request_path(std::string Path);
     std::string read_file_content(std::string Path);
     std::string handle_get_request(std::string Path, std::string contentType);
@@ -37,5 +43,6 @@ public:
 void   cookie_handler(std::string http_request);
 std::string get_index_file_name(std::vector<std::string> index, std::string path);
 int		CheckIsFile(const std::string& path);
+void serve_auto_index(std::string full_path, std::string req_path, int client_socket);
 
 #endif

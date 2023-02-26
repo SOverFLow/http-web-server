@@ -123,27 +123,18 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     // if (req.Method == "POST")
     //     parse_upload_post_data(buffer);    
     
-
-    std::cout << "hada =>" << full_path << std::endl;
-    check_if_path_is_directory(full_path, req.Path, client_socket);
-
     if (!req.is_Cgi)
     {
-        
         if (tmp == path_check && req.Path != server.root)
         {
-            // std::cout << "yes dkhalt" << std::endl;
-            // std::cout << "1 => " << req.Path << std::endl;
-            // std::cout << "2 => " << server.root << std::endl;
-            //std::cout << "3 => " << full_path << std::endl;
             Response res(full_path, req.Method, req.Content_Type,
-             client_socket, req.is_Cgi, tmp_index);
+             client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path);
             this->data = res.res_to_client;
         }
         else
         {
             Response res(full_path, req.Method, req.Content_Type,
-            client_socket, req.is_Cgi, server.index);
+            client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path);
             this->data = res.res_to_client;
         }
 

@@ -49,5 +49,4 @@ void handle_new_connection(int listening_socket, std::vector<pollfd> &fds);
 int check_if_url_is_location(std::string url, std::vector<Locations> locations);
 std::string get_root_location(std::string url, std::vector<Locations> locations);
 std::vector<std::string> get_index_location(std::string url, std::vector<Locations> locations);
-void check_if_path_is_directory(std::string full_path, std::string req_path, int client_socket);
 

@@ -3,13 +3,14 @@
 
 Response::Response(std::string Path, std::string method, std::string contentType, int new_socket,
  bool is_cgi, std::vector<std::string> indexs,
-  bool autoindex, std::string full_path, std::string req_path)
+  bool autoindex, std::string full_path, std::string req_path, bool is_location)
 {
     this->socket_fd = new_socket;
     this->index_files = indexs;
     this->auto_index = autoindex;
     this->full_path = full_path;
     this->req_path = req_path;
+    this->is_location = is_location;
     std::string file_content;
 
     if (method == "No")

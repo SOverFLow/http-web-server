@@ -128,13 +128,13 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         if (tmp == path_check && req.Path != server.root)
         {
             Response res(full_path, req.Method, req.Content_Type,
-             client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path);
+             client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true);
             this->data = res.res_to_client;
         }
         else
         {
             Response res(full_path, req.Method, req.Content_Type,
-            client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path);
+            client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false);
             this->data = res.res_to_client;
         }
 

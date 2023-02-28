@@ -87,6 +87,28 @@ std::vector<int> Server::setup_sockets(std::vector<ServerBlock> &servers)
 }
 
 
+std::string get_index_file_name_cgi(std::vector<std::string> index, std::string path)
+{
+    for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); ++it) 
+    {
+         std::ifstream file(path.substr(1) + *it, std::ios::binary);
+         if (file)
+            return (path.substr(1) + *it);
+    }
+    return ("no");
+}
+
+
+
+std::string serve_index_for_cgi(std::string Path, std::vector<std::string> index_files)
+{
+    std::string correct_index;
+    correct_index = get_index_file_name_cgi(index_files, Path);
+    return (correct_index);
+}
+
+
+
 void Server::respond_to_clients(int client_socket, std::string root_path, ServerBlock server, int tmp)
 {
     char buffer[1024];
@@ -153,10 +175,36 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     }
     else
     {
-        int len = full_path.length();
-        if(full_path[len - 1] == '/')
-            full_path = full_path + "index.php";
-        this->data = Cgi_Handler(full_path, NULL);
+        if (check_if_url_is_location(req.Path.substr(1), server.Locations))
+        {
+            full_path = get_root_location(req.Path.substr(1), server.Locations);
+            tmp_path = full_path;
+            tmp_index = get_index_location(req.Path.substr(1), server.Locations);
+            tmp_methods = get_allowed_methods(req.Path.substr(1), server.Locations);
+            path_check = tmp;
+        }
+        else if (tmp == path_check && req.Path != "/")
+        {
+            full_path = tmp_path + req.Path;
+        }
+        // std::cout << req.Path << std::endl;
+        // std::cout << full_path << std::endl;
+        if (full_path.back() == '/')
+            full_path = "/" + serve_index_for_cgi(full_path, tmp_index);
+        else
+        {
+            std::cout << full_path << std::endl;
+            full_path = tmp_path + req.Path.substr(1);
+        }
+    
+
+        //std::cout << "here=>" << full_path << std::endl;
+        if (full_path != "no")
+        {
+            std::ifstream file(full_path.substr(1), std::ios::binary);
+            if (file)
+                this->data = Cgi_Handler(full_path, NULL);
+        }
     }
     int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
     close(client_socket);

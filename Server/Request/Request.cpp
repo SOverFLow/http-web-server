@@ -79,6 +79,7 @@ void Request::InitMime(std::map<std::string, std::string> &mime)
     mime["gif"] = "image/gif";
     mime["jpeg"] = "image/jpeg";
     mime["jpg"] = "image/jpeg";
+    mime["png"] = "image/png";
     mime["js"] = "application/javascript";
     mime["atom"] = "application/atom+xml";
     mime["rss"] = "application/rss+xml";
@@ -89,4 +90,5 @@ void Request::InitMime(std::map<std::string, std::string> &mime)
     mime["htc"] = "text/x-component";
     mime["mp4"] = "video/mp4";
     mime["ico"] = "image/x-icon";
+    mime["svg"] = "image/svg+xml";
 }

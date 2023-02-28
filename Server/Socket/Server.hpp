@@ -31,6 +31,7 @@ class Server
         std::string data;
         int max_socket;
         std::string tmp_path;
+        std::vector<std::string> tmp_methods;
         std::vector<std::string> tmp_index;
         int path_check;
         std::vector<int> sockets;
@@ -49,4 +50,6 @@ void handle_new_connection(int listening_socket, std::vector<pollfd> &fds);
 int check_if_url_is_location(std::string url, std::vector<Locations> locations);
 std::string get_root_location(std::string url, std::vector<Locations> locations);
 std::vector<std::string> get_index_location(std::string url, std::vector<Locations> locations);
+bool Check_is_method_allowed(std::string method, std::vector<std::string> allowed_methods);
+std::vector<std::string> get_allowed_methods(std::string url, std::vector<Locations> locations);
 

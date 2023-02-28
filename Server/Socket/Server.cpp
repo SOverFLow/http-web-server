@@ -112,6 +112,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         full_path = get_root_location(req.Path.substr(1), server.Locations);
         tmp_path = full_path;
         tmp_index = get_index_location(req.Path.substr(1), server.Locations);
+        tmp_methods = get_allowed_methods(req.Path.substr(1), server.Locations);
         path_check = tmp;
     }
     else if (tmp == path_check && req.Path != "/")
@@ -119,21 +120,32 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         full_path = tmp_path + req.Path;
     }
     
+
+
+
     // cookie_handler(buffer);
     // if (req.Method == "POST")
     //     parse_upload_post_data(buffer);    
     
+
     if (!req.is_Cgi)
     {
-        if (tmp == path_check && req.Path != server.root)
+        if (tmp == path_check && req.Path != server.root 
+        && Check_is_method_allowed(req.Method, tmp_methods))
         {
             Response res(full_path, req.Method, req.Content_Type,
              client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true);
             this->data = res.res_to_client;
         }
-        else
+        else if (Check_is_method_allowed(req.Method, server.allowed_method))
         {
             Response res(full_path, req.Method, req.Content_Type,
+            client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false);
+            this->data = res.res_to_client;
+        }
+        else
+        {
+            Response res(full_path, "No", req.Content_Type,
             client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false);
             this->data = res.res_to_client;
         }

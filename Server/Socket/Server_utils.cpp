@@ -62,3 +62,24 @@ std::vector<std::string> get_index_location(std::string url, std::vector<Locatio
     }
     return (indexs); 
 }
+
+bool Check_is_method_allowed(std::string method, std::vector<std::string> allowed_methods)
+{
+    for (std::vector<std::string>::iterator it = allowed_methods.begin(); it != allowed_methods.end(); ++it) 
+    {
+        if (method == *it)
+            return (true); 
+    }
+    return (false);
+}
+
+std::vector<std::string> get_allowed_methods(std::string url, std::vector<Locations> locations)
+{
+    std::vector<std::string> allowed_methods;
+    for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it) 
+    {
+        if (url == it->Name)
+            return (it->allowed_method); 
+    }
+    return (allowed_methods); 
+}

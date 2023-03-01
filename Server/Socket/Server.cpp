@@ -146,10 +146,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
 
 
     // cookie_handler(buffer);
-    // if (req.Method == "POST")
-    //     parse_upload_post_data(buffer);    
     
-
     if (!req.is_Cgi)
     {
         if (tmp == path_check && req.Path != server.root 
@@ -161,6 +158,10 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         }
         else if (Check_is_method_allowed(req.Method, server.allowed_method))
         {
+            //std::cout << req.Method << std::endl;
+            if (req.Method == "POST")
+                parse_upload_post_data(buffer); 
+
             Response res(full_path, req.Method, req.Content_Type,
             client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false);
             this->data = res.res_to_client;
@@ -206,6 +207,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 this->data = Cgi_Handler(full_path, NULL);
         }
     }
+    
     int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
     close(client_socket);
     if (num_sent == -1) 

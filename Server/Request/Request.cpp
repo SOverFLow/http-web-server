@@ -18,6 +18,7 @@ std::string GetMime(std::string Path)
 
 Request::Request(std::string req)
 {
+    this->StatusCode = Is_Request_Well_Formed(req);
     InitMime(this->mime);
     SetMethod(req);
     SetPath(req);
@@ -27,6 +28,52 @@ Request::Request(std::string req)
     else
         this->is_Cgi = false;
 }
+
+
+
+bool Check_Is_Chunked(std::string req)
+{
+    return (true);
+}
+
+bool Check_Encoding_and_ContentLength(std::string req)
+{
+    return  (true);
+}
+
+
+bool Check_Is_Uri_Allowed_Caracters(std::string req)
+{
+    return (true);
+}
+
+bool Check_Is_Uri_Large(std::string req)
+{
+    return (true);
+}
+
+
+bool Check_Request_Body_Size(std::string req)
+{
+    return (true);
+}
+
+int Request::Is_Request_Well_Formed(std::string req)
+{
+    if (!Check_Is_Chunked(req))
+        return (501);
+    if (!Check_Encoding_and_ContentLength(req))
+        return (400);
+    if (!Check_Is_Uri_Allowed_Caracters(req))
+        return (400);
+    if (!Check_Is_Uri_Large(req))
+        return (414);
+    if (!Check_Request_Body_Size(req))
+        return (413);
+
+    return (200);
+}
+
 
 Request::~Request(){}
 

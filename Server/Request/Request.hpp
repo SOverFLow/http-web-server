@@ -17,8 +17,10 @@ class Request
         void SetPath(std::string req);
     public:
         Request(std::string req);
+        int Is_Request_Well_Formed(std::string req);
         ~Request();
         std::string Method;
+        int StatusCode;
         std::string Content_Type;
         std::string Path;
         bool    is_Cgi;

@@ -109,6 +109,14 @@ std::string serve_index_for_cgi(std::string Path, std::vector<std::string> index
 
 
 
+std::string Server::Return_Error_For_Bad_Request(int status)
+{
+    std::string response;
+
+    return (response);
+}
+
+
 void Server::respond_to_clients(int client_socket, std::string root_path, ServerBlock server, int tmp)
 {
     char buffer[1024];
@@ -128,6 +136,11 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     }
     Request req(buffer);
 
+    if (req.StatusCode != 200)
+    {
+        this->data = Return_Error_For_Bad_Request(req.StatusCode);
+    }
+    
     full_path = root_path + req.Path.substr(1);
     if (check_if_url_is_location(req.Path.substr(1), server.Locations))
     { 

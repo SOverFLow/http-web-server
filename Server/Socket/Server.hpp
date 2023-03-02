@@ -42,6 +42,7 @@ class Server
         void handle_client_request(int client_socket);
         void parse_upload_post_data(char * buffer);
         void respond_to_clients(int client_socket, std::string root_path, ServerBlock server, int tmp);
+        std::string Return_Error_For_Bad_Request(int status);
 };
 
 // void parse_upload_post_data(std::string http_request);

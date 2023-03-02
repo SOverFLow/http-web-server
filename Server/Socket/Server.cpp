@@ -109,9 +109,46 @@ std::string serve_index_for_cgi(std::string Path, std::vector<std::string> index
 
 
 
+
+std::string Return_File_Content(std::string Path)
+{
+    std::ifstream file(Path.substr(1), std::ios::binary);
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    std::string file_contents = buffer.str();
+    return (file_contents);
+}
+
 std::string Server::Return_Error_For_Bad_Request(int status)
 {
     std::string response;
+    std::string header;
+    std::string file_content;
+
+    if (status == 501)
+    {
+        header = "HTTP/1.1 501 Not Implemented\r\nContent-type: text/html\r\n\r\n";
+        file_content = Return_File_Content("/Error_Pages/501.html");
+        response = header + file_content;
+    }
+    else if (status == 400)
+    {
+        header = "HTTP/1.1 400 Bad Request\r\nContent-type: text/html\r\n\r\n";
+        file_content = Return_File_Content("/Error_Pages/400.html");
+        response = header + file_content;
+    }
+    else if (status == 414)
+    {
+        header = "HTTP/1.1 414 URI Too Long\r\nContent-type: text/html\r\n\r\n";
+        file_content = Return_File_Content("/Error_Pages/414.html");
+        response = header + file_content;
+    }
+    else if (status == 413)
+    {
+        header = "HTTP/1.1 413 Content Too Large\r\nContent-type: text/html\r\n\r\n";
+        file_content = Return_File_Content("/Error_Pages/413.html");
+        response = header + file_content;
+    }
 
     return (response);
 }
@@ -140,57 +177,11 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     {
         this->data = Return_Error_For_Bad_Request(req.StatusCode);
     }
-    
-    full_path = root_path + req.Path.substr(1);
-    if (check_if_url_is_location(req.Path.substr(1), server.Locations))
-    { 
-        full_path = get_root_location(req.Path.substr(1), server.Locations);
-        tmp_path = full_path;
-        tmp_index = get_index_location(req.Path.substr(1), server.Locations);
-        tmp_methods = get_allowed_methods(req.Path.substr(1), server.Locations);
-        path_check = tmp;
-    }
-    else if (tmp == path_check && req.Path != "/")
+    else 
     {
-        full_path = tmp_path + req.Path;
-    }
-    
-
-
-
-    // cookie_handler(buffer);
-    
-    if (!req.is_Cgi)
-    {
-        if (tmp == path_check && req.Path != server.root 
-        && Check_is_method_allowed(req.Method, tmp_methods))
-        {
-            Response res(full_path, req.Method, req.Content_Type,
-             client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true);
-            this->data = res.res_to_client;
-        }
-        else if (Check_is_method_allowed(req.Method, server.allowed_method))
-        {
-            //std::cout << req.Method << std::endl;
-            if (req.Method == "POST")
-                parse_upload_post_data(buffer); 
-
-            Response res(full_path, req.Method, req.Content_Type,
-            client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false);
-            this->data = res.res_to_client;
-        }
-        else
-        {
-            Response res(full_path, "No", req.Content_Type,
-            client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false);
-            this->data = res.res_to_client;
-        }
-
-    }
-    else
-    {
+        full_path = root_path + req.Path.substr(1);
         if (check_if_url_is_location(req.Path.substr(1), server.Locations))
-        {
+        { 
             full_path = get_root_location(req.Path.substr(1), server.Locations);
             tmp_path = full_path;
             tmp_index = get_index_location(req.Path.substr(1), server.Locations);
@@ -201,26 +192,73 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         {
             full_path = tmp_path + req.Path;
         }
-        // std::cout << req.Path << std::endl;
-        // std::cout << full_path << std::endl;
-        if (full_path.back() == '/')
-            full_path = "/" + serve_index_for_cgi(full_path, tmp_index);
+
+        // cookie_handler(buffer);
+        
+        if (!req.is_Cgi)
+        {
+            if (tmp == path_check && req.Path != server.root 
+            && Check_is_method_allowed(req.Method, tmp_methods))
+            {
+                Response res(full_path, req.Method, req.Content_Type,
+                client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true);
+                this->data = res.res_to_client;
+            }
+            else if (Check_is_method_allowed(req.Method, server.allowed_method))
+            {
+                //std::cout << req.Method << std::endl;
+                if (req.Method == "POST")
+                    parse_upload_post_data(buffer); 
+
+                Response res(full_path, req.Method, req.Content_Type,
+                client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false);
+                this->data = res.res_to_client;
+            }
+            else
+            {
+                Response res(full_path, "No", req.Content_Type,
+                client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false);
+                this->data = res.res_to_client;
+            }
+
+        }
         else
         {
-            std::cout << full_path << std::endl;
-            full_path = tmp_path + req.Path.substr(1);
-        }
-    
+            if (check_if_url_is_location(req.Path.substr(1), server.Locations))
+            {
+                full_path = get_root_location(req.Path.substr(1), server.Locations);
+                tmp_path = full_path;
+                tmp_index = get_index_location(req.Path.substr(1), server.Locations);
+                tmp_methods = get_allowed_methods(req.Path.substr(1), server.Locations);
+                path_check = tmp;
+            }
+            else if (tmp == path_check && req.Path != "/")
+            {
+                full_path = tmp_path + req.Path;
+            }
+            // std::cout << req.Path << std::endl;
+            // std::cout << full_path << std::endl;
+            if (full_path.back() == '/')
+                full_path = "/" + serve_index_for_cgi(full_path, tmp_index);
+            else
+            {
+                std::cout << full_path << std::endl;
+                full_path = tmp_path + req.Path.substr(1);
+            }
+        
 
-        //std::cout << "here=>" << full_path << std::endl;
-        if (full_path != "no")
-        {
-            std::ifstream file(full_path.substr(1), std::ios::binary);
-            if (file)
-                this->data = Cgi_Handler(full_path, NULL);
+            //std::cout << "here=>" << full_path << std::endl;
+            if (full_path != "no")
+            {
+                std::ifstream file(full_path.substr(1), std::ios::binary);
+                if (file)
+                    this->data = Cgi_Handler(full_path, NULL);
+            }
         }
     }
     
+    
+
     int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
     close(client_socket);
     if (num_sent == -1) 

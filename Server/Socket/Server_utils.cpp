@@ -146,3 +146,13 @@ bool check_if_location_has_redirect(std::string url, std::vector<Locations> loca
     }
     return (false);
 }
+
+bool Check_Cgi_Location_Status(std::string url, std::vector<Locations> locations)
+{
+    for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it) 
+    {
+        if (url == it->Name)
+            return (it->CgiStatus);
+    }
+    return (false);
+}

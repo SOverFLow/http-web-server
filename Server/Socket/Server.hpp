@@ -57,4 +57,5 @@ bool Check_is_method_allowed(std::string method, std::vector<std::string> allowe
 std::vector<std::string> get_allowed_methods(std::string url, std::vector<Locations> locations);
 std::string get_redirect_url_for_location(std::string url, std::vector<Locations> locations);
 bool check_if_location_has_redirect(std::string url, std::vector<Locations> locations);
+bool Check_Cgi_Location_Status(std::string url, std::vector<Locations> locations);
 

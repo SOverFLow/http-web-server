@@ -83,3 +83,66 @@ std::vector<std::string> get_allowed_methods(std::string url, std::vector<Locati
     }
     return (allowed_methods); 
 }
+
+std::string Server::Return_Error_For_Bad_Request(int status)
+{
+    std::string response;
+    std::string header;
+    std::string file_content;
+
+    if (status == 501)
+    {
+        header = "HTTP/1.1 501 Not Implemented\r\nContent-type: text/html\r\n\r\n";
+        file_content = Return_File_Content("/Error_Pages/501.html");
+        response = header + file_content;
+    }
+    else if (status == 400)
+    {
+        header = "HTTP/1.1 400 Bad Request\r\nContent-type: text/html\r\n\r\n";
+        file_content = Return_File_Content("/Error_Pages/400.html");
+        response = header + file_content;
+    }
+    else if (status == 414)
+    {
+        header = "HTTP/1.1 414 URI Too Long\r\nContent-type: text/html\r\n\r\n";
+        file_content = Return_File_Content("/Error_Pages/414.html");
+        response = header + file_content;
+    }
+    else if (status == 413)
+    {
+        header = "HTTP/1.1 413 Content Too Large\r\nContent-type: text/html\r\n\r\n";
+        file_content = Return_File_Content("/Error_Pages/413.html");
+        response = header + file_content;
+    }
+
+    return (response);
+}
+
+std::string Return_File_Content(std::string Path)
+{
+    std::ifstream file(Path.substr(1), std::ios::binary);
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    std::string file_contents = buffer.str();
+    return (file_contents);
+}
+
+std::string get_redirect_url_for_location(std::string url, std::vector<Locations> locations)
+{
+    for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it) 
+    {
+        if (url == it->Name)
+            return (it->redirect_url); 
+    }
+    return ("");
+}
+
+bool check_if_location_has_redirect(std::string url, std::vector<Locations> locations)
+{
+    for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it) 
+    {
+        if (url == it->Name)
+            return (it->redirect);
+    }
+    return (false);
+}

@@ -108,52 +108,6 @@ std::string serve_index_for_cgi(std::string Path, std::vector<std::string> index
 }
 
 
-
-
-std::string Return_File_Content(std::string Path)
-{
-    std::ifstream file(Path.substr(1), std::ios::binary);
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    std::string file_contents = buffer.str();
-    return (file_contents);
-}
-
-std::string Server::Return_Error_For_Bad_Request(int status)
-{
-    std::string response;
-    std::string header;
-    std::string file_content;
-
-    if (status == 501)
-    {
-        header = "HTTP/1.1 501 Not Implemented\r\nContent-type: text/html\r\n\r\n";
-        file_content = Return_File_Content("/Error_Pages/501.html");
-        response = header + file_content;
-    }
-    else if (status == 400)
-    {
-        header = "HTTP/1.1 400 Bad Request\r\nContent-type: text/html\r\n\r\n";
-        file_content = Return_File_Content("/Error_Pages/400.html");
-        response = header + file_content;
-    }
-    else if (status == 414)
-    {
-        header = "HTTP/1.1 414 URI Too Long\r\nContent-type: text/html\r\n\r\n";
-        file_content = Return_File_Content("/Error_Pages/414.html");
-        response = header + file_content;
-    }
-    else if (status == 413)
-    {
-        header = "HTTP/1.1 413 Content Too Large\r\nContent-type: text/html\r\n\r\n";
-        file_content = Return_File_Content("/Error_Pages/413.html");
-        response = header + file_content;
-    }
-
-    return (response);
-}
-
-
 void Server::respond_to_clients(int client_socket, std::string root_path, ServerBlock server, int tmp)
 {
     char buffer[1024];
@@ -182,6 +136,14 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         full_path = root_path + req.Path.substr(1);
         if (check_if_url_is_location(req.Path.substr(1), server.Locations))
         { 
+            if (check_if_location_has_redirect(req.Path.substr(1), server.Locations))
+            {
+                this->data = "HTTP/1.1 301 Moved Permanently\r\nLocation: " + get_redirect_url_for_location(req.Path.substr(1), server.Locations) + "\r\n\r\n";
+                int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                close(client_socket);
+                return ;
+            }
+            
             full_path = get_root_location(req.Path.substr(1), server.Locations);
             tmp_path = full_path;
             tmp_index = get_index_location(req.Path.substr(1), server.Locations);

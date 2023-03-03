@@ -46,6 +46,7 @@ class Server
 };
 
 // void parse_upload_post_data(std::string http_request);
+std::string Return_File_Content(std::string Path);
 int set_nonblocking(int fd);
 std::vector<pollfd> create_pollfds(std::vector<ServerBlock>& servers);
 void handle_new_connection(int listening_socket, std::vector<pollfd> &fds);
@@ -54,4 +55,6 @@ std::string get_root_location(std::string url, std::vector<Locations> locations)
 std::vector<std::string> get_index_location(std::string url, std::vector<Locations> locations);
 bool Check_is_method_allowed(std::string method, std::vector<std::string> allowed_methods);
 std::vector<std::string> get_allowed_methods(std::string url, std::vector<Locations> locations);
+std::string get_redirect_url_for_location(std::string url, std::vector<Locations> locations);
+bool check_if_location_has_redirect(std::string url, std::vector<Locations> locations);
 

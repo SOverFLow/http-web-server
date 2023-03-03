@@ -18,10 +18,10 @@ std::string GetMime(std::string Path)
 
 Request::Request(std::string req)
 {
-    this->StatusCode = Is_Request_Well_Formed(req);
     InitMime(this->mime);
     SetMethod(req);
     SetPath(req);
+    this->StatusCode = Is_Request_Well_Formed(req);
     SetContent();
     if (GetMime(this->Path) == "php")
         this->is_Cgi = true;
@@ -33,28 +33,54 @@ Request::Request(std::string req)
 
 bool Check_Is_Chunked(std::string req)
 {
+    std::string transfer_encoding_header = "Transfer-Encoding: ";
+    size_t transfer_encoding_pos = req.find(transfer_encoding_header);
+    if (transfer_encoding_pos == std::string::npos)
+        return true;
+
+    size_t transfer_encoding_value_pos = transfer_encoding_pos + transfer_encoding_header.size();
+    size_t transfer_encoding_value_end = req.find("\r\n", transfer_encoding_value_pos);
+    std::string transfer_encoding_value = req.substr(transfer_encoding_value_pos, transfer_encoding_value_end - transfer_encoding_value_pos);
+
+    return transfer_encoding_value == "chunked";
+}
+
+bool Check_Encoding_and_ContentLength(std::string req, std::string method)
+{
+    int i = 0;
+    std::string transfer_encoding_header = "Transfer-Encoding: ";
+    size_t transfer_encoding_pos = req.find(transfer_encoding_header);
+    std::string ContentLength_header = "Content-Length: ";
+    size_t ContentLength_pos = req.find(ContentLength_header);
+    if (transfer_encoding_pos == std::string::npos)
+        i = 1;
+    if (ContentLength_pos == std::string::npos && i && method == "POST")
+        return (false);
     return (true);
 }
 
-bool Check_Encoding_and_ContentLength(std::string req)
+
+bool Check_Is_Uri_Allowed_Caracters(std::string uri)
 {
-    return  (true);
+    std::string allowed_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%";
+
+    for (size_t i = 0; i < uri.size(); i++) {
+        if (allowed_chars.find(uri[i]) == std::string::npos)
+            return false;
+    }
+    return true;
 }
 
-
-bool Check_Is_Uri_Allowed_Caracters(std::string req)
+bool Check_Is_Uri_Large(std::string uri)
 {
-    return (true);
-}
-
-bool Check_Is_Uri_Large(std::string req)
-{
-    return (true);
+    return uri.size() > 2048;
 }
 
 
 bool Check_Request_Body_Size(std::string req)
 {
+    //do later 
+    //check if request body size is larger than max body size in config
     return (true);
 }
 
@@ -62,11 +88,11 @@ int Request::Is_Request_Well_Formed(std::string req)
 {
     if (!Check_Is_Chunked(req))
         return (501);
-    if (!Check_Encoding_and_ContentLength(req))
+    if (!Check_Encoding_and_ContentLength(req, this->Method))
         return (400);
-    if (!Check_Is_Uri_Allowed_Caracters(req))
+    if (!Check_Is_Uri_Allowed_Caracters(this->Path))
         return (400);
-    if (!Check_Is_Uri_Large(req))
+    if (Check_Is_Uri_Large(this->Path))
         return (414);
     if (!Check_Request_Body_Size(req))
         return (413);

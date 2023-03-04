@@ -136,12 +136,13 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         if (req.is_Cgi)
         {
             std::string str = req.Path;
-            std::string sub = "/index.php";
-
-            std::size_t found = str.find(sub);
+            std::string filename;
+            std::size_t found = str.find_last_of("/");
             if (found != std::string::npos) {
-                str.erase(found, sub.length());
+                filename = str.substr(found + 1);
+                str = str.substr(0, found);
             }
+           
             if (check_if_url_is_location(str.substr(1), server.Locations))
             { 
                 if (check_if_location_has_redirect(str.substr(1), server.Locations))
@@ -153,8 +154,15 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 }
 
                 std::string root_path = get_root_location(str.substr(1), server.Locations);
-                std::string all_path = "/" + serve_index_for_cgi(root_path, get_index_location(str.substr(1), server.Locations));
-                this->data = Cgi_Handler(all_path, NULL);
+                std::string all_path = root_path + filename;
+                std::ifstream file(all_path.substr(1), std::ios::binary);
+                if (file)
+                    this->data = Cgi_Handler(all_path, NULL);
+                else
+                {
+                    this->data = "HTTP/1.1 404 Not Found Allowed\r\nContent-type: text/html\r\n\r\n";
+                    this->data += Return_File_Content("/Error_Pages/404.html");
+                }
                 int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 close(client_socket);
                 return ;

@@ -126,10 +126,40 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     }
     Request req(buffer);
 
+
+
     if (req.StatusCode != 200)
         this->data = Return_Error_For_Bad_Request(req.StatusCode);
+
     else 
     {
+        if (req.is_Cgi)
+        {
+            std::string str = req.Path;
+            std::string sub = "/index.php";
+
+            std::size_t found = str.find(sub);
+            if (found != std::string::npos) {
+                str.erase(found, sub.length());
+            }
+            if (check_if_url_is_location(str.substr(1), server.Locations))
+            { 
+                if (check_if_location_has_redirect(str.substr(1), server.Locations))
+                {
+                    this->data = "HTTP/1.1 301 Moved Permanently\r\nLocation: " + get_redirect_url_for_location(str.substr(1), server.Locations) + "\r\n\r\n";
+                    int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                    close(client_socket);
+                    return ;
+                }
+
+                std::string root_path = get_root_location(str.substr(1), server.Locations);
+                std::string all_path = "/" + serve_index_for_cgi(root_path, get_index_location(str.substr(1), server.Locations));
+                this->data = Cgi_Handler(all_path, NULL);
+                int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                close(client_socket);
+                return ;
+            }
+        }
         full_path = root_path + req.Path.substr(1);
         if (check_if_url_is_location(req.Path.substr(1), server.Locations))
         { 
@@ -160,28 +190,16 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
             {
                 if (Check_Cgi_Location_Status(req.Path.substr(1), server.Locations))
                 {   
-                    if (!req.is_Cgi)
+                   if (check_if_location_has_redirect(req.Path.substr(1), server.Locations))
                     {
-                        std::cout << "ERROR:" << req.Path << std::endl;
-                        std::cout << "PATH:" << get_root_location(req.Path.substr(1), server.Locations)<< std::endl;
-                        full_path = get_root_location(req.Path.substr(1), server.Locations) + "index.php";
-
-                        this->data = Cgi_Handler(full_path, NULL);
-                        // Response res(full_path, req.Method, req.Content_Type,
-                        // client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true);
-                        // this->data = res.res_to_client;
+                        this->data = "HTTP/1.1 301 Moved Permanently\r\nLocation: " + get_redirect_url_for_location(req.Path.substr(1), server.Locations) + "\r\n\r\n";
+                        int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                        close(client_socket);
+                        return ;
                     }
-                    else
-                    {
-                        //DO cgi job
-                        if (full_path != "no")
-                        {
-                            std::ifstream file(full_path.substr(1), std::ios::binary);
-                            if (file)
-                                this->data = Cgi_Handler(full_path, NULL);
-                        }
-                    }
-
+                    std::string root_path = get_root_location(req.Path.substr(1), server.Locations);
+                    std::string all_path = "/" + serve_index_for_cgi(root_path, get_index_location(req.Path.substr(1), server.Locations));
+                    this->data = Cgi_Handler(all_path, NULL);
                 }
                 else
                 {

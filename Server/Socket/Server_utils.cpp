@@ -156,3 +156,23 @@ bool Check_Cgi_Location_Status(std::string url, std::vector<Locations> locations
     }
     return (false);
 }
+
+std::string get_index_file_name_cgi(std::vector<std::string> index, std::string path)
+{
+    for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); ++it) 
+    {
+         std::ifstream file(path.substr(1) + *it, std::ios::binary);
+         if (file)
+            return (path.substr(1) + *it);
+    }
+    return ("no");
+}
+
+
+
+std::string serve_index_for_cgi(std::string Path, std::vector<std::string> index_files)
+{
+    std::string correct_index;
+    correct_index = get_index_file_name_cgi(index_files, Path);
+    return (correct_index);
+}

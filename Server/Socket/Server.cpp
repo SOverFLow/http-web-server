@@ -45,6 +45,8 @@ void Server::connection(std::vector<ServerBlock> &servers)
     }
 }
 
+
+
 std::vector<int> Server::setup_sockets(std::vector<ServerBlock> &servers)
 {
     std::vector<int> ret_sockets;
@@ -86,26 +88,6 @@ std::vector<int> Server::setup_sockets(std::vector<ServerBlock> &servers)
     return (ret_sockets);
 }
 
-
-std::string get_index_file_name_cgi(std::vector<std::string> index, std::string path)
-{
-    for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); ++it) 
-    {
-         std::ifstream file(path.substr(1) + *it, std::ios::binary);
-         if (file)
-            return (path.substr(1) + *it);
-    }
-    return ("no");
-}
-
-
-
-std::string serve_index_for_cgi(std::string Path, std::vector<std::string> index_files)
-{
-    std::string correct_index;
-    correct_index = get_index_file_name_cgi(index_files, Path);
-    return (correct_index);
-}
 
 void Server::respond_to_clients(int client_socket, std::string root_path, ServerBlock server, int tmp)
 {
@@ -168,7 +150,9 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 return ;
             }
         }
+
         full_path = root_path + req.Path.substr(1);
+
         if (check_if_url_is_location(req.Path.substr(1), server.Locations))
         { 
             if (check_if_location_has_redirect(req.Path.substr(1), server.Locations))
@@ -207,7 +191,15 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     }
                     std::string root_path = get_root_location(req.Path.substr(1), server.Locations);
                     std::string all_path = "/" + serve_index_for_cgi(root_path, get_index_location(req.Path.substr(1), server.Locations));
-                    this->data = Cgi_Handler(all_path, NULL);
+
+                    std::ifstream file(all_path.substr(1), std::ios::binary);
+                    if (file)
+                        this->data = Cgi_Handler(all_path, NULL);
+                    else
+                    {
+                        this->data = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n\r\n";
+                        this->data += Return_File_Content("/Error_Pages/403.html");
+                    }
                 }
                 else
                 {

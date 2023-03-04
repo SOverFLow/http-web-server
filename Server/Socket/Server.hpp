@@ -58,4 +58,6 @@ std::vector<std::string> get_allowed_methods(std::string url, std::vector<Locati
 std::string get_redirect_url_for_location(std::string url, std::vector<Locations> locations);
 bool check_if_location_has_redirect(std::string url, std::vector<Locations> locations);
 bool Check_Cgi_Location_Status(std::string url, std::vector<Locations> locations);
+std::string get_index_file_name_cgi(std::vector<std::string> index, std::string path);
+std::string serve_index_for_cgi(std::string Path, std::vector<std::string> index_files);
 

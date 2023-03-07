@@ -188,3 +188,21 @@ std::string serve_index_for_cgi(std::string Path, std::vector<std::string> index
     correct_index = get_index_file_name_cgi(index_files, Path);
     return (correct_index);
 }
+
+std::string return_redirect_msg(int code)
+{
+    std::string msg;
+    if (code == 301)
+        msg = "Moved Permanently";
+    else if (code == 302)
+        msg = "Found";
+    else if (code == 303)
+        msg = "See Other";
+    else if (code == 304)
+        msg = "Not Modified";
+    else if (code == 307)
+        msg = "Temporary Redirect";
+    else if (code == 308)
+        msg = "Permanent Redirect";
+    return (msg);
+}

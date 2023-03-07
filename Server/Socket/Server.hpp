@@ -61,4 +61,5 @@ bool Check_Cgi_Location_Status(std::string url, std::vector<Locations> locations
 std::string get_index_file_name_cgi(std::vector<std::string> index, std::string path);
 std::string serve_index_for_cgi(std::string Path, std::vector<std::string> index_files);
 int get_redirect_code_for_location(std::string url, std::vector<Locations> locations);
+std::string return_redirect_msg(int code);
 

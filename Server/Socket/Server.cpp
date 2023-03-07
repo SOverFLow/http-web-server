@@ -148,19 +148,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 if (check_if_location_has_redirect(str.substr(1), server.Locations))
                 {
                     int code = get_redirect_code_for_location(str.substr(1), server.Locations);
-                    std::string msg;
-                    if (code == 301)
-                        msg = "Moved Permanently";
-                    else if (code == 302)
-                        msg = "Found";
-                    else if (code == 303)
-                        msg = "See Other";
-                    else if (code == 304)
-                        msg = "Not Modified";
-                    else if (code == 307)
-                        msg = "Temporary Redirect";
-                    else if (code == 308)
-                        msg = "Permanent Redirect";
+                    std::string msg = return_redirect_msg(code);
                     
                     this->data = "HTTP/1.1 " + std::to_string(code) + " " + msg + "\r\nLocation: " + get_redirect_url_for_location(str.substr(1), server.Locations) + "\r\n\r\n";
                     int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
@@ -190,7 +178,10 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         { 
             if (check_if_location_has_redirect(req.Path.substr(1), server.Locations))
             {
-                this->data = "HTTP/1.1 301 Moved Permanently\r\nLocation: " + get_redirect_url_for_location(req.Path.substr(1), server.Locations) + "\r\n\r\n";
+                int code = get_redirect_code_for_location(req.Path.substr(1), server.Locations);
+                std::string msg = return_redirect_msg(code);
+                    
+                this->data = "HTTP/1.1 " + std::to_string(code) + " " + msg + "\r\nLocation: " + get_redirect_url_for_location(req.Path.substr(1), server.Locations) + "\r\n\r\n";
                 int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 close(client_socket);
                 return ;
@@ -217,7 +208,10 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 {   
                    if (check_if_location_has_redirect(req.Path.substr(1), server.Locations))
                     {
-                        this->data = "HTTP/1.1 301 Moved Permanently\r\nLocation: " + get_redirect_url_for_location(req.Path.substr(1), server.Locations) + "\r\n\r\n";
+                        int code = get_redirect_code_for_location(req.Path.substr(1), server.Locations);
+                        std::string msg = return_redirect_msg(code);
+                    
+                        this->data = "HTTP/1.1 " + std::to_string(code) + " " + msg + "\r\nLocation: " + get_redirect_url_for_location(req.Path.substr(1), server.Locations) + "\r\n\r\n";
                         int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                         close(client_socket);
                         return ;

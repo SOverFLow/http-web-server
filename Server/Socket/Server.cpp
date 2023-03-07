@@ -107,7 +107,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         return;
     }
 
-    std::cout << buffer << std::endl;
+    //std::cout << buffer << std::endl;
     Request req(buffer);
 
 
@@ -126,12 +126,43 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 filename = str.substr(found + 1);
                 str = str.substr(0, found);
             }
+
+            if (str.empty())
+            {
+                std::cout << req.Path << std::endl;
+                std::ifstream file(req.Path.substr(1), std::ios::binary);
+                if (file)
+                    this->data = Cgi_Handler(req.Path, NULL);
+                else
+                {
+                    this->data = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n\r\n";
+                    this->data += Return_File_Content("/Error_Pages/404.html");
+                }
+                int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                close(client_socket);
+                return ;
+            }
            
-            if (check_if_url_is_location(str.substr(1), server.Locations))
+            else if (check_if_url_is_location(str.substr(1), server.Locations))
             { 
                 if (check_if_location_has_redirect(str.substr(1), server.Locations))
                 {
-                    this->data = "HTTP/1.1 301 Moved Permanently\r\nLocation: " + get_redirect_url_for_location(str.substr(1), server.Locations) + "\r\n\r\n";
+                    int code = get_redirect_code_for_location(str.substr(1), server.Locations);
+                    std::string msg;
+                    if (code == 301)
+                        msg = "Moved Permanently";
+                    else if (code == 302)
+                        msg = "Found";
+                    else if (code == 303)
+                        msg = "See Other";
+                    else if (code == 304)
+                        msg = "Not Modified";
+                    else if (code == 307)
+                        msg = "Temporary Redirect";
+                    else if (code == 308)
+                        msg = "Permanent Redirect";
+                    
+                    this->data = "HTTP/1.1 " + std::to_string(code) + " " + msg + "\r\nLocation: " + get_redirect_url_for_location(str.substr(1), server.Locations) + "\r\n\r\n";
                     int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                     close(client_socket);
                     return ;
@@ -144,7 +175,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     this->data = Cgi_Handler(all_path, NULL);
                 else
                 {
-                    this->data = "HTTP/1.1 404 Not Found Allowed\r\nContent-type: text/html\r\n\r\n";
+                    this->data = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n\r\n";
                     this->data += Return_File_Content("/Error_Pages/404.html");
                 }
                 int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);

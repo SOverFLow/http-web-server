@@ -20,21 +20,6 @@ echo "<html>", "\n", "\n";
 echo "<head>", "\n";
 
 echo "</head>", "\n", "\n";
-echo "<header>", "\n";
-echo "\t", '<div class="logo">', "\n";
-
-echo "\t", "\t", '<div class="titlename">Webserv</div>', "\n";
-echo "\t", "\t", '<div class="title">euses</div>', "\n";
-echo "\t", '</div>', "\n";
-echo "\t", '<span class="buttonTab">', "\n";
-echo "\t", "\t", '<a href="../index.html"><i class="fas fa-home"></i><span class="tabname">Index</span></a>', "\n";
-echo "\t", '</span>', "\n";
-echo "\t", '<span class="buttonTab">', "\n";
-echo "\t", "\t", '<a href="../form.html"><i class="fas fa-file"></i><span class="tabname">Form</span></a>', "\n";
-echo "\t", '</span>', "\n";
-echo "\t", '<span class="buttonTab active">';
-echo "\t", "\t", '<a href="../upload.html"><i class="fas fa-upload"></i><span class="tabname">Upload</span></a>', "\n";
-echo "\t", '</span>', "\n";
 
 echo '</header>', "\n";
 echo '<body class="main">', "\n";

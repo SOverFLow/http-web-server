@@ -137,6 +137,18 @@ std::string get_redirect_url_for_location(std::string url, std::vector<Locations
     return ("");
 }
 
+
+int get_redirect_code_for_location(std::string url, std::vector<Locations> locations)
+{
+    for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it) 
+    {
+        if (url == it->Name)
+            return (it->redirect_code); 
+    }
+    return (0);
+}
+
+
 bool check_if_location_has_redirect(std::string url, std::vector<Locations> locations)
 {
     for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it) 

@@ -110,6 +110,8 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     //std::cout << buffer << std::endl;
     Request req(buffer);
 
+    //std::cout << req.Body << std::endl;
+
 
 
     if (req.StatusCode != 200)

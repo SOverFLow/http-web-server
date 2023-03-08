@@ -18,8 +18,8 @@ std::string GetMime(std::string Path)
 
 Request::Request(std::string req)
 {
-    SetBody(req);
     InitMime(this->mime);
+    SetBody(req);
     SetMethod(req);
     SetPath(req);
     this->StatusCode = Is_Request_Well_Formed(req);

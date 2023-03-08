@@ -15,6 +15,7 @@ class Request
         void SetMethod(std::string req);
         void SetContent();
         void SetPath(std::string req);
+        void SetBody(std::string req);
     public:
         Request(std::string req);
         int Is_Request_Well_Formed(std::string req);
@@ -22,10 +23,12 @@ class Request
         std::string Method;
         int StatusCode;
         std::string Content_Type;
+        std::string Body;
         std::string Path;
         bool    is_Cgi;
 };
 
 std::string     Cgi_Handler(std::string path, char **env);
+
 
 #endif

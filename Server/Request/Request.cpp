@@ -18,6 +18,7 @@ std::string GetMime(std::string Path)
 
 Request::Request(std::string req)
 {
+    SetBody(req);
     InitMime(this->mime);
     SetMethod(req);
     SetPath(req);
@@ -29,7 +30,12 @@ Request::Request(std::string req)
         this->is_Cgi = false;
 }
 
-
+void Request::SetBody(std::string req)
+{
+    size_t BodyPos;
+    BodyPos = req.find("\r\n\r\n", 0);
+    this->Body = req.substr(BodyPos+4);
+}
 
 bool Check_Is_Chunked(std::string req)
 {

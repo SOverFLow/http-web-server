@@ -220,6 +220,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     std::string all_path = "/" + serve_index_for_cgi(root_path, get_index_location(req.Path.substr(1), server.Locations));
 
                     std::ifstream file(all_path.substr(1), std::ios::binary);
+
                     if (file)
                         this->data = Cgi_Handler(all_path, NULL);
                     else
@@ -237,9 +238,8 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
 
 
             }
-            else if (Check_is_method_allowed(req.Method, server.allowed_method))
+            else if (Check_is_method_allowed(req.Method, server.allowed_method) && !check_if_url_is_location(req.Path.substr(1), server.Locations))
             {
-                //std::cout << req.Method << std::endl;
                 if (req.Method == "POST")
                     parse_upload_post_data(buffer); 
 
@@ -249,9 +249,8 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
             }
             else
             {
-                Response res(full_path, "No", req.Content_Type,
-                client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false);
-                this->data = res.res_to_client;
+                this->data = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n\r\n";
+                this->data += Return_File_Content("/Error_Pages/405.html");
             }
     }
 

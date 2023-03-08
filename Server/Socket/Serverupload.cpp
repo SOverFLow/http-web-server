@@ -6,9 +6,9 @@ void Server::parse_upload_post_data(char * buffer) {
     std::string data(buffer);
     std::string boundary("boundary=");
 
-    std::cout << "=========================" << std::endl;
-    std::cout << data << std::endl;
-    std::cout << "=========================" << std::endl;
+    // std::cout << "=========================" << std::endl;
+    // std::cout << data << std::endl;
+    // std::cout << "=========================" << std::endl;
 
 
     // Find the boundary string in the request

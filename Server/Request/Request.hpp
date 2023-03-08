@@ -23,7 +23,10 @@ class Request
         std::string Method;
         int StatusCode;
         std::string Content_Type;
+        size_t Content_Lenght;
         std::string Body;
+        std::string Host;
+        std::string Qurey_string;
         std::string Path;
         bool    is_Cgi;
 };

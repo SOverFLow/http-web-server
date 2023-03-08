@@ -35,6 +35,7 @@ void Request::SetBody(std::string req)
     size_t BodyPos;
     BodyPos = req.find("\r\n\r\n", 0);
     this->Body = req.substr(BodyPos+4);
+    this->Content_Lenght = Body.size();
 }
 
 bool Check_Is_Chunked(std::string req)

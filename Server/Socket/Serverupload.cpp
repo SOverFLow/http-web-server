@@ -13,10 +13,10 @@ void Server::parse_upload_post_data(char * buffer) {
 
     // Find the boundary string in the request
     size_t pos = data.find(boundary);
-    if (pos == std::string::npos) {
-        std::cout << " boundary not found" << std::endl;
-        return;
-    }
+    // if (pos == std::string::npos) {
+    //     std::cout << " boundary not found" << std::endl;
+    //     return;
+    // }
 
     // Get the boundary value
     std::string boundary_value = "--" + data.substr(pos + boundary.length(), 16);

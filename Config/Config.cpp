@@ -22,6 +22,7 @@ ServerBlock::~ServerBlock()
 {
     this->CgiStatus = false;
     this->redirect = false;
+    this->uploadable = false;
 }
 
 Config::Config( std::string Path )
@@ -98,6 +99,11 @@ Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string 
             Instance->redirect_code = std::atoi(splited[1].c_str());
             Instance->redirect_url = splited[2];
         }
+        else  if (splited[0] == "upload")
+        {
+            Instance->uploadable = true;
+            Instance->uploadPath = splited[1];
+        }
         std::getline(ConfigFile, line);
         splited = ft_split(line);
     }
@@ -143,6 +149,10 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
             Instance->redirect_code = std::atoi(splited[1].c_str());
             Instance->redirect_url = splited[2];
         }
+        else if (splited[0] == "server_name")
+            Instance->server_name = splited[1];
+        else if (splited[0] == "client_max_body_size")
+            Instance->client_max_body_size = atoi(splited[1].c_str());
         std::getline(ConfigFile, line);
         splited = ft_split(line);
     }

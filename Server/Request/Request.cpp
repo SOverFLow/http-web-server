@@ -123,15 +123,26 @@ void Request::SetMethod(std::string req)
 
 void Request::SetPath(std::string req)
 {
+    std::cout << req << std::endl;
     int start = this->Method.length() + 1;
+    int Q_start = 0;
     int len = 0;
     for(int i = start; req[i]; i++)
     {
         if (req[i] == ' ' || req[i] == '?')
+        {
+            if (req[i] == '?')
+                Q_start = i;
+                
             break;
+        }
         len++;
     }
-    this->Path = req.substr(start, len);
+    if(Q_start > 0)
+    {
+        for(int i = Q_start; req[i] != ' '; i++)
+            this->Qurey_String += req[i];
+    }
 }
 
 

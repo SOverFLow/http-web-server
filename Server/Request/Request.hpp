@@ -26,7 +26,7 @@ class Request
         size_t Content_Lenght;
         std::string Body;
         std::string Host;
-        std::string Qurey_string;
+        std::string Qurey_String;
         std::string Path;
         bool    is_Cgi;
 };

@@ -96,8 +96,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     int num_bytes = recv(client_socket, buffer, sizeof(buffer), 0);
     if (num_bytes == -1) 
     {
-        std::cout<< "socket => " << client_socket << std::endl;
-        perror("Error receiving data from client");
+        std::cout << "Error receiving data from client" << std::endl;
         close(client_socket);
         return;
     } 
@@ -261,7 +260,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     close(client_socket);
     if (num_sent == -1) 
     {
-        perror("Error sending data to client");
+        std::cout << "Error sending data to client";
         close(client_socket);
         return;
     }

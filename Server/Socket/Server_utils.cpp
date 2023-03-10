@@ -169,6 +169,27 @@ bool Check_Cgi_Location_Status(std::string url, std::vector<Locations> locations
     return (false);
 }
 
+
+bool Check_upload_Location_Status(std::string url, std::vector<Locations> locations)
+{
+    for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it) 
+    {
+        if (url == it->Name)
+            return (it->uploadable);
+    }
+    return (false);
+}
+
+std::string Get_upload_Location_Path(std::string url, std::vector<Locations> locations)
+{
+    for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it) 
+    {
+        if (url == it->Name)
+            return (it->uploadPath);
+    }
+    return ("");
+}
+
 std::string get_index_file_name_cgi(std::vector<std::string> index, std::string path)
 {
     for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); ++it) 

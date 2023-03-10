@@ -84,7 +84,7 @@ bool Check_Is_Uri_Large(std::string uri)
 }
 
 
-bool Check_Request_Body_Size(std::string req)
+bool Check_Request_Body_Size()
 {
     //do later 
     //check if request body size is larger than max body size in config
@@ -101,7 +101,7 @@ int Request::Is_Request_Well_Formed(std::string req)
         return (400);
     if (Check_Is_Uri_Large(this->Path))
         return (414);
-    if (!Check_Request_Body_Size(req))
+    if (!Check_Request_Body_Size())
         return (413);
 
     return (200);

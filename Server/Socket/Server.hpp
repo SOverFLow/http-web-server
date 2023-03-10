@@ -40,7 +40,7 @@ class Server
         std::vector<int> setup_sockets(std::vector<ServerBlock> &servers);
         void connection(std::vector<ServerBlock> &servers);
         void handle_client_request(int client_socket);
-        void parse_upload_post_data(char * buffer);
+        void parse_upload_post_data(std::string full_request, std::string body, std::string upload_path);
         void respond_to_clients(int client_socket, std::string root_path, ServerBlock server, int tmp);
         std::string Return_Error_For_Bad_Request(int status);
 };
@@ -62,4 +62,6 @@ std::string get_index_file_name_cgi(std::vector<std::string> index, std::string 
 std::string serve_index_for_cgi(std::string Path, std::vector<std::string> index_files);
 int get_redirect_code_for_location(std::string url, std::vector<Locations> locations);
 std::string return_redirect_msg(int code);
+bool Check_upload_Location_Status(std::string url, std::vector<Locations> locations);
+std::string Get_upload_Location_Path(std::string url, std::vector<Locations> locations);
 

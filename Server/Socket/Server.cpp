@@ -112,8 +112,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     //     return;
     // }
 
-
-    Request req(full_request);
+    Request req(full_request, server.client_max_body_size);
 
 
     if (req.StatusCode != 200)

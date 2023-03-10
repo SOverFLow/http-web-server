@@ -16,8 +16,9 @@ std::string GetMime(std::string Path)
     return (type);
 }
 
-Request::Request(std::string req)
+Request::Request(std::string req, size_t server_body_size)
 {
+    this->Body_Size_From_Config = server_body_size;
     InitMime(this->mime);
     SetBody(req);
     SetMethod(req);
@@ -85,11 +86,9 @@ bool Check_Is_Uri_Large(std::string uri)
 }
 
 
-bool Check_Request_Body_Size()
+bool Check_Request_Body_Size(size_t body_size, size_t content_length)
 {
-    //do later 
-    //check if request body size is larger than max body size in config
-    return (true);
+    return content_length > body_size;
 }
 
 int Request::Is_Request_Well_Formed(std::string req)
@@ -102,7 +101,7 @@ int Request::Is_Request_Well_Formed(std::string req)
         return (400);
     if (Check_Is_Uri_Large(this->Path))
         return (414);
-    if (!Check_Request_Body_Size())
+    if (Check_Request_Body_Size(this->Body_Size_From_Config, this->Body.size()))
         return (413);
 
     return (200);

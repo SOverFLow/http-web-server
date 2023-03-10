@@ -2,29 +2,18 @@
 #include <vector>
 #include <fstream>
 
-void Server::parse_upload_post_data(std::string full_request, std::string body, std::string upload_path) {
+int Server::parse_upload_post_data(std::string full_request, std::string body, std::string upload_path) {
     
     std::string data(full_request);
     std::string boundary("boundary=");
 
-    // std::cout << "=========================" << std::endl;
-    // std::cout << body << std::endl;
-    // std::cout << "=========================" << std::endl;
-
     // Find the boundary string in the request
     size_t pos = data.find(boundary);
-    // if (pos == std::string::npos) {
-    //     std::cout << " boundary not found" << std::endl;
-    //     return;
-    // }
+    if (pos == std::string::npos)
+        return (0);
 
     // Get the boundary value
     std::string boundary_value = "--" + data.substr(pos + boundary.length(), 16);
-
-
-    // std::cout << "=========================" << std::endl;
-    // std::cout << boundary_value << std::endl;
-    // std::cout << "=========================" << std::endl;
 
     // Split the request data by the boundary
     
@@ -72,6 +61,10 @@ void Server::parse_upload_post_data(std::string full_request, std::string body, 
         std::string file_data = it->substr(file_data_pos, it->length() - file_data_pos - boundary_value.length());
 
 
+
+
+        if (filename_value.empty())
+            return (0);
         // Save the file to disk
         char cwd[1024];
         getcwd(cwd, sizeof(cwd));
@@ -90,5 +83,6 @@ void Server::parse_upload_post_data(std::string full_request, std::string body, 
         outfile.write(file_data.c_str(), file_data.length());
         outfile.close();
     }
+    return (1);
 }
 

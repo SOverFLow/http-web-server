@@ -40,7 +40,7 @@ class Server
         std::vector<int> setup_sockets(std::vector<ServerBlock> &servers);
         void connection(std::vector<ServerBlock> &servers);
         void handle_client_request(int client_socket);
-        void parse_upload_post_data(std::string full_request, std::string body, std::string upload_path);
+        int parse_upload_post_data(std::string full_request, std::string body, std::string upload_path);
         void respond_to_clients(int client_socket, std::string root_path, ServerBlock server, int tmp);
         std::string Return_Error_For_Bad_Request(int status);
 };

@@ -133,7 +133,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
 
             if (str.empty())
             {
-                std::cout << req.Path << std::endl;
                 std::ifstream file(req.Path.substr(1), std::ios::binary);
                 if (file)
                     this->data = Cgi_Handler(req.Path, NULL);
@@ -239,11 +238,21 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     {
                         if (Check_upload_Location_Status(req.Path.substr(1), server.Locations))
                         {
+                            int check;
                             std::cout << "Uploading... " << std::endl;
                             std::string dir_path = get_root_location(req.Path.substr(1), server.Locations) + Get_upload_Location_Path(req.Path.substr(1),server.Locations);
-                            parse_upload_post_data(full_request, req.Body, dir_path);
-                            this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n\r\n";
-                            this->data += Return_File_Content("/Error_Pages/201.html");
+                            check = parse_upload_post_data(full_request, req.Body, dir_path);
+                            if (check)
+                            {
+                                this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n\r\n";
+                                this->data += Return_File_Content("/Error_Pages/201.html");
+                            }
+                            else
+                            {
+                                Response res(full_path, "GET", req.Content_Type,
+                                client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true);
+                                this->data = res.res_to_client;
+                            }
                         }
                         else
                         {

@@ -24,6 +24,7 @@ Request::Request(std::string req)
     SetPath(req);
     this->StatusCode = Is_Request_Well_Formed(req);
     SetContent();
+    SetHost(req);
     if (GetMime(this->Path) == "php")
         this->is_Cgi = true;
     else
@@ -132,7 +133,6 @@ void Request::SetPath(std::string req)
         {
             if (req[i] == '?')
                 Q_start = i;
-                
             break;
         }
         len++;
@@ -143,6 +143,15 @@ void Request::SetPath(std::string req)
         for(int i = Q_start; req[i] != ' '; i++)
             this->Qurey_String += req[i];
     }
+}
+
+void Request::SetHost(std::string req)
+{
+    int Host_p;
+    int end;
+    Host_p = req.find("Host: ", 0);
+    for(int i = Host_p+6; req[i] != '\n'; i++)
+        this->Host += req[i];
 }
 
 void Request::SetContent()

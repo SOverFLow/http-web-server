@@ -16,6 +16,7 @@ class Request
         void SetContent();
         void SetPath(std::string req);
         void SetBody(std::string req);
+        void SetHost(std::string req);
     public:
         Request(std::string req);
         int Is_Request_Well_Formed(std::string req);

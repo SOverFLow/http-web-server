@@ -35,9 +35,29 @@ std::string get_cgi_output(std::string path, char **env)
     return res;
 }
 
-std::string Header_gen( std::string )
+std::string getCtype(std::string Output)
 {
+    int Ctype_p;
+    std::string Content_type;
+    Ctype_p = Output.find("Content-type:", 0);
+    for (int i = Ctype_p+13; Output[i] != ';'; i++)
+        Content_type += Output[i];
+    return (Content_type);
+}
 
+std::string Header_gen( std::string Output)
+{
+    std::string Header;
+    std::string Content_type;
+    std::string Status;
+    if (Output.find("Status:", 0) == std::string::npos)
+    {
+        std::cout << "hello from if condition " << std::endl;
+        Status = "200";
+        Content_type = getCtype(Output);
+        Header = "HTTP/1.1 " + Status + " OK\r\nContent-type: " + Content_type + "\r\n\r\n";
+    }
+    return (Header);
 }
 
 std::string     Cgi_Handler(std::string path, char **env)
@@ -46,6 +66,6 @@ std::string     Cgi_Handler(std::string path, char **env)
     char c;
     std::string res;
     res = get_cgi_output(path, env);
-    std::cout << res << std::endl;
+    std::cout << Header_gen(res) << std::endl;
     return res;
 }

@@ -37,7 +37,7 @@ std::string get_cgi_output(std::string path, char **env)
 
 std::string Header_gen( std::string )
 {
-
+    
 }
 
 std::string     Cgi_Handler(std::string path, char **env)

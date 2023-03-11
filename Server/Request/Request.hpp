@@ -18,13 +18,14 @@ class Request
         void SetBody(std::string req);
         void SetHost(std::string req);
     public:
-        Request(std::string req);
+        Request(std::string req, size_t server_body_size);
         int Is_Request_Well_Formed(std::string req);
         ~Request();
         std::string Method;
         int StatusCode;
         std::string Content_Type;
         size_t Content_Lenght;
+        size_t Body_Size_From_Config;
         std::string Body;
         std::string Host;
         std::string Qurey_String;

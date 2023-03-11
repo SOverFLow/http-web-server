@@ -1,30 +1,19 @@
 #include "Server.hpp"
 #include <vector>
+#include <fstream>
 
-
-void Server::parse_upload_post_data(char * buffer) {
-    std::string data(buffer);
+int Server::parse_upload_post_data(std::string full_request, std::string body, std::string upload_path) {
+    
+    std::string data(full_request);
     std::string boundary("boundary=");
-
-    // std::cout << "=========================" << std::endl;
-    // std::cout << data << std::endl;
-    // std::cout << "=========================" << std::endl;
-
 
     // Find the boundary string in the request
     size_t pos = data.find(boundary);
-    // if (pos == std::string::npos) {
-    //     std::cout << " boundary not found" << std::endl;
-    //     return;
-    // }
+    if (pos == std::string::npos)
+        return (0);
 
     // Get the boundary value
     std::string boundary_value = "--" + data.substr(pos + boundary.length(), 16);
-
-
-    // std::cout << "=========================" << std::endl;
-    // std::cout << boundary_value << std::endl;
-    // std::cout << "=========================" << std::endl;
 
     // Split the request data by the boundary
     
@@ -72,10 +61,28 @@ void Server::parse_upload_post_data(char * buffer) {
         std::string file_data = it->substr(file_data_pos, it->length() - file_data_pos - boundary_value.length());
 
 
+
+
+        if (filename_value.empty())
+            return (0);
         // Save the file to disk
-        std::ofstream outfile("uploads/" + filename_value, std::ios::binary);
+        char cwd[1024];
+        getcwd(cwd, sizeof(cwd));
+        std::string directory = cwd + upload_path;
+
+        std::fstream dir(directory.c_str());
+     
+        if (dir.is_open() == false)
+        {
+            if (mkdir(directory.c_str(), 0777) == 0)
+            {
+                std::cout << "Directory created successfully" << std::endl;
+            }
+        }
+        std::ofstream outfile(directory + filename_value, std::ios::binary);
         outfile.write(file_data.c_str(), file_data.length());
         outfile.close();
     }
+    return (1);
 }
 

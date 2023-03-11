@@ -92,25 +92,25 @@ std::string Server::Return_Error_For_Bad_Request(int status)
 
     if (status == 501)
     {
-        header = "HTTP/1.1 501 Not Implemented\r\nContent-type: text/html\r\n\r\n";
+        header = "HTTP/1.1 501 Not Implemented\r\nContent-type: text/html\r\n" + this->cookies_part + "\r\n";
         file_content = Return_File_Content("/Error_Pages/501.html");
         response = header + file_content;
     }
     else if (status == 400)
     {
-        header = "HTTP/1.1 400 Bad Request\r\nContent-type: text/html\r\n\r\n";
+        header = "HTTP/1.1 400 Bad Request\r\nContent-type: text/html\r\n" + this->cookies_part + "\r\n";
         file_content = Return_File_Content("/Error_Pages/400.html");
         response = header + file_content;
     }
     else if (status == 414)
     {
-        header = "HTTP/1.1 414 URI Too Long\r\nContent-type: text/html\r\n\r\n";
+        header = "HTTP/1.1 414 URI Too Long\r\nContent-type: text/html\r\n" + this->cookies_part + "\r\n";
         file_content = Return_File_Content("/Error_Pages/414.html");
         response = header + file_content;
     }
     else if (status == 413)
     {
-        header = "HTTP/1.1 413 Content Too Large\r\nContent-type: text/html\r\n\r\n";
+        header = "HTTP/1.1 413 Content Too Large\r\nContent-type: text/html\r\n" + this->cookies_part + "\r\n";
         file_content = Return_File_Content("/Error_Pages/413.html");
         response = header + file_content;
     }
@@ -167,6 +167,27 @@ bool Check_Cgi_Location_Status(std::string url, std::vector<Locations> locations
             return (it->CgiStatus);
     }
     return (false);
+}
+
+
+bool Check_upload_Location_Status(std::string url, std::vector<Locations> locations)
+{
+    for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it) 
+    {
+        if (url == it->Name)
+            return (it->uploadable);
+    }
+    return (false);
+}
+
+std::string Get_upload_Location_Path(std::string url, std::vector<Locations> locations)
+{
+    for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it) 
+    {
+        if (url == it->Name)
+            return (it->uploadPath);
+    }
+    return ("");
 }
 
 std::string get_index_file_name_cgi(std::vector<std::string> index, std::string path)

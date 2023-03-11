@@ -91,27 +91,30 @@ std::vector<int> Server::setup_sockets(std::vector<ServerBlock> &servers)
 
 void Server::respond_to_clients(int client_socket, std::string root_path, ServerBlock server, int tmp)
 {
-    char buffer[1024];
-    std::string full_path;
-    int num_bytes = recv(client_socket, buffer, sizeof(buffer), 0);
-    if (num_bytes == -1) 
-    {
-        std::cout << "Error receiving data from client" << std::endl;
-        close(client_socket);
-        return;
-    } 
-    else if (num_bytes == 0) 
-    {
-        close(client_socket);
-        return;
+    std::string full_request;
+    int bytes_received;
+    char buffer[8000000];
+
+    while ((bytes_received = recv(client_socket, buffer, sizeof(buffer), 0)) > 0) {
+        full_request += std::string(buffer, bytes_received);
     }
+    std::string full_path;
+    //int num_bytes = recv(client_socket, buffer, sizeof(buffer), 0);
+    // if (bytes_received == -1) 
+    // {
+    //     std::cout << "Error receiving data from client" << std::endl;
+    //     close(client_socket);
+    //     return;
+    // } 
+    // else if (bytes_received == 0) 
+    // {
+    //     close(client_socket);
+    //     return;
+    // }
 
-    //std::cout << buffer << std::endl;
-    Request req(buffer);
-
-    //std::cout << req.Body << std::endl;
-
-
+    Request req(full_request, server.client_max_body_size);
+    this->cookies = parse_cookies(full_request);
+    this->cookies_part = manage_cookies_session_server();
 
     if (req.StatusCode != 200)
         this->data = Return_Error_For_Bad_Request(req.StatusCode);
@@ -130,13 +133,12 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
 
             if (str.empty())
             {
-                std::cout << req.Path << std::endl;
                 std::ifstream file(req.Path.substr(1), std::ios::binary);
                 if (file)
                     this->data = Cgi_Handler(req.Path, NULL);
                 else
                 {
-                    this->data = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n\r\n";
+                    this->data = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n" + cookies_part +"\r\n";
                     this->data += Return_File_Content("/Error_Pages/404.html");
                 }
                 int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
@@ -164,7 +166,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     this->data = Cgi_Handler(all_path, NULL);
                 else
                 {
-                    this->data = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n\r\n";
+                    this->data = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n"+ cookies_part + "\r\n";
                     this->data += Return_File_Content("/Error_Pages/404.html");
                 }
                 int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
@@ -226,31 +228,58 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         this->data = Cgi_Handler(all_path, NULL);
                     else
                     {
-                        this->data = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n\r\n";
+                        this->data = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                         this->data += Return_File_Content("/Error_Pages/403.html");
                     }
                 }
                 else
                 {
-                    Response res(full_path, req.Method, req.Content_Type,
-                    client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true);
-                    this->data = res.res_to_client;
+                    if (req.Method == "POST")
+                    {
+                        if (Check_upload_Location_Status(req.Path.substr(1), server.Locations))
+                        {
+                            int check;
+                            std::cout << "Uploading... " << std::endl;
+                            std::string dir_path = get_root_location(req.Path.substr(1), server.Locations) + Get_upload_Location_Path(req.Path.substr(1),server.Locations);
+                            check = parse_upload_post_data(full_request, req.Body, dir_path);
+                            if (check)
+                            {
+                                this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
+                                this->data += Return_File_Content("/Error_Pages/201.html");
+                            }
+                            else
+                            {
+                                Response res(full_path, "GET", req.Content_Type,
+                                client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true, cookies_part);
+                                this->data = res.res_to_client;
+                            }
+                        }
+                        else
+                        {
+                            Response res(full_path, "GET", req.Content_Type,
+                            client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true, cookies_part);
+                            this->data = res.res_to_client;
+                        }
+                    }
+                    else 
+                    {
+                        Response res(full_path, req.Method, req.Content_Type,
+                        client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true, cookies_part);
+                        this->data = res.res_to_client;
+                    }
                 }
 
 
             }
             else if (Check_is_method_allowed(req.Method, server.allowed_method) && !check_if_url_is_location(req.Path.substr(1), server.Locations))
             {
-                if (req.Method == "POST")
-                    parse_upload_post_data(buffer); 
-
                 Response res(full_path, req.Method, req.Content_Type,
-                client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false);
+                client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false, cookies_part);
                 this->data = res.res_to_client;
             }
             else
             {
-                this->data = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n\r\n";
+                this->data = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                 this->data += Return_File_Content("/Error_Pages/405.html");
             }
     }

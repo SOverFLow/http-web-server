@@ -40,6 +40,7 @@ class Server
         std::vector<int> setup_sockets(std::vector<ServerBlock> &servers);
         std::map<std::string, std::string> cookies;
         std::map<std::string, std::string> sessions;
+        std::string cookies_part;
         void connection(std::vector<ServerBlock> &servers);
         void handle_client_request(int client_socket);
         int parse_upload_post_data(std::string full_request, std::string body, std::string upload_path);
@@ -49,7 +50,6 @@ class Server
         std::string manage_cookies_session_server();
 };
 
-// void parse_upload_post_data(std::string http_request);
 std::string Return_File_Content(std::string Path);
 int set_nonblocking(int fd);
 std::vector<pollfd> create_pollfds(std::vector<ServerBlock>& servers);

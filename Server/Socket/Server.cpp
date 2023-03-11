@@ -114,7 +114,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
 
     Request req(full_request, server.client_max_body_size);
     this->cookies = parse_cookies(full_request);
-    std::string cookies_part = manage_cookies_session_server();
+    this->cookies_part = manage_cookies_session_server();
 
     if (req.StatusCode != 200)
         this->data = Return_Error_For_Bad_Request(req.StatusCode);
@@ -138,7 +138,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     this->data = Cgi_Handler(req.Path, NULL);
                 else
                 {
-                    this->data = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n\r\n";
+                    this->data = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n" + cookies_part +"\r\n";
                     this->data += Return_File_Content("/Error_Pages/404.html");
                 }
                 int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
@@ -166,7 +166,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     this->data = Cgi_Handler(all_path, NULL);
                 else
                 {
-                    this->data = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n\r\n";
+                    this->data = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n"+ cookies_part + "\r\n";
                     this->data += Return_File_Content("/Error_Pages/404.html");
                 }
                 int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
@@ -228,7 +228,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         this->data = Cgi_Handler(all_path, NULL);
                     else
                     {
-                        this->data = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n\r\n";
+                        this->data = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                         this->data += Return_File_Content("/Error_Pages/403.html");
                     }
                 }
@@ -244,7 +244,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             check = parse_upload_post_data(full_request, req.Body, dir_path);
                             if (check)
                             {
-                                this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n\r\n";
+                                this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                                 this->data += Return_File_Content("/Error_Pages/201.html");
                             }
                             else
@@ -279,7 +279,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
             }
             else
             {
-                this->data = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n\r\n";
+                this->data = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                 this->data += Return_File_Content("/Error_Pages/405.html");
             }
     }

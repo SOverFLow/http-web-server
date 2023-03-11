@@ -113,7 +113,8 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     // }
 
     Request req(full_request, server.client_max_body_size);
-
+    this->cookies = parse_cookies(full_request);
+    std::string cookies_part = manage_cookies_session_server();
 
     if (req.StatusCode != 200)
         this->data = Return_Error_For_Bad_Request(req.StatusCode);
@@ -249,21 +250,21 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             else
                             {
                                 Response res(full_path, "GET", req.Content_Type,
-                                client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true);
+                                client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true, cookies_part);
                                 this->data = res.res_to_client;
                             }
                         }
                         else
                         {
                             Response res(full_path, "GET", req.Content_Type,
-                            client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true);
+                            client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true, cookies_part);
                             this->data = res.res_to_client;
                         }
                     }
                     else 
                     {
                         Response res(full_path, req.Method, req.Content_Type,
-                        client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true);
+                        client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true, cookies_part);
                         this->data = res.res_to_client;
                     }
                 }
@@ -273,7 +274,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
             else if (Check_is_method_allowed(req.Method, server.allowed_method) && !check_if_url_is_location(req.Path.substr(1), server.Locations))
             {
                 Response res(full_path, req.Method, req.Content_Type,
-                client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false);
+                client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false, cookies_part);
                 this->data = res.res_to_client;
             }
             else

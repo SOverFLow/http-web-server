@@ -3,7 +3,7 @@
 
 Response::Response(std::string Path, std::string method, std::string contentType, int new_socket,
  bool is_cgi, std::vector<std::string> indexs,
-  bool autoindex, std::string full_path, std::string req_path, bool is_location)
+  bool autoindex, std::string full_path, std::string req_path, bool is_location , std::string cookies_part)
 {
     this->socket_fd = new_socket;
     this->index_files = indexs;
@@ -11,6 +11,7 @@ Response::Response(std::string Path, std::string method, std::string contentType
     this->full_path = full_path;
     this->req_path = req_path;
     this->is_location = is_location;
+    this->server_cookies = cookies_part;
     std::string file_content;
 
     if (method == "No")

@@ -45,27 +45,44 @@ std::string getCtype(std::string Output)
     return (Content_type);
 }
 
+std::string getBody(std::string Output)
+{
+    size_t  Body_p;
+    std::string Body;
+    
+    Body_p = Output.find("\r\n\r\n", 0);
+    Body = Output.substr(Body_p+4, Output.length() - Body_p+4);
+    return(Body);
+}
+
 std::string Header_gen( std::string Output)
 {
     std::string Header;
     std::string Content_type;
     std::string Status;
+    std::string Comment;
     if (Output.find("Status:", 0) == std::string::npos)
     {
-        std::cout << "hello from if condition " << std::endl;
         Status = "200";
         Content_type = getCtype(Output);
-        Header = "HTTP/1.1 " + Status + " OK\r\nContent-type: " + Content_type + "\r\n\r\n";
+        Header = "HTTP/1.1 " + Status + " OK\r\nContent-type:" + Content_type + "\r\n\r\n" + getBody(Output);
+    }
+    else
+    {
+        Status = Output.substr(8, 3);
+        Content_type = getCtype(Output);
+        for(int i = 12; Output[i] != '\n'; i++)
+            Comment += Output[i];
+        Header = "HTTP/1.1 " + Status + " " + Comment + "\r\nContent-type:" + Content_type + "\r\n\r\n";
     }
     return (Header);
 }
 
 std::string     Cgi_Handler(std::string path, char **env)
 {
-    char *buff;
-    char c;
-    std::string res;
-    res = get_cgi_output(path, env);
-    std::cout << Header_gen(res) << std::endl;
-    return res;
+    std::string all;
+    std::string out;
+    out = get_cgi_output(path, env);
+    all = Header_gen(out);
+    return all;
 }

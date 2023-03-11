@@ -28,6 +28,5 @@ int main(int argc, char **argv, char **env)
     {
         std::cout << "Error : the serve need a config file" << std::endl;
     }
-    //Cgi_Handler(argv[1], env);
     return (0);
 }

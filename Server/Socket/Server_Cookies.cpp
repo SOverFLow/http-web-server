@@ -39,11 +39,7 @@ std::string generate_session_id() {
 
 std::string make_set_cookie_header(std::string name, std::string value) {
     std::ostringstream header_stream;
-    std::string path = "/";
-    int max_age = -1;
-    header_stream << "Set-Cookie: " << name << "=" << value << "; Path=" << path;
-    if (max_age >= 0)
-        header_stream << "; Max-Age=" << max_age;
+    header_stream << "Set-Cookie: " << name << "=" << value << ";";
     header_stream << "\r\n";
     return header_stream.str();
 }

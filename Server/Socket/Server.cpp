@@ -161,14 +161,40 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
 
                 std::string root_path = get_root_location(str.substr(1), server.Locations);
                 std::string all_path = root_path + filename;
-                std::ifstream file(all_path.substr(1), std::ios::binary);
-                if (file)
-                    this->data = Cgi_Handler(all_path, NULL);
-                else
+                if (req.Method == "POST")
                 {
-                    this->data = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n"+ cookies_part + "\r\n";
-                    this->data += Return_File_Content("/Error_Pages/404.html");
+                        if (Check_upload_Location_Status(str.substr(1), server.Locations))
+                        {
+                            int check;
+                            std::cout << "Uploading... " << std::endl;
+                            std::string dir_path = get_root_location(str.substr(1), server.Locations) + Get_upload_Location_Path(str.substr(1),server.Locations);
+                            check = parse_upload_post_data(full_request, req.Body, dir_path);
+                            if (check)
+                            {
+                                this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
+                                this->data += Return_File_Content("/Error_Pages/201.html");
+                            }
+                            else
+                            {
+        
+                                this->data = Cgi_Handler(all_path, NULL);
+                            }
+                        }
                 }
+
+                else 
+                {
+                    std::ifstream file(all_path.substr(1), std::ios::binary);
+                    if (file)
+                        this->data = Cgi_Handler(all_path, NULL);
+                    else
+                    {
+                        this->data = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n"+ cookies_part + "\r\n";
+                        this->data += Return_File_Content("/Error_Pages/404.html");
+                    }
+                }
+
+
                 int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 close(client_socket);
                 return ;
@@ -200,9 +226,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         {
             full_path = tmp_path + req.Path;
         }
-
-        // cookie_handler(buffer);
-        
         
             if (tmp == path_check && req.Path != server.root 
             && Check_is_method_allowed(req.Method, tmp_methods))
@@ -219,19 +242,46 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         close(client_socket);
                         return ;
                     }
+                    
                     std::string root_path = get_root_location(req.Path.substr(1), server.Locations);
                     std::string all_path = "/" + serve_index_for_cgi(root_path, get_index_location(req.Path.substr(1), server.Locations));
 
-                    std::ifstream file(all_path.substr(1), std::ios::binary);
 
-                    if (file)
-                        this->data = Cgi_Handler(all_path, NULL);
+                    if (req.Method == "POST")
+                    {
+                        if (Check_upload_Location_Status(req.Path.substr(1), server.Locations))
+                        {
+                            int check;
+                            std::cout << "Uploading... " << std::endl;
+                            std::string dir_path = get_root_location(req.Path.substr(1), server.Locations) + Get_upload_Location_Path(req.Path.substr(1),server.Locations);
+                            check = parse_upload_post_data(full_request, req.Body, dir_path);
+                            if (check)
+                            {
+                                this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
+                                this->data += Return_File_Content("/Error_Pages/201.html");
+                            }
+                            else
+                            {
+        
+                                this->data = Cgi_Handler(all_path, NULL);
+                            }
+                        }
+                    }
                     else
                     {
-                        this->data = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
-                        this->data += Return_File_Content("/Error_Pages/403.html");
+                        std::ifstream file(all_path.substr(1), std::ios::binary);
+
+                        if (file)
+                            this->data = Cgi_Handler(all_path, NULL);
+                        else
+                        {
+                            this->data = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
+                            this->data += Return_File_Content("/Error_Pages/403.html");
+                        }
                     }
-                }
+
+                    }
+
                 else
                 {
                     if (req.Method == "POST")

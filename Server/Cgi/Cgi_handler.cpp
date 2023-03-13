@@ -89,7 +89,7 @@ char    **setEnv(Request req)
     env[20] = NULL;
 }
 
-std::string     Cgi_Handler(Request req, std::strin Path, char **env)
+std::string     Cgi_Handler(Request req, std::string Path, char **env)
 {
     std::string all;
     std::string out;

@@ -23,6 +23,7 @@ class Request
         ~Request();
         std::string Method;
         int StatusCode;
+        int cgiStatus;
         std::string Content_Type;
         size_t Content_Lenght;
         size_t Body_Size_From_Config;
@@ -33,7 +34,7 @@ class Request
         bool    is_Cgi;
 };
 
-std::string     Cgi_Handler(Request req, std::strin Path, char **env);
+std::string     Cgi_Handler(Request req, std::string Path, char **env);
 
 
 #endif

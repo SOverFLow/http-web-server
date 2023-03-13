@@ -33,7 +33,7 @@ class Request
         bool    is_Cgi;
 };
 
-std::string     Cgi_Handler(std::string path, char **env);
+std::string     Cgi_Handler(Request req, std::strin Path, char **env);
 
 
 #endif

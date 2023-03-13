@@ -191,7 +191,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         this->data = Cgi_Handler(req, all_path, NULL);
                     else
                     {
-                        this->data = Cgi_Handler(req, req.Path, NULL);
+                        this->data = Cgi_Handler(req, all_path, NULL);
                         if (req.cgiStatus == 404)
                             this->data += Return_File_Content("/Error_Pages/404.html");
                         else if (req.cgiStatus == 403)
@@ -250,7 +250,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     
                     std::string root_path = get_root_location(req.Path.substr(1), server.Locations);
                     std::string all_path = "/" + serve_index_for_cgi(root_path, get_index_location(req.Path.substr(1), server.Locations));
-
 
                     if (req.Method == "POST")
                     {

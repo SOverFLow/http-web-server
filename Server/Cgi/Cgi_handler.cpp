@@ -56,7 +56,7 @@ std::string getBody(std::string Output)
     return(Body);
 }
 
-std::string Header_gen( std::string Output, Request req)
+std::string Header_gen( std::string Output, Request &req)
 {
     std::string Header;
     std::string Content_type;
@@ -89,7 +89,7 @@ char    **setEnv(Request req)
     env[20] = NULL;
 }
 
-std::string     Cgi_Handler(Request req, std::string Path, char **env)
+std::string     Cgi_Handler(Request &req, std::string Path, char **env)
 {
     std::string all;
     std::string out;

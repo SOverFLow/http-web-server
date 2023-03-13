@@ -138,7 +138,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     this->data = Cgi_Handler(req, req.Path, NULL);
                 else
                 {
-                    std::cout << "Error =>" << req.cgiStatus << std::endl;
                     this->data = Cgi_Handler(req, req.Path, NULL);
                     if (req.cgiStatus == 404)
                         this->data += Return_File_Content("/Error_Pages/404.html");

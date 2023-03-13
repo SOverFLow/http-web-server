@@ -138,8 +138,12 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     this->data = Cgi_Handler(req, req.Path, NULL);
                 else
                 {
-                    this->data = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n" + cookies_part +"\r\n";
-                    this->data += Return_File_Content("/Error_Pages/404.html");
+                    std::cout << "Error =>" << req.cgiStatus << std::endl;
+                    this->data = Cgi_Handler(req, req.Path, NULL);
+                    if (req.cgiStatus == 404)
+                        this->data += Return_File_Content("/Error_Pages/404.html");
+                    else if (req.cgiStatus == 403)
+                        this->data += Return_File_Content("/Error_Pages/403.html");
                 }
                 int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 close(client_socket);
@@ -176,7 +180,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             }
                             else
                             {
-        
                                 this->data = Cgi_Handler(req, all_path, NULL);
                             }
                         }
@@ -189,8 +192,11 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         this->data = Cgi_Handler(req, all_path, NULL);
                     else
                     {
-                        this->data = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n"+ cookies_part + "\r\n";
-                        this->data += Return_File_Content("/Error_Pages/404.html");
+                        this->data = Cgi_Handler(req, req.Path, NULL);
+                        if (req.cgiStatus == 404)
+                            this->data += Return_File_Content("/Error_Pages/404.html");
+                        else if (req.cgiStatus == 403)
+                            this->data += Return_File_Content("/Error_Pages/403.html");
                     }
                 }
 
@@ -275,11 +281,13 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             this->data = Cgi_Handler(req, all_path, NULL);
                         else
                         {
-                            this->data = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
-                            this->data += Return_File_Content("/Error_Pages/403.html");
+                            this->data = Cgi_Handler(req, all_path, NULL);
+                            if (req.cgiStatus == 404)
+                                this->data += Return_File_Content("/Error_Pages/404.html");
+                            else if (req.cgiStatus == 403)
+                                this->data += Return_File_Content("/Error_Pages/403.html");
                         }
                     }
-
                     }
 
                 else

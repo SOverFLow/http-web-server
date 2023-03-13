@@ -135,7 +135,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
             {
                 std::ifstream file(req.Path.substr(1), std::ios::binary);
                 if (file)
-                    this->data = Cgi_Handler(req.Path, NULL);
+                    this->data = Cgi_Handler(req, req.Path, NULL);
                 else
                 {
                     this->data = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n" + cookies_part +"\r\n";
@@ -177,7 +177,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             else
                             {
         
-                                this->data = Cgi_Handler(all_path, NULL);
+                                this->data = Cgi_Handler(req, all_path, NULL);
                             }
                         }
                 }
@@ -186,7 +186,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 {
                     std::ifstream file(all_path.substr(1), std::ios::binary);
                     if (file)
-                        this->data = Cgi_Handler(all_path, NULL);
+                        this->data = Cgi_Handler(req, all_path, NULL);
                     else
                     {
                         this->data = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n"+ cookies_part + "\r\n";
@@ -263,7 +263,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             else
                             {
         
-                                this->data = Cgi_Handler(all_path, NULL);
+                                this->data = Cgi_Handler(req, all_path, NULL);
                             }
                         }
                     }
@@ -272,7 +272,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         std::ifstream file(all_path.substr(1), std::ios::binary);
 
                         if (file)
-                            this->data = Cgi_Handler(all_path, NULL);
+                            this->data = Cgi_Handler(req, all_path, NULL);
                         else
                         {
                             this->data = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";

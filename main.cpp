@@ -5,7 +5,7 @@
 
 
 
-int main(int argc, char **argv, char **env)
+int main(int argc, char **argv)
 {
     
    
@@ -26,7 +26,7 @@ int main(int argc, char **argv, char **env)
     }
     else
     {
-        std::cout << "Error : the serve need a config file" << std::endl;
+        std::cout << "Error : the server need a config file" << std::endl;
     }
     return (0);
 }

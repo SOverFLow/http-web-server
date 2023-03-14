@@ -87,6 +87,7 @@ char    **setEnv(Request req)
     env[0] = (char *)("QUERY_STRING=" + req.Qurey_String).c_str();
     std::cout << env[0] << std::endl;
     env[20] = NULL;
+    return (env);
 }
 
 std::string     Cgi_Handler(Request &req, std::string Path, char **env)

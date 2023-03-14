@@ -12,6 +12,7 @@ Response::Response(std::string Path, std::string method, std::string contentType
     this->req_path = req_path;
     this->is_location = is_location;
     this->server_cookies = cookies_part;
+    (void)is_cgi;
     std::string file_content;
 
     if (method == "No")

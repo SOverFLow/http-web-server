@@ -6,6 +6,7 @@ int Server::parse_upload_post_data(std::string full_request, std::string body, s
     
     std::string data(full_request);
     std::string boundary("boundary=");
+    (void)body;
 
     // Find the boundary string in the request
     size_t pos = data.find(boundary);

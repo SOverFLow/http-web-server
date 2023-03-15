@@ -81,10 +81,13 @@ std::string Header_gen( std::string Output, Request &req)
     return (Header);
 }
 
-char    **setEnv(Request req)
+char    **setEnv(Request &req)
 {
     char **env = new char*[20];
-    env[0] = (char *)("QUERY_STRING=" + req.Qurey_String).c_str();
+    env[0] = strdup(("QUERY_STRING=" + req.Qurey_String).c_str());
+    env[1] = strdup(("HTTP_HOST=" + req.Host).c_str());
+    env[2] = strdup(("REQUEST_METHOD=" + req.Method).c_str());
+    env[3] = strdup(("REQUEST_METHOD=" + req.Path).c_str());
     std::cout << env[0] << std::endl;
     env[20] = NULL;
 }
@@ -93,7 +96,9 @@ std::string     Cgi_Handler(Request &req, std::string Path, char **env)
 {
     std::string all;
     std::string out;
-    out = get_cgi_output(Path, env);
+    char **cgi_env;
+    cgi_env = setEnv(req);
+    out = get_cgi_output(Path, cgi_env);
     all = Header_gen(out, req);
     return all;
 }

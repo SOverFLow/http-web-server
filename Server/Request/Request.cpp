@@ -18,6 +18,7 @@ std::string GetMime(std::string Path)
 
 Request::Request(std::string req, size_t server_body_size)
 {
+    std::cout << req << std::endl;
     this->Body_Size_From_Config = server_body_size;
     InitMime(this->mime);
     SetBody(req);

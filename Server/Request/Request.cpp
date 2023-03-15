@@ -148,7 +148,6 @@ void Request::SetPath(std::string req)
 void Request::SetHost(std::string req)
 {
     int Host_p;
-    int end;
     Host_p = req.find("Host: ", 0);
     for(int i = Host_p+6; req[i] != '\n'; i++)
         this->Host += req[i];

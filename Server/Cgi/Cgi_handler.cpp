@@ -90,6 +90,7 @@ char    **setEnv(Request &req)
     env[3] = strdup(("REQUEST_METHOD=" + req.Path).c_str());
     std::cout << env[0] << std::endl;
     env[20] = NULL;
+    return (env);
 }
 
 std::string     Cgi_Handler(Request &req, std::string Path, char **env)

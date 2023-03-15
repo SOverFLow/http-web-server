@@ -28,7 +28,14 @@ ServerBlock::~ServerBlock()
 Config::Config( std::string Path )
 {
     this->ServerCount = 0;
-    ConfigParser( Path );
+    try 
+    {
+        ConfigParser( Path );
+    }
+    catch(const std::exception &e)
+    {
+        std::cout << "error => " << e.what() << std::endl;
+    }
 }
 
 Locations::Locations( std::string Name )
@@ -165,7 +172,6 @@ void    Config::ConfigParser( std::string Path )
     std::string line;
     std::string token;
     ServerBlock srv;
-    char *str;
     while (std::getline(ConfigFile, line))
     {
         if (line == "server")
@@ -174,7 +180,14 @@ void    Config::ConfigParser( std::string Path )
             if(line == "{")
             {
                 std::getline(ConfigFile, line);
-                srv = SetServer(ConfigFile, line);
+                try 
+                {
+                    srv = SetServer(ConfigFile, line);
+                }
+                catch(const std::exception &e)
+                {
+                    std::cout << "error=> " << e.what() << std::endl;
+                }
                 this->Servers.push_back(srv);
             }
             this->ServerCount++;

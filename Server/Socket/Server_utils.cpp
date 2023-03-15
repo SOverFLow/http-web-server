@@ -192,11 +192,14 @@ std::string Get_upload_Location_Path(std::string url, std::vector<Locations> loc
 
 std::string get_index_file_name_cgi(std::vector<std::string> index, std::string path)
 {
-    for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); ++it) 
+    std::vector<std::string>::iterator it;
+    for (it = index.begin(); it != index.end(); ++it) 
     {
-         std::ifstream file(path.substr(1) + *it, std::ios::binary);
-         if (file)
+        std::ifstream file(path.substr(1) + *it, std::ios::binary);
+        if (file)
             return (path.substr(1) + *it);
+        else
+            return (path.substr(1) + *++it);
     }
     return ("no");
 }

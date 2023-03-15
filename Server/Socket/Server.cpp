@@ -28,7 +28,7 @@ void Server::connection(std::vector<ServerBlock> &servers)
             exit(1);
         }
 
-        for (int i = 0; i < pollfds.size(); i++) {
+        for (size_t i = 0; i < pollfds.size(); i++) {
             if (pollfds[i].revents & POLLIN) {
                 if (pollfds[i].fd == servers[i].sock_fd) 
                 {
@@ -51,7 +51,7 @@ std::vector<int> Server::setup_sockets(std::vector<ServerBlock> &servers)
 {
     std::vector<int> ret_sockets;
 
-    for (int i =0; i < servers.size(); i++)
+    for (size_t i =0; i < servers.size(); i++)
     {
         struct sockaddr_in address;
         int option = 1;
@@ -96,8 +96,9 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     char buffer[8000000];
 
     while ((bytes_received = recv(client_socket, buffer, sizeof(buffer), 0)) > 0) {
-        full_request += std::string(buffer, bytes_received);
+            full_request += std::string(buffer, bytes_received);
     }
+   
     std::string full_path;
     //int num_bytes = recv(client_socket, buffer, sizeof(buffer), 0);
     // if (bytes_received == -1) 
@@ -146,6 +147,12 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 }
                 int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 close(client_socket);
+                if (num_sent == -1) 
+                {
+                    std::cout << "Error sending data to client";
+                    close(client_socket);
+                    return;
+                }
                 return ;
             }
            
@@ -158,6 +165,12 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     
                     this->data = "HTTP/1.1 " + std::to_string(code) + " " + msg + "\r\nLocation: " + get_redirect_url_for_location(str.substr(1), server.Locations) + "\r\n\r\n";
                     int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                    if (num_sent == -1) 
+                    {
+                        std::cout << "Error sending data to client";
+                        close(client_socket);
+                        return;
+                    }
                     close(client_socket);
                     return ;
                 }
@@ -191,7 +204,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         this->data = Cgi_Handler(req, all_path, NULL);
                     else
                     {
-                        this->data = Cgi_Handler(req, req.Path, NULL);
+                        this->data = Cgi_Handler(req, all_path, NULL);
                         if (req.cgiStatus == 404)
                             this->data += Return_File_Content("/Error_Pages/404.html");
                         else if (req.cgiStatus == 403)
@@ -201,12 +214,25 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
 
 
                 int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                if (num_sent == -1) 
+                {
+                    std::cout << "Error sending data to client";
+                    close(client_socket);
+                    return;
+                }
                 close(client_socket);
                 return ;
             }
         }
 
-        full_path = root_path + req.Path.substr(1);
+        try {
+
+            full_path = root_path + req.Path.substr(1);
+        }
+        catch(const std::exception &e)
+        {
+            std::cout << "error => " << e.what() << std::endl;
+        }
 
         if (check_if_url_is_location(req.Path.substr(1), server.Locations))
         { 
@@ -217,6 +243,12 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     
                 this->data = "HTTP/1.1 " + std::to_string(code) + " " + msg + "\r\nLocation: " + get_redirect_url_for_location(req.Path.substr(1), server.Locations) + "\r\n\r\n";
                 int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                if (num_sent == -1) 
+                {
+                    std::cout << "Error sending data to client";
+                    close(client_socket);
+                    return;
+                }
                 close(client_socket);
                 return ;
             }
@@ -244,13 +276,18 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     
                         this->data = "HTTP/1.1 " + std::to_string(code) + " " + msg + "\r\nLocation: " + get_redirect_url_for_location(req.Path.substr(1), server.Locations) + "\r\n\r\n";
                         int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                        if (num_sent == -1) 
+                        {
+                            std::cout << "Error sending data to client";
+                            close(client_socket);
+                            return;
+                        }
                         close(client_socket);
                         return ;
                     }
                     
                     std::string root_path = get_root_location(req.Path.substr(1), server.Locations);
                     std::string all_path = "/" + serve_index_for_cgi(root_path, get_index_location(req.Path.substr(1), server.Locations));
-
 
                     if (req.Method == "POST")
                     {

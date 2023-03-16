@@ -7,17 +7,10 @@ Server::Server(Config config)
 }
 
 
-Client::Client()
-{
-
-}
-
-
 void Server::connection(std::vector<ServerBlock> &servers)
 {
     this->sockets = setup_sockets(servers);
     std::vector<pollfd> pollfds = create_pollfds(servers);
-    std::vector<Client> clients;
 
     int tmp = 0;
     while(1)
@@ -94,26 +87,34 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     std::string full_request;
     int bytes_received;
     char buffer[8000000];
+    std::string full_path;
 
     while ((bytes_received = recv(client_socket, buffer, sizeof(buffer), 0)) > 0) {
             full_request += std::string(buffer, bytes_received);
     }
    
-    std::string full_path;
-    //int num_bytes = recv(client_socket, buffer, sizeof(buffer), 0);
-    // if (bytes_received == -1) 
-    // {
-    //     std::cout << "Error receiving data from client" << std::endl;
-    //     close(client_socket);
-    //     return;
-    // } 
-    // else if (bytes_received == 0) 
-    // {
-    //     close(client_socket);
-    //     return;
-    // }
-
+   
     Request req(full_request, server.client_max_body_size);
+
+
+    if (!server.server_name.empty())
+    {
+        size_t num_pos = req.Host.find(":");
+        if (req.Host.substr(0, num_pos) != server.server_name)
+        {
+            this->data = "HTTP/1.1 503 Service Unavailable\r\nContent-type: text/html\r\n\r\n";
+            this->data += Return_File_Content("/Error_Pages/503.html");
+            int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+            close(client_socket);
+            if (num_sent == -1) 
+            {
+                std::cout << "Error sending data to client";
+                close(client_socket);
+                return;
+            }
+        }
+    }
+
     this->cookies = parse_cookies(full_request);
     this->cookies_part = manage_cookies_session_server();
 

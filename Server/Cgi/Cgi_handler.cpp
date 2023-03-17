@@ -8,26 +8,55 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "../Request/Request.hpp"
+#include <vector>
+#include <fstream>
 
-std::string get_cgi_output(std::string path, char **env)
+char    **setEnv(Request &req)
+{
+    (void)req;
+     std::vector <char *> env;
+    if (req.Method == "GET")
+    {
+        if(req.Qurey_String != "NULL")
+            env.push_back(strdup(("QUERY_STRING=" + req.Qurey_String).c_str()));
+    }
+    env.push_back((char *)("REQUEST_METHOD=" + req.Method).c_str());
+    env.push_back(strdup(("HTTP_HOST=" + req.Host).c_str()));
+    env.push_back(NULL);
+    return (env.data());
+}
+
+std::string get_cgi_output(std::string path, Request &req)
 {
     std::string res;
     int fd_req[2];
     char c;
+    char **env;
     pid_t pid;
     pipe(fd_req);
     if ((pid = fork()) < 0)
         std::cerr << "fork error!" << std::endl;
     if (!pid)
     {
+        std::vector<char *> cmds;
+        cmds.push_back((char *)"/cgi-bin/php-cgi");
+        cmds.push_back(((char *)path.substr(1).data()));
+        cmds.push_back(NULL);
+        env = setEnv(req);
+        // for (int i = 0; env[i]; i++)
+        //     std::cout << env[i] << std::endl;
+        if (req.Method == "POST")
+        {
+            dup2(0, 1);
+            std::cout << req.Body;
+        }
         close(fd_req[0]);
-        char *cmd[4];
-        cmd[0] = (char *)"/cgi-bin/php-cgi";
-        cmd[1] = (char *)path.substr(1).data();
-        cmd[2] = NULL;
         dup2(fd_req[1], 1);
-        if(execve("./cgi-bin/php-cgi", cmd, env) < 0)
+        if(execve("./cgi-bin/php-cgi", cmds.data(), env) < 0)
+        {
             std::cerr << "Exec Error!" << std::endl;
+            exit(EXIT_FAILURE);
+        }
     }
     close(fd_req[1]);
     waitpid(pid, NULL, 0);
@@ -81,25 +110,16 @@ std::string Header_gen( std::string Output, Request &req)
     return (Header);
 }
 
-char    **setEnv(Request &req)
-{
-    char **env = new char*[20];
-    env[0] = strdup(("QUERY_STRING=" + req.Qurey_String).c_str());
-    env[1] = strdup(("HTTP_HOST=" + req.Host).c_str());
-    env[2] = strdup(("REQUEST_METHOD=" + req.Method).c_str());
-    env[3] = strdup(("REQUEST_METHOD=" + req.Path).c_str());
-    std::cout << env[0] << std::endl;
-    env[20] = NULL;
-    return (env);
-}
 
 std::string     Cgi_Handler(Request &req, std::string Path, char **env)
 {
     std::string all;
     std::string out;
-    char **cgi_env;
-    cgi_env = setEnv(req);
-    out = get_cgi_output(Path, cgi_env);
+    (void)env;
+    //cgi_env = setEnv(req);
+    // for (int i = 0; cgi_env[i]; i++)
+    //     std::cout << cgi_env[i] << std::endl;
+    out = get_cgi_output(Path, req);
     all = Header_gen(out, req);
     return all;
 }

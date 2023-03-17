@@ -122,22 +122,22 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
 {
     ServerBlock *Instance = new ServerBlock();
     std::vector<std::string> splited = ft_split(line);
+
     while (splited[0] != "}")
     {
-        std::vector<std::string>::iterator it = splited.begin();
-        if (*it == "root")
-            Instance->root = *(++it);
-        else if (*it == "directory_answer")
-            Instance->directory_answer = *(++it);
-        else if (*it == "listen")
-            Instance->port = std::atoi((*(++it)).c_str());
-        else if (*it == "index")
+        if (splited[0] == "root")
+            Instance->root = splited[1];
+        else if (splited[0] == "directory_answer")
+            Instance->directory_answer = splited[1];
+        else if (splited[0] == "listen")
+            Instance->port = std::atoi(splited[1].c_str());
+        else if (splited[0] == "index")
             Instance->index.insert(Instance->index.begin(), splited.begin() + 1, splited.end());
-        else if (*it == "allowed_method")
+        else if (splited[0] == "allowed_method")
             Instance->allowed_method.insert(Instance->allowed_method.begin(), splited.begin() + 1, splited.end());
-        else if (*it == "location")
-            Instance->Locations.push_back(SetLocation(ConfigFile, line, *(++it)));
-        else if (*it == "cgi")
+        else if (splited[0] == "location")
+            Instance->Locations.push_back(SetLocation(ConfigFile, line, splited[1]));
+        else if (splited[0] == "cgi")
         {
             Instance->CgiStatus = true;
             Instance->CgiLang = splited[1];
@@ -162,6 +162,11 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
             Instance->client_max_body_size = atoi(splited[1].c_str());
         std::getline(ConfigFile, line);
         splited = ft_split(line);
+        while (splited.size() == 0)
+        {
+            std::getline(ConfigFile, line);
+            splited = ft_split(line);
+        }
     }
     return (*Instance);
 }
@@ -171,7 +176,7 @@ void    Config::ConfigParser( std::string Path )
     std::ifstream ConfigFile(Path);
     std::string line;
     std::string token;
-    ServerBlock srv;
+    //ServerBlock srv;
     while (std::getline(ConfigFile, line))
     {
         if (line == "server")
@@ -180,15 +185,8 @@ void    Config::ConfigParser( std::string Path )
             if(line == "{")
             {
                 std::getline(ConfigFile, line);
-                try 
-                {
-                    srv = SetServer(ConfigFile, line);
-                }
-                catch(const std::exception &e)
-                {
-                    std::cout << "error=> " << e.what() << std::endl;
-                }
-                this->Servers.push_back(srv);
+                this->Servers.push_back(SetServer(ConfigFile, line));
+                    //srv = SetServer(ConfigFile, line);
             }
             this->ServerCount++;
         }

@@ -18,7 +18,6 @@ std::string GetMime(std::string Path)
 
 Request::Request(std::string req, size_t server_body_size)
 {
-    std::cout << req << std::endl;
     this->Body_Size_From_Config = server_body_size;
     InitMime(this->mime);
     SetBody(req);
@@ -127,6 +126,7 @@ void Request::SetPath(std::string req)
     int start = this->Method.length() + 1;
     int Q_start = 0;
     int len = 0;
+    int end = 0;
     for(int i = start; req[i]; i++)
     {
         if (req[i] == ' ' || req[i] == '?')
@@ -141,16 +141,20 @@ void Request::SetPath(std::string req)
     if(Q_start > 0)
     {
         for(int i = Q_start; req[i] != ' '; i++)
-            this->Qurey_String += req[i];
+            end = i;
+        this->Qurey_String = req.substr(Q_start, end - Q_start + 1);
     }
+    else
+        this->Qurey_String = "NULL";
 }
-
 void Request::SetHost(std::string req)
 {
-    int Host_p;
-    Host_p = req.find("Host: ", 0);
+    int Host_p = 6;
+    int end = 0;
+    Host_p += req.find("Host: ", 0);
     for(int i = Host_p+6; req[i] != '\n'; i++)
-        this->Host += req[i];
+        end = i;
+    this->Host = req.substr(Host_p, end - Host_p + 1);
 }
 
 void Request::SetContent()

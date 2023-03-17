@@ -113,6 +113,7 @@ std::string Header_gen( std::string Output, Request &req)
 
 std::string     Cgi_Handler(Request &req, std::string Path, char **env)
 {
+    (void)env;
     std::string all;
     std::string out;
     (void)env;

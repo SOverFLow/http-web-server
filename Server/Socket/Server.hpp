@@ -13,14 +13,6 @@
 #include "../Response/Response.hpp"
 #include "../../Config/Config.hpp"
 
-class Client
-{
-    public:
-        Client();
-	    socklen_t				address_len;
-	    struct sockaddr_in	address;
-	    int						sock;
-};
 
 
 class Server
@@ -35,7 +27,6 @@ class Server
         std::vector<std::string> tmp_index;
         int path_check;
         std::vector<int> sockets;
-        std::vector<Client> clients;
         std::vector<std::string> root_paths;
         std::vector<int> setup_sockets(std::vector<ServerBlock> &servers);
         std::map<std::string, std::string> cookies;

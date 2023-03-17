@@ -46,6 +46,5 @@ void   cookie_handler(std::string http_request);
 std::string get_index_file_name(std::vector<std::string> index, std::string path);
 int		CheckIsFile(const std::string& path);
 void serve_auto_index(std::string full_path, std::string req_path, int client_socket);
-void moved_permanetly(std::string path, int client_socket);
 
 #endif

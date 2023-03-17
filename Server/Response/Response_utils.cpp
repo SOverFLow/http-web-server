@@ -103,16 +103,6 @@ void Response::serve_root_path(std::string Path, std::string contentType)
 }
 
 
-void moved_permanetly(std::string path, int client_socket)
-{
-    if (path.back() != '/')
-    {
-        std::string redirect_path = path + "/";
-        std::string response = "HTTP/1.1 301 Moved Permanently\r\nLocation: " + redirect_path + "\r\n\r\n";
-        send(client_socket, response.c_str(), response.length(), 0);
-    }
-}
-
 
 void serve_auto_index(std::string full_path, std::string req_path, int client_socket)
 {
@@ -137,12 +127,12 @@ void serve_auto_index(std::string full_path, std::string req_path, int client_so
                     
                     if (S_ISDIR(ent->d_type))
                     {
-                        response << "<li><a href=\"" <<  path << "/\">" << filename << "/</a></li>\n";
+                        response << "<li>" << filename << "</li>\n";
                     }
                     else
                     {
 
-                        response << "<li><a href=\"" << path << "\">" << filename << "</a></li>\n";
+                        response << "<li>" << filename << "</li>\n";
                     }
                 }
             }

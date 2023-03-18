@@ -12,7 +12,7 @@
 #include <vector>
 #include <fstream>
 
-char    **setEnv(Request &req, std::string Path, Locations &Location, ServerBlock &Server)
+char    **setEnv(Request &req, std::string Path, ServerBlock &Server)
 {
     std::vector <char *> env;
     std::string method = req.Method;
@@ -31,12 +31,13 @@ char    **setEnv(Request &req, std::string Path, Locations &Location, ServerBloc
     return (env.data());
 }
 
-std::string get_cgi_output(std::string path, Request &req, Locations &Location, ServerBlock &Server)
+std::string get_cgi_output(std::string path, Request &req, std::string cgiLang, ServerBlock &Server)
 {
     std::string res;
     int fd_req[2];
     char c;
     char **env;
+    (void)cgiLang;
     pid_t pid;
     pipe(fd_req);
     if ((pid = fork()) < 0)
@@ -47,7 +48,7 @@ std::string get_cgi_output(std::string path, Request &req, Locations &Location, 
         cmds.push_back((char *)"/cgi-bin/php-cgi");
         cmds.push_back(((char *)path.substr(1).data()));
         cmds.push_back(NULL);
-        env = setEnv(req, path, Location, Server);
+        env = setEnv(req, path, Server);
         if (req.Method == "POST")
         {
             dup2(0, 1);
@@ -120,7 +121,7 @@ std::string     Cgi_Handler(Request &req, std::string Path, char **env, std::str
     (void)env;
     std::string all;
     std::string out;
-    out = get_cgi_output(Path, req, Location, Server);
+    out = get_cgi_output(Path, req, cgiLang, Server);
     all = Header_gen(out, req);
     return all;
 }

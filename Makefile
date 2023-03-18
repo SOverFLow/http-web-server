@@ -1,4 +1,4 @@
-#-fsanitize=address -g3  add this later
+#-fsanitize=address -g3  add this later -fsanitize=address -g3
 CXX =c++
 CXXFLAGS =-Wall -Wextra -Werror -std=c++98
 TARGET =webserv

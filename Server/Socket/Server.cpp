@@ -139,7 +139,9 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
             if (str.empty())
             {
                 size_t lang_pos = filename.find(".");
-                lang = filename.substr(lang_pos);
+                lang = filename.substr(lang_pos + 1);
+                if (lang == "pl")
+                    lang = "perl";
                 std::cout << lang << std::endl;
                 std::ifstream file(req.Path.substr(1), std::ios::binary);
                 if (file)

@@ -54,7 +54,7 @@ std::string get_root_location(std::string url, std::vector<Locations> locations)
 Locations get_location(std::string url, std::vector<Locations> locations)
 {
     std::vector<Locations>::iterator it = locations.begin();
-    for (it ; it != locations.end(); ++it) 
+    for (; it != locations.end(); ++it) 
     {
         if (url == it->Name)
             return (*it); 

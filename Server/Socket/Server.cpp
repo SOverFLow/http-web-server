@@ -20,19 +20,21 @@ void Server::connection(std::vector<ServerBlock> &servers)
             std::cout << "Error in poll" << std::endl;
             exit(1);
         }
-
         for (size_t i = 0; i < pollfds.size(); i++) {
+            
             if (pollfds[i].revents & POLLIN) {
-                if (pollfds[i].fd == servers[i].sock_fd) 
+                if (i < servers.size())
                 {
-                   
-                    handle_new_connection(servers[i].sock_fd, pollfds);
-                    tmp = i;
+                    if (pollfds[i].fd == servers[i].sock_fd) 
+                    {
+                        handle_new_connection(servers[i].sock_fd, pollfds);
+                        tmp = i;
+                    }
                 }
-                 else 
-                 {
-                    respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp);
-                 }
+                else 
+                {
+                        respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp);
+                }
             }
         }
     }

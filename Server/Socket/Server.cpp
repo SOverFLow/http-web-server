@@ -33,7 +33,7 @@ void Server::connection(std::vector<ServerBlock> &servers)
                 }
                 else 
                 {
-                        respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp);
+                    respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp);
                 }
             }
         }

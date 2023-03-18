@@ -2,26 +2,44 @@
 
 std::map<std::string, std::string> Server::parse_cookies(std::string request) {
     std::map<std::string, std::string> cookies;
+
     size_t cookie_pos = request.find("Cookie:");
-    if (cookie_pos != std::string::npos) {
+
+    if (cookie_pos != std::string::npos) 
+    {
         size_t end_cookie_pos = request.find("\r\n", cookie_pos);
+
         std::string cookie_header = request.substr(cookie_pos + 8, end_cookie_pos - cookie_pos - 8);
+
         size_t name_pos = 0;
-        while (name_pos != std::string::npos) {
+
+        while (name_pos != std::string::npos) 
+        {
             size_t equals_pos = cookie_header.find("=", name_pos);
-            if (equals_pos != std::string::npos) {
+            if (equals_pos != std::string::npos) 
+            {
                 std::string name = cookie_header.substr(name_pos, equals_pos - name_pos);
+
                 size_t semicolon_pos = cookie_header.find(";", equals_pos);
-                if (semicolon_pos == std::string::npos) {
+
+                if (semicolon_pos == std::string::npos) 
+                {
                     semicolon_pos = cookie_header.length();
                 }
+
                 std::string value = cookie_header.substr(equals_pos + 1, semicolon_pos - equals_pos - 1);
+
                 cookies[name] = value;
+
                 name_pos = cookie_header.find(";", semicolon_pos);
-                if (name_pos != std::string::npos) {
+                
+                if (name_pos != std::string::npos)
+                {
                     name_pos += 2; // skip the "; "
                 }
-            } else {
+            } 
+            else 
+            {
                 name_pos = std::string::npos;
             }
         }

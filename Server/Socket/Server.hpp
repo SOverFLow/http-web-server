@@ -61,4 +61,5 @@ bool Check_upload_Location_Status(std::string url, std::vector<Locations> locati
 std::string Get_upload_Location_Path(std::string url, std::vector<Locations> locations);
 std::string generate_session_id();
 std::string make_set_cookie_header(std::string name, std::string value);
+Locations get_location(std::string url, std::vector<Locations> locations);
 

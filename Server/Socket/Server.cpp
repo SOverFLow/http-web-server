@@ -129,6 +129,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         {
             std::string str = req.Path;
             std::string filename;
+            std::string lang;
             std::size_t found = str.find_last_of("/");
             if (found != std::string::npos) {
                 filename = str.substr(found + 1);
@@ -137,12 +138,15 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
 
             if (str.empty())
             {
+                size_t lang_pos = filename.find(".");
+                lang = filename.substr(lang_pos);
+                std::cout << lang << std::endl;
                 std::ifstream file(req.Path.substr(1), std::ios::binary);
                 if (file)
-                    this->data = Cgi_Handler(req, req.Path, NULL);
+                    this->data = Cgi_Handler(req, req.Path, NULL, lang, server);
                 else
                 {
-                    this->data = Cgi_Handler(req, req.Path, NULL);
+                    this->data = Cgi_Handler(req, req.Path, NULL, lang, server);
                     if (req.cgiStatus == 404)
                         this->data += Return_File_Content("/Error_Pages/404.html");
                     else if (req.cgiStatus == 403)
@@ -195,7 +199,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             }
                             else
                             {
-                                this->data = Cgi_Handler(req, all_path, NULL);
+                                this->data = Cgi_Handler(req, all_path, NULL, get_location(str.substr(1), server.Locations).CgiLang, server);
                             }
                         }
                 }
@@ -204,10 +208,10 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 {
                     std::ifstream file(all_path.substr(1), std::ios::binary);
                     if (file)
-                        this->data = Cgi_Handler(req, all_path, NULL);
+                        this->data = Cgi_Handler(req, all_path, NULL, get_location(str.substr(1), server.Locations).CgiLang, server);
                     else
                     {
-                        this->data = Cgi_Handler(req, all_path, NULL);
+                        this->data = Cgi_Handler(req, all_path, NULL, get_location(str.substr(1), server.Locations).CgiLang, server);
                         if (req.cgiStatus == 404)
                             this->data += Return_File_Content("/Error_Pages/404.html");
                         else if (req.cgiStatus == 403)
@@ -308,7 +312,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             else
                             {
         
-                                this->data = Cgi_Handler(req, all_path, NULL);
+                                this->data = Cgi_Handler(req, all_path, NULL, get_location(req.Path.substr(1), server.Locations).CgiLang, server);
                             }
                         }
                     }
@@ -317,10 +321,10 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         std::ifstream file(all_path.substr(1), std::ios::binary);
 
                         if (file)
-                            this->data = Cgi_Handler(req, all_path, NULL);
+                            this->data = Cgi_Handler(req, all_path, NULL, get_location(req.Path.substr(1), server.Locations).CgiLang, server);
                         else
                         {
-                            this->data = Cgi_Handler(req, all_path, NULL);
+                            this->data = Cgi_Handler(req, all_path, NULL, get_location(req.Path.substr(1), server.Locations).CgiLang, server);
                             if (req.cgiStatus == 404)
                                 this->data += Return_File_Content("/Error_Pages/404.html");
                             else if (req.cgiStatus == 403)

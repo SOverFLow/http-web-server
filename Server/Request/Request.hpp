@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string.h>
 #include <map>
+#include "../../Config/Config.hpp"
+
 
 
 class Request
@@ -34,7 +36,7 @@ class Request
         bool    is_Cgi;
 };
 
-std::string     Cgi_Handler(Request &req, std::string Path, char **env);
+std::string     Cgi_Handler(Request &req, std::string Path, char **env, std::string cgiLang, ServerBlock &Server);
 
 
 #endif

@@ -70,8 +70,10 @@ std::string getCtype(std::string Output)
     int Ctype_p;
     std::string Content_type;
     Ctype_p = Output.find("Content-type:", 0);
-    for (int i = Ctype_p+13; Output[i] != ';'; i++)
-        Content_type += Output[i];
+    int end = Ctype_p+14;
+    end = Output.find(";", Ctype_p+14);
+    Content_type = Output.substr(Ctype_p+14, end - (Ctype_p+14));
+    std::cout << Content_type << std::endl;
     return (Content_type);
 }
 

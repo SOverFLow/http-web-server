@@ -27,6 +27,7 @@ char    **setEnv(Request &req, std::string Path, ServerBlock &Server)
     env.push_back(strdup(("HTTPS=off")));
     env.push_back(strdup(("SCRIPT_NAME=" + Path).c_str()));
     env.push_back(strdup(("DOCUMENT_ROOT=" + Server.root).c_str()));
+    env.push_back(strdup(("SERVER_PORT=" + std::to_string(Server.port)).c_str()));
     env.push_back(NULL);
     return (env.data());
 }
@@ -37,7 +38,6 @@ std::string get_cgi_output(std::string path, Request &req, std::string cgiLang, 
     int fd_req[2];
     char c;
     char **env;
-    (void)cgiLang;
     pid_t pid;
     pipe(fd_req);
     if ((pid = fork()) < 0)
@@ -45,7 +45,12 @@ std::string get_cgi_output(std::string path, Request &req, std::string cgiLang, 
     if (!pid)
     {
         std::vector<char *> cmds;
-        cmds.push_back((char *)"/cgi-bin/php-cgi");
+        if (cgiLang == "php" || cgiLang == ".php")
+            cmds.push_back((char *)"/cgi-bin/php-cgi");
+        else if (cgiLang == "perl" || cgiLang == ".cgi")
+        {
+            cmds.push_back((char *)"/usr/bin/perl");
+        }
         cmds.push_back(((char *)path.substr(1).data()));
         cmds.push_back(NULL);
         env = setEnv(req, path, Server);
@@ -101,7 +106,7 @@ std::string Header_gen( std::string Output, Request &req)
         Status = "200";
         req.cgiStatus = 200;
         Content_type = getCtype(Output);
-        Header = "HTTP/1.1 " + Status + " OK\r\nContent-type:" + Content_type + "\r\n\r\n" + getBody(Output);
+        Header = "HTTP/1.1 " + Status + " OK\r\nContent-type:" + Content_type + "\r\n\r\n";
     }
     else
     {
@@ -122,6 +127,7 @@ std::string     Cgi_Handler(Request &req, std::string Path, char **env, std::str
     std::string all;
     std::string out;
     out = get_cgi_output(Path, req, cgiLang, Server);
-    all = Header_gen(out, req);
+    all = Header_gen(out, req) + getBody(out);
+    std::cout << all << std::endl;
     return all;
 }

@@ -26,7 +26,7 @@ Request::Request(std::string req, size_t server_body_size)
     this->StatusCode = Is_Request_Well_Formed(req);
     SetContent();
     SetHost(req);
-    if (GetMime(this->Path) == "php")
+    if (GetMime(this->Path) == "php" || GetMime(this->Path) == "cgi")
         this->is_Cgi = true;
     else
         this->is_Cgi = false;

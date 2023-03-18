@@ -8,25 +8,30 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "../Request/Request.hpp"
+#include "../../Config/Config.hpp"
 #include <vector>
 #include <fstream>
 
-char    **setEnv(Request &req)
+char    **setEnv(Request &req, std::string Path, Locations &Location, ServerBlock &Server)
 {
-    (void)req;
-     std::vector <char *> env;
+    std::vector <char *> env;
+    std::string method = req.Method;
     if (req.Method == "GET")
     {
         if(req.Qurey_String != "NULL")
             env.push_back(strdup(("QUERY_STRING=" + req.Qurey_String).c_str()));
     }
-    env.push_back((char *)("REQUEST_METHOD=" + req.Method).c_str());
+    (void)Path;
+    env.push_back((char *)("REQUEST_METHOD=" + method).c_str());
     env.push_back(strdup(("HTTP_HOST=" + req.Host).c_str()));
+    env.push_back(strdup(("HTTPS=off")));
+    env.push_back(strdup(("SCRIPT_NAME=" + Path).c_str()));
+    env.push_back(strdup(("DOCUMENT_ROOT=" + Server.root).c_str()));
     env.push_back(NULL);
     return (env.data());
 }
 
-std::string get_cgi_output(std::string path, Request &req)
+std::string get_cgi_output(std::string path, Request &req, Locations &Location, ServerBlock &Server)
 {
     std::string res;
     int fd_req[2];
@@ -42,9 +47,7 @@ std::string get_cgi_output(std::string path, Request &req)
         cmds.push_back((char *)"/cgi-bin/php-cgi");
         cmds.push_back(((char *)path.substr(1).data()));
         cmds.push_back(NULL);
-        env = setEnv(req);
-        // for (int i = 0; env[i]; i++)
-        //     std::cout << env[i] << std::endl;
+        env = setEnv(req, path, Location, Server);
         if (req.Method == "POST")
         {
             dup2(0, 1);
@@ -73,7 +76,6 @@ std::string getCtype(std::string Output)
     int end = Ctype_p+14;
     end = Output.find(";", Ctype_p+14);
     Content_type = Output.substr(Ctype_p+14, end - (Ctype_p+14));
-    std::cout << Content_type << std::endl;
     return (Content_type);
 }
 
@@ -113,16 +115,12 @@ std::string Header_gen( std::string Output, Request &req)
 }
 
 
-std::string     Cgi_Handler(Request &req, std::string Path, char **env)
+std::string     Cgi_Handler(Request &req, std::string Path, char **env, Locations &Location, ServerBlock &Server)
 {
     (void)env;
     std::string all;
     std::string out;
-    (void)env;
-    //cgi_env = setEnv(req);
-    // for (int i = 0; cgi_env[i]; i++)
-    //     std::cout << cgi_env[i] << std::endl;
-    out = get_cgi_output(Path, req);
+    out = get_cgi_output(Path, req, Location, Server);
     all = Header_gen(out, req);
     return all;
 }

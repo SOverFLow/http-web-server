@@ -33,7 +33,15 @@ void Server::connection(std::vector<ServerBlock> &servers)
                 }
                 else 
                 {
-                    respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp);
+                    try 
+                    {
+                        respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp);
+                    }
+                    catch(const std::exception &e)
+                    {
+                        //std::cout << "error:" << e.what() << std::endl;
+                        continue;
+                    }
                 }
             }
         }
@@ -374,12 +382,28 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
 
 
             }
-            else if (Check_is_method_allowed(req.Method, server.allowed_method) && !check_if_url_is_location(req.Path.substr(1), server.Locations))
+            else if (Check_is_method_allowed(req.Method, server.allowed_method))
             {
-                //std::cout << "dkhalt and path is => " << req.Path.substr(1) << std::endl;
-                Response res(full_path, req.Method, req.Content_Type,
-                client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false, cookies_part);
-                this->data = res.res_to_client;
+                
+                if (req.Path == "/")
+                {
+                    if (!check_if_url_is_location("/", server.Locations))
+                    {
+                        Response res(full_path, req.Method, req.Content_Type,
+                        client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false, cookies_part);
+                        this->data = res.res_to_client;
+                    }
+                }
+                else
+                {
+                    if (!check_if_url_is_location(req.Path.substr(1), server.Locations))
+                    {
+                        Response res(full_path, req.Method, req.Content_Type,
+                        client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false, cookies_part);
+                        this->data = res.res_to_client;
+                    }
+                }
+                std::cout << "dkhalt and path is => " << req.Path << std::endl;
             }
             else
             {

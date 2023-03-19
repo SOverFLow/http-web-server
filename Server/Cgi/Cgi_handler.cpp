@@ -60,14 +60,13 @@ std::string get_cgi_output(std::string path, Request &req, std::string cgiLang, 
         cmds.push_back(((char *)path.substr(1).data()));
         cmds.push_back(NULL);
         env = setEnv(req, path, Server);
-        // if (req.Method == "POST")
-        // {
-        //     dup2(0, 1);
-        //     std::cout << req.Body;
-        // }
+        if (req.Method == "POST")
+        {
+            dup2(0, 1);
+            std::cout << req.Body;
+        }
         close(fd_req[0]);
         dup2(fd_req[1], 1);
-        // std::cout << cgi_bin << std::endl;
         if(execve(cgi_bin.c_str(), cmds.data(), env) < 0)
         {
             std::cerr << "Exec Error!" << std::endl;

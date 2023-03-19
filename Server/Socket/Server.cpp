@@ -39,6 +39,7 @@ void Server::connection(std::vector<ServerBlock> &servers)
                     }
                     catch(const std::exception &e)
                     {
+                        //std::cout << e.what() << std::endl;
                         continue;
                     }
                 }
@@ -199,7 +200,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         if (Check_upload_Location_Status(str.substr(1), server.Locations))
                         {
                             int check;
-                            std::cout << "Uploading... " << std::endl;
                             std::string dir_path = get_root_location(str.substr(1), server.Locations) + Get_upload_Location_Path(str.substr(1),server.Locations);
                             check = parse_upload_post_data(full_request, req.Body, dir_path);
                             if (check)
@@ -349,7 +349,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         if (Check_upload_Location_Status(req.Path.substr(1), server.Locations))
                         {
                             int check;
-                            std::cout << "Uploading... " << std::endl;
                             std::string dir_path = get_root_location(req.Path.substr(1), server.Locations) + Get_upload_Location_Path(req.Path.substr(1),server.Locations);
                             check = parse_upload_post_data(full_request, req.Body, dir_path);
                             if (check)
@@ -381,27 +380,17 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
 
 
             }
-            else if (Check_is_method_allowed(req.Method, server.allowed_method))
+            else if (Check_is_method_allowed(req.Method, server.allowed_method) && !check_if_url_is_location(req.Path.substr(1), server.Locations))
             {
-                
-                if (req.Path == "/")
-                {
-                    if (!check_if_url_is_location("/", server.Locations))
-                    {
-                        Response res(full_path, req.Method, req.Content_Type,
-                        client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false, cookies_part);
-                        this->data = res.res_to_client;
-                    }
-                }
-                else
-                {
-                    if (!check_if_url_is_location(req.Path.substr(1), server.Locations))
-                    {
-                        Response res(full_path, req.Method, req.Content_Type,
-                        client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false, cookies_part);
-                        this->data = res.res_to_client;
-                    }
-                }
+                Response res(full_path, req.Method, req.Content_Type,
+                client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false, cookies_part);
+                this->data = res.res_to_client;
+            }
+            else if (Check_is_method_allowed(req.Method, server.allowed_method) && check_if_url_is_location(req.Path.substr(1), server.Locations))
+            {
+                Response res(full_path, req.Method, req.Content_Type,
+                client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true, cookies_part);
+                this->data = res.res_to_client;
             }
             else
             {

@@ -48,25 +48,26 @@ std::string get_cgi_output(std::string path, Request &req, std::string cgiLang, 
         std::vector<char *> cmds;
         if (cgiLang == "php" || cgiLang == ".php")
         {
-            cmds.push_back((char *)"/cgi-bin/php-cgi");
-            cgi_bin = "/cgi-bin/php-cgi";
+            std::cout << "dkhelt" << std::endl;
+            cmds.push_back((char *)"./cgi-bin/php-cgi");
+            cgi_bin = "./cgi-bin/php-cgi";
         }
         else if (cgiLang == "perl" || cgiLang == ".cgi")
         {
             cmds.push_back((char *)"/usr/bin/perl");
             cgi_bin = "/usr/bin/perl";
         }
-        std::cout << cmds[0] << std::endl;;
         cmds.push_back(((char *)path.substr(1).data()));
         cmds.push_back(NULL);
         env = setEnv(req, path, Server);
-        if (req.Method == "POST")
-        {
-            dup2(0, 1);
-            std::cout << req.Body;
-        }
+        // if (req.Method == "POST")
+        // {
+        //     dup2(0, 1);
+        //     std::cout << req.Body;
+        // }
         close(fd_req[0]);
         dup2(fd_req[1], 1);
+        // std::cout << cgi_bin << std::endl;
         if(execve(cgi_bin.c_str(), cmds.data(), env) < 0)
         {
             std::cerr << "Exec Error!" << std::endl;
@@ -133,7 +134,8 @@ std::string     Cgi_Handler(Request &req, std::string Path, char **env, std::str
     std::string all;
     std::string out;
     out = get_cgi_output(Path, req, cgiLang, Server);
-    all = Header_gen(out, req) + getBody(out);
-    std::cout << all << std::endl;
+    all = Header_gen(out, req);
+    all += getBody(out);
+    std::cout << out << std::endl;
     return all;
 }

@@ -39,7 +39,6 @@ void Server::connection(std::vector<ServerBlock> &servers)
                     }
                     catch(const std::exception &e)
                     {
-                        //std::cout << "error:" << e.what() << std::endl;
                         continue;
                     }
                 }
@@ -403,7 +402,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         this->data = res.res_to_client;
                     }
                 }
-                std::cout << "dkhalt and path is => " << req.Path << std::endl;
             }
             else
             {

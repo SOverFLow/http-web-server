@@ -309,7 +309,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         if (Check_upload_Location_Status(req.Path.substr(1), server.Locations))
                         {
                             int check;
-                            std::cout << "Uploading... " << std::endl;
                             std::string dir_path = get_root_location(req.Path.substr(1), server.Locations) + Get_upload_Location_Path(req.Path.substr(1),server.Locations);
                             check = parse_upload_post_data(full_request, req.Body, dir_path);
                             if (check)

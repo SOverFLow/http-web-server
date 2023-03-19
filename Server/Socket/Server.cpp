@@ -39,7 +39,6 @@ void Server::connection(std::vector<ServerBlock> &servers)
                     }
                     catch(const std::exception &e)
                     {
-                        //std::cout << e.what() << std::endl;
                         continue;
                     }
                 }

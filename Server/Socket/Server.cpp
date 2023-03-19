@@ -130,6 +130,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
             std::string str = req.Path;
             std::string filename;
             std::string lang;
+            std::string root_plus_file;
             std::size_t found = str.find_last_of("/");
             if (found != std::string::npos) {
                 filename = str.substr(found + 1);
@@ -142,13 +143,13 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 lang = filename.substr(lang_pos + 1);
                 if (lang == "pl" || lang == "cgi")
                     lang = ".cgi";
-                std::cout << lang << std::endl;
-                std::ifstream file(req.Path.substr(1), std::ios::binary);
+                root_plus_file = server.root + req.Path.substr(1);
+                std::ifstream file(root_plus_file.substr(1), std::ios::binary);
                 if (file)
-                    this->data = Cgi_Handler(req, req.Path, NULL, lang, server);
+                    this->data = Cgi_Handler(req, root_plus_file, NULL, lang, server);
                 else
                 {
-                    this->data = Cgi_Handler(req, req.Path, NULL, lang, server);
+                    this->data = Cgi_Handler(req, root_plus_file, NULL, lang, server);
                     if (req.cgiStatus == 404)
                         this->data += Return_File_Content("/Error_Pages/404.html");
                     else if (req.cgiStatus == 403)
@@ -272,7 +273,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         {
             full_path = tmp_path + req.Path;
         }
-        
             if (tmp == path_check && req.Path != server.root 
             && Check_is_method_allowed(req.Method, tmp_methods))
             {
@@ -376,6 +376,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
             }
             else if (Check_is_method_allowed(req.Method, server.allowed_method) && !check_if_url_is_location(req.Path.substr(1), server.Locations))
             {
+                //std::cout << "dkhalt and path is => " << req.Path.substr(1) << std::endl;
                 Response res(full_path, req.Method, req.Content_Type,
                 client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false, cookies_part);
                 this->data = res.res_to_client;

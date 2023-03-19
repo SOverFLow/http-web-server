@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <stdlib.h>
+#include <fstream>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -22,8 +23,8 @@ char    **setEnv(Request &req, std::string Path, ServerBlock &Server)
             env.push_back(strdup(("QUERY_STRING=" + req.Qurey_String).c_str()));
     }
     (void)Path;
-    env.push_back((char *)("REQUEST_METHOD=" + method).c_str());
     env.push_back(strdup(("HTTP_HOST=" + req.Host).c_str()));
+    //env.push_back(strdup(("REQUEST_METHOD=" + method).c_str()));
     env.push_back(strdup(("HTTPS=off")));
     env.push_back(strdup(("SCRIPT_NAME=" + Path).c_str()));
     env.push_back(strdup(("DOCUMENT_ROOT=" + Server.root).c_str()));
@@ -31,6 +32,7 @@ char    **setEnv(Request &req, std::string Path, ServerBlock &Server)
     env.push_back(NULL);
     return (env.data());
 }
+
 
 std::string get_cgi_output(std::string path, Request &req, std::string cgiLang, ServerBlock &Server)
 {
@@ -48,7 +50,6 @@ std::string get_cgi_output(std::string path, Request &req, std::string cgiLang, 
         std::vector<char *> cmds;
         if (cgiLang == "php" || cgiLang == ".php")
         {
-            std::cout << "dkhelt" << std::endl;
             cmds.push_back((char *)"./cgi-bin/php-cgi");
             cgi_bin = "./cgi-bin/php-cgi";
         }
@@ -132,6 +133,16 @@ std::string     Cgi_Handler(Request &req, std::string Path, char **env, std::str
     (void)env;
     std::string all;
     std::string out;
+    // if (cgiLang == ".cgi" || cgiLang == "pl")
+    // {
+    //     std::ifstream perl(Path);
+    //     if (!perl)
+    //     {
+    //         all = ("HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n\r\n");
+    //         req.cgiStatus = 404;
+    //         return (all);
+    //     }
+    // }
     out = get_cgi_output(Path, req, cgiLang, Server);
     all = Header_gen(out, req);
     all += getBody(out);

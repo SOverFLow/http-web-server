@@ -38,6 +38,7 @@ std::string get_cgi_output(std::string path, Request &req, std::string cgiLang, 
     int fd_req[2];
     char c;
     char **env;
+    std::string cgi_bin;
     pid_t pid;
     pipe(fd_req);
     if ((pid = fork()) < 0)
@@ -46,11 +47,16 @@ std::string get_cgi_output(std::string path, Request &req, std::string cgiLang, 
     {
         std::vector<char *> cmds;
         if (cgiLang == "php" || cgiLang == ".php")
+        {
             cmds.push_back((char *)"/cgi-bin/php-cgi");
+            cgi_bin = "/cgi-bin/php-cgi";
+        }
         else if (cgiLang == "perl" || cgiLang == ".cgi")
         {
             cmds.push_back((char *)"/usr/bin/perl");
+            cgi_bin = "/usr/bin/perl";
         }
+        std::cout << cmds[0] << std::endl;;
         cmds.push_back(((char *)path.substr(1).data()));
         cmds.push_back(NULL);
         env = setEnv(req, path, Server);
@@ -61,7 +67,7 @@ std::string get_cgi_output(std::string path, Request &req, std::string cgiLang, 
         }
         close(fd_req[0]);
         dup2(fd_req[1], 1);
-        if(execve("./cgi-bin/php-cgi", cmds.data(), env) < 0)
+        if(execve(cgi_bin.c_str(), cmds.data(), env) < 0)
         {
             std::cerr << "Exec Error!" << std::endl;
             exit(EXIT_FAILURE);

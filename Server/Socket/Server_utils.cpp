@@ -31,9 +31,6 @@ void handle_new_connection(int listening_socket, std::vector<pollfd> &fds) {
 
 int check_if_url_is_location(std::string url, std::vector<Locations> locations)
 {
-    // if (url.empty())
-    //     std::cout << "error" << std::endl;
-
     for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it) 
     {
         if (url == it->Name)

@@ -133,16 +133,20 @@ std::string     Cgi_Handler(Request &req, std::string Path, char **env, std::str
     (void)env;
     std::string all;
     std::string out;
-    // if (cgiLang == ".cgi" || cgiLang == "pl")
-    // {
-    //     std::ifstream perl(Path);
-    //     if (!perl)
-    //     {
-    //         all = ("HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n\r\n");
-    //         req.cgiStatus = 404;
-    //         return (all);
-    //     }
-    // }
+    if (cgiLang == ".cgi" || cgiLang == "pl")
+    {
+        std::cout << "yes\n";
+        std::fstream perl(Path);
+        if (perl.is_open() == false)
+        {
+            std::cout << "is opened" << std::endl;
+            all = ("HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n\r\n");
+            req.cgiStatus = 404;
+            return (all);
+        }
+        std::cout << "jjjjjjjj" << std::endl;
+        perl.close();
+    }
     out = get_cgi_output(Path, req, cgiLang, Server);
     all = Header_gen(out, req);
     all += getBody(out);

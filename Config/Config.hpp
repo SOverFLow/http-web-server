@@ -22,6 +22,7 @@ class ServerConfig
         size_t client_max_body_size;
         std::vector<std::string> index;
         std::vector<std::string> allowed_method;
+        std::map<std::string, std::string> error_pages;
         std::string directory_answer;
         std::string CgiLang;
         std::string CgiPath;

@@ -251,7 +251,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         }
 
         if (check_if_url_is_location(req.Path.substr(1), server.Locations))
-        { 
+        {
             if (check_if_location_has_redirect(req.Path.substr(1), server.Locations))
             {
                 int code = get_redirect_code_for_location(req.Path.substr(1), server.Locations);
@@ -283,7 +283,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
             && Check_is_method_allowed(req.Method, tmp_methods))
             {
                 if (Check_Cgi_Location_Status(req.Path.substr(1), server.Locations))
-                {   
+                {
                    if (check_if_location_has_redirect(req.Path.substr(1), server.Locations))
                     {
                         int code = get_redirect_code_for_location(req.Path.substr(1), server.Locations);
@@ -326,9 +326,11 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     else
                     {
                         std::ifstream file(all_path.substr(1), std::ios::binary);
-
+                    
                         if (file)
+                        {
                             this->data = Cgi_Handler(req, all_path, NULL, get_location(req.Path.substr(1), server.Locations).CgiLang, server, this->cookies_part);
+                        }
                         else
                         {
                             this->data = Cgi_Handler(req, all_path, NULL, get_location(req.Path.substr(1), server.Locations).CgiLang, server, this->cookies_part);

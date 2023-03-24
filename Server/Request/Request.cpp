@@ -29,13 +29,13 @@ std::string chunked_Body(std::string &Body)
         chunk = atoi(Body.c_str());
         pos = std::to_string(chunk).length() + 2;
     }
-    std::cout << New_Body << std::endl;
+    //std::cout << New_Body << std::endl;
     return (New_Body);
 }
 
 Request::Request(std::string req, size_t server_body_size)
 {
-    std::cout << req << std::endl;
+    //std::cout << req << std::endl;
     this->Body_Size_From_Config = server_body_size;
     InitMime(this->mime);
     SetBody(req);

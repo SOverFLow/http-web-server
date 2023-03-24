@@ -157,7 +157,9 @@ std::string     Cgi_Handler(Request &req, std::string Path, char **env, std::str
         perl.close();
     }
     out = get_cgi_output(Path, req, cgiLang, Server);
+
     all = Header_gen(out, req, Cookies);
+
     if (req.cgiStatus == 200)
         all += getBody(out);
     return all;

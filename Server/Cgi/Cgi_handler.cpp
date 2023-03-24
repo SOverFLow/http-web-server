@@ -17,6 +17,8 @@ char    **setEnv(Request &req, std::string Path, ServerBlock &Server)
 {
     std::vector <char *> env;
     std::string method = req.Method;
+    std::string pwd = getwd(NULL);
+
     if (req.Method == "GET")
     {
         if(req.Qurey_String != "NULL")
@@ -24,7 +26,9 @@ char    **setEnv(Request &req, std::string Path, ServerBlock &Server)
     }
     (void)Path;
     env.push_back(strdup(("HTTP_HOST=" + req.Host).c_str()));
-    //env.push_back(strdup(("REQUEST_METHOD=" + method).c_str()));
+    env.push_back(strdup(("SCRIPT_FILENAME=" +  pwd + req.Path).c_str()));
+    env.push_back(strdup(("REDIRECT_STATUS=200")));
+    env.push_back(strdup(("REQUEST_METHOD=" + method).c_str()));
     env.push_back(strdup(("HTTPS=off")));
     env.push_back(strdup(("SCRIPT_NAME=" + Path).c_str()));
     env.push_back(strdup(("DOCUMENT_ROOT=" + Server.root).c_str()));
@@ -86,6 +90,8 @@ std::string getCtype(std::string Output)
     int Ctype_p;
     std::string Content_type;
     Ctype_p = Output.find("Content-type:", 0);
+    if (Ctype_p == 0)
+        return ("500");
     int end = Ctype_p+14;
     end = Output.find(";", Ctype_p+14);
     Content_type = Output.substr(Ctype_p+14, end - (Ctype_p+14));
@@ -102,7 +108,7 @@ std::string getBody(std::string Output)
     return(Body);
 }
 
-std::string Header_gen( std::string Output, Request &req)
+std::string Header_gen( std::string Output, Request &req, std::string Cookies)
 {
     std::string Header;
     std::string Content_type;
@@ -113,7 +119,13 @@ std::string Header_gen( std::string Output, Request &req)
         Status = "200";
         req.cgiStatus = 200;
         Content_type = getCtype(Output);
-        Header = "HTTP/1.1 " + Status + " OK\r\nContent-type:" + Content_type + "\r\n\r\n";
+        if (Content_type == "500")
+        {
+            req.cgiStatus = 500;
+            Header = "HTTP/1.1 500 Internal Server Error\r\nContent-type: text/html\r\n"  + Cookies + "\r\n";
+        }
+        else
+            Header = "HTTP/1.1 " + Status + " OK\r\nContent-type:" + Content_type + "\r\n" + Cookies + "\r\n";
     }
     else
     {
@@ -122,34 +134,31 @@ std::string Header_gen( std::string Output, Request &req)
         req.cgiStatus = atoi(Status.c_str());
         for(int i = 12; Output[i] != '\n'; i++)
             Comment += Output[i];
-        Header = "HTTP/1.1 " + Status + " " + Comment + "\r\nContent-type:" + Content_type + "\r\n\r\n";
+        Header = "HTTP/1.1 " + Status + " " + Comment + "\r\nContent-type:" + Content_type + "\r\n" + Cookies + "\r\n";
     }
     return (Header);
 }
 
 
-std::string     Cgi_Handler(Request &req, std::string Path, char **env, std::string cgiLang, ServerBlock &Server)
+std::string     Cgi_Handler(Request &req, std::string Path, char **env, std::string cgiLang, ServerBlock &Server, std::string Cookies)
 {
     (void)env;
     std::string all;
     std::string out;
     if (cgiLang == ".cgi" || cgiLang == "pl")
     {
-        std::cout << "yes\n";
-        std::fstream perl(Path);
+        std::fstream perl(Path.substr(1));
         if (perl.is_open() == false)
         {
-            std::cout << "is opened" << std::endl;
-            all = ("HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n\r\n");
+            all = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n" + Cookies + "\r\n";
             req.cgiStatus = 404;
             return (all);
         }
-        std::cout << "jjjjjjjj" << std::endl;
         perl.close();
     }
     out = get_cgi_output(Path, req, cgiLang, Server);
-    all = Header_gen(out, req);
-    all += getBody(out);
-    std::cout << out << std::endl;
+    all = Header_gen(out, req, Cookies);
+    if (req.cgiStatus == 200)
+        all += getBody(out);
     return all;
 }

@@ -36,7 +36,7 @@ class Request
         bool    is_Cgi;
 };
 
-std::string     Cgi_Handler(Request &req, std::string Path, char **env, std::string cgiLang, ServerBlock &Server);
+std::string     Cgi_Handler(Request &req, std::string Path, char **env, std::string cgiLang, ServerBlock &Server, std::string Cookies);
 
 
 #endif

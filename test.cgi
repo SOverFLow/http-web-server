@@ -1,11 +1,13 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
+
+# Modules used
 use strict;
 use warnings;
+
+# print("Content-Type: text/html;\r\n\r\n");
 use CGI;
 my $cgi = CGI->new();
 print $cgi->header;
 
-print <<'END';
-<!doctype html>
-<html> HTML Goes Here </html>
-END
+# Print function
+print("<h1>Hello World!</h1>\n");

@@ -106,12 +106,14 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     Request req(full_request, server.client_max_body_size);
 
 
+    this->cookies = parse_cookies(full_request);
+    this->cookies_part = manage_cookies_session_server();
     if (!server.server_name.empty())
     {
         size_t num_pos = req.Host.find(":");
         if (req.Host.substr(0, num_pos) != server.server_name)
         {
-            this->data = "HTTP/1.1 503 Service Unavailable\r\nContent-type: text/html\r\n\r\n";
+            this->data = "HTTP/1.1 503 Service Unavailable\r\nContent-type: text/html\r\n" + this->cookies_part + "\r\n";
             this->data += Return_File_Content("/Error_Pages/503.html");
             int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
             close(client_socket);
@@ -124,8 +126,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         }
     }
 
-    this->cookies = parse_cookies(full_request);
-    this->cookies_part = manage_cookies_session_server();
 
     if (req.StatusCode != 200)
         this->data = Return_Error_For_Bad_Request(req.StatusCode);
@@ -153,10 +153,10 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 root_plus_file = server.root + req.Path.substr(1);
                 std::ifstream file(root_plus_file.substr(1), std::ios::binary);
                 if (file)
-                    this->data = Cgi_Handler(req, root_plus_file, NULL, lang, server);
+                    this->data = Cgi_Handler(req, root_plus_file, NULL, lang, server, this->cookies_part);
                 else
                 {
-                    this->data = Cgi_Handler(req, root_plus_file, NULL, lang, server);
+                    this->data = Cgi_Handler(req, root_plus_file, NULL, lang, server, this->cookies_part);
                     if (req.cgiStatus == 404)
                         this->data += Return_File_Content("/Error_Pages/404.html");
                     else if (req.cgiStatus == 403)
@@ -208,7 +208,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             }
                             else
                             {
-                                this->data = Cgi_Handler(req, all_path, NULL, get_location(str.substr(1), server.Locations).CgiLang, server);
+                                this->data = Cgi_Handler(req, all_path, NULL, get_location(str.substr(1), server.Locations).CgiLang, server, this->cookies_part);
                             }
                         }
                 }
@@ -217,10 +217,10 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 {
                     std::ifstream file(all_path.substr(1), std::ios::binary);
                     if (file)
-                        this->data = Cgi_Handler(req, all_path, NULL, get_location(str.substr(1), server.Locations).CgiLang, server);
+                        this->data = Cgi_Handler(req, all_path, NULL, get_location(str.substr(1), server.Locations).CgiLang, server, this->cookies_part);
                     else
                     {
-                        this->data = Cgi_Handler(req, all_path, NULL, get_location(str.substr(1), server.Locations).CgiLang, server);
+                        this->data = Cgi_Handler(req, all_path, NULL, get_location(str.substr(1), server.Locations).CgiLang, server, this->cookies_part);
                         if (req.cgiStatus == 404)
                             this->data += Return_File_Content("/Error_Pages/404.html");
                         else if (req.cgiStatus == 403)
@@ -319,7 +319,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             else
                             {
         
-                                this->data = Cgi_Handler(req, all_path, NULL, get_location(req.Path.substr(1), server.Locations).CgiLang, server);
+                                this->data = Cgi_Handler(req, all_path, NULL, get_location(req.Path.substr(1), server.Locations).CgiLang, server, this->cookies_part);
                             }
                         }
                     }
@@ -328,10 +328,10 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         std::ifstream file(all_path.substr(1), std::ios::binary);
 
                         if (file)
-                            this->data = Cgi_Handler(req, all_path, NULL, get_location(req.Path.substr(1), server.Locations).CgiLang, server);
+                            this->data = Cgi_Handler(req, all_path, NULL, get_location(req.Path.substr(1), server.Locations).CgiLang, server, this->cookies_part);
                         else
                         {
-                            this->data = Cgi_Handler(req, all_path, NULL, get_location(req.Path.substr(1), server.Locations).CgiLang, server);
+                            this->data = Cgi_Handler(req, all_path, NULL, get_location(req.Path.substr(1), server.Locations).CgiLang, server, this->cookies_part);
                             if (req.cgiStatus == 404)
                                 this->data += Return_File_Content("/Error_Pages/404.html");
                             else if (req.cgiStatus == 403)

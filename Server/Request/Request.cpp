@@ -18,6 +18,7 @@ std::string GetMime(std::string Path)
 
 Request::Request(std::string req, size_t server_body_size)
 {
+    std::cout << req << std::endl;
     this->Body_Size_From_Config = server_body_size;
     InitMime(this->mime);
     SetBody(req);
@@ -30,6 +31,25 @@ Request::Request(std::string req, size_t server_body_size)
         this->is_Cgi = true;
     else
         this->is_Cgi = false;
+    if (req.find("Transfer-Encoding: chunked", 0))
+        this->Body = chunked_Body(this->Body);
+}
+
+std::string chunked_Body(std::string &Body)
+{
+    std::string New_Body;
+    int chunk;
+    int pos;
+    chunk = atoi(Body.c_str());
+    pos = std::to_string(chunk).length() + 2;
+    while (chunk)
+    {
+        New_Body += Body.substr(pos, chunk);
+        chunk = atoi(Body.c_str());
+        pos = std::to_string(chunk).length() + 2;
+    }
+    std::cout << New_Body << std::endl;
+    return (New_Body);
 }
 
 void Request::SetBody(std::string req)

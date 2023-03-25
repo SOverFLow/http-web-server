@@ -26,7 +26,7 @@ char    **setEnv(Request &req, std::string Path, ServerBlock &Server)
     }
     (void)Path;
     env.push_back(strdup(("HTTP_HOST=" + req.Host).c_str()));
-    env.push_back(strdup(("SCRIPT_FILENAME=" +  pwd + req.Path).c_str()));
+    env.push_back(strdup(("SCRIPT_FILENAME=" +  pwd +Path).c_str()));
     env.push_back(strdup(("REDIRECT_STATUS=200")));
     env.push_back(strdup(("REQUEST_METHOD=" + method).c_str()));
     env.push_back(strdup(("HTTPS=off")));

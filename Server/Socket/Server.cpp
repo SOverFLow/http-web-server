@@ -359,21 +359,21 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             else
                             {
                                 Response res(full_path, "GET", req.Content_Type,
-                                client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true, cookies_part);
+                                client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part);
                                 this->data = res.res_to_client;
                             }
                         }
                         else
                         {
                             Response res(full_path, "GET", req.Content_Type,
-                            client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true, cookies_part);
+                            client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part);
                             this->data = res.res_to_client;
                         }
                     }
                     else 
                     {
                         Response res(full_path, req.Method, req.Content_Type,
-                        client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true, cookies_part);
+                        client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part);
                         this->data = res.res_to_client;
                     }
                 }
@@ -394,7 +394,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
             else if (Check_is_method_allowed(req.Method, get_location(req.Path.substr(1), server.Locations).allowed_method) && check_if_url_is_location(req.Path.substr(1), server.Locations))
             {
                 Response res(full_path, req.Method, req.Content_Type,
-                client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true, cookies_part);
+                client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part);
                 this->data = res.res_to_client;
             }
             else

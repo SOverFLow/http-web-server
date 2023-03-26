@@ -359,14 +359,14 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             else
                             {
                                 Response res(full_path, "GET", req.Content_Type,
-                                client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true, cookies_part);
+                                client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part);
                                 this->data = res.res_to_client;
                             }
                         }
                         else
                         {
                             Response res(full_path, "GET", req.Content_Type,
-                            client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true, cookies_part);
+                            client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part);
                             this->data = res.res_to_client;
                         }
                     }
@@ -380,16 +380,21 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
 
 
             }
+            else if (req.Path == "/" && !Check_is_method_allowed(req.Method, server.allowed_method))
+            {
+                this->data = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
+                this->data += Return_File_Content("/Error_Pages/405.html");
+            }
             else if (Check_is_method_allowed(req.Method, server.allowed_method) && !check_if_url_is_location(req.Path.substr(1), server.Locations))
             {
                 Response res(full_path, req.Method, req.Content_Type,
                 client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false, cookies_part);
                 this->data = res.res_to_client;
             }
-            else if (Check_is_method_allowed(req.Method, server.allowed_method) && check_if_url_is_location(req.Path.substr(1), server.Locations))
+            else if (Check_is_method_allowed(req.Method, get_location(req.Path.substr(1), server.Locations).allowed_method) && check_if_url_is_location(req.Path.substr(1), server.Locations))
             {
                 Response res(full_path, req.Method, req.Content_Type,
-                client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true, cookies_part);
+                client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part);
                 this->data = res.res_to_client;
             }
             else
@@ -397,6 +402,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 this->data = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                 this->data += Return_File_Content("/Error_Pages/405.html");
             }
+            
     }
 
     

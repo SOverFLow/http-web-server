@@ -28,14 +28,7 @@ ServerBlock::~ServerBlock()
 Config::Config( std::string Path )
 {
     this->ServerCount = 0;
-    try 
-    {
-        ConfigParser( Path );
-    }
-    catch(const std::exception &e)
-    {
-        std::cout << "error => " << e.what() << std::endl;
-    }
+    ConfigParser( Path );
 }
 
 Locations::Locations( std::string Name )

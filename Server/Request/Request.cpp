@@ -26,10 +26,9 @@ std::string chunked_Body(std::string &Body)
     while (chunk)
     {
         New_Body += Body.substr(pos, chunk);
-        chunk = atoi(Body.c_str());
+        chunk = atoi(Body.c_str() + pos);
         pos = std::to_string(chunk).length() + 2;
     }
-    //std::cout << New_Body << std::endl;
     return (New_Body);
 }
 

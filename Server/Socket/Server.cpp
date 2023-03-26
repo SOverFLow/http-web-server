@@ -158,9 +158,9 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 {
                     this->data = Cgi_Handler(req, root_plus_file, NULL, lang, server, this->cookies_part);
                     if (req.cgiStatus == 404)
-                        this->data += Return_File_Content("/Error_Pages/404.html");
+                        this->data += Return_File_Content(server.error_pages["404"]);
                     else if (req.cgiStatus == 403)
-                        this->data += Return_File_Content("/Error_Pages/403.html");
+                        this->data += Return_File_Content(server.error_pages["403"]);
                 }
                 int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 close(client_socket);
@@ -222,9 +222,9 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     {
                         this->data = Cgi_Handler(req, all_path, NULL, get_location(str.substr(1), server.Locations).CgiLang, server, this->cookies_part);
                         if (req.cgiStatus == 404)
-                            this->data += Return_File_Content("/Error_Pages/404.html");
+                            this->data += Return_File_Content(server.error_pages["404"]);
                         else if (req.cgiStatus == 403)
-                            this->data += Return_File_Content("/Error_Pages/403.html");
+                            this->data += Return_File_Content(server.error_pages["403"]);
                     }
                 }
 
@@ -335,9 +335,9 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         {
                             this->data = Cgi_Handler(req, all_path, NULL, get_location(req.Path.substr(1), server.Locations).CgiLang, server, this->cookies_part);
                             if (req.cgiStatus == 404)
-                                this->data += Return_File_Content("/Error_Pages/404.html");
+                                this->data += Return_File_Content(server.error_pages["404"]);
                             else if (req.cgiStatus == 403)
-                                this->data += Return_File_Content("/Error_Pages/403.html");
+                                this->data += Return_File_Content(server.error_pages["403"]);
                         }
                     }
                     }
@@ -359,21 +359,21 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             else
                             {
                                 Response res(full_path, "GET", req.Content_Type,
-                                client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part);
+                                client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part, server.error_pages);
                                 this->data = res.res_to_client;
                             }
                         }
                         else
                         {
                             Response res(full_path, "GET", req.Content_Type,
-                            client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part);
+                            client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part, server.error_pages);
                             this->data = res.res_to_client;
                         }
                     }
                     else 
                     {
                         Response res(full_path, req.Method, req.Content_Type,
-                        client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true, cookies_part);
+                        client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true, cookies_part, server.error_pages);
                         this->data = res.res_to_client;
                     }
                 }
@@ -383,24 +383,24 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
             else if (req.Path == "/" && !Check_is_method_allowed(req.Method, server.allowed_method))
             {
                 this->data = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
-                this->data += Return_File_Content("/Error_Pages/405.html");
+                this->data += Return_File_Content(server.error_pages["405"]);
             }
             else if (Check_is_method_allowed(req.Method, server.allowed_method) && !check_if_url_is_location(req.Path.substr(1), server.Locations))
             {
                 Response res(full_path, req.Method, req.Content_Type,
-                client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false, cookies_part);
+                client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false, cookies_part, server.error_pages);
                 this->data = res.res_to_client;
             }
             else if (Check_is_method_allowed(req.Method, get_location(req.Path.substr(1), server.Locations).allowed_method) && check_if_url_is_location(req.Path.substr(1), server.Locations))
             {
                 Response res(full_path, req.Method, req.Content_Type,
-                client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part);
+                client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part, server.error_pages);
                 this->data = res.res_to_client;
             }
             else
             {
                 this->data = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
-                this->data += Return_File_Content("/Error_Pages/405.html");
+                this->data += Return_File_Content(server.error_pages["405"]);
             }
             
     }

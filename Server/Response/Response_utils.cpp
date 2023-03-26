@@ -52,7 +52,7 @@ void Response::serve_index(std::string Path, std::string contentType)
         {
             this->response = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n" + this->server_cookies + "\r\n";
             send(this->socket_fd, this->response.data(), this->response.length(), 0);
-            file_content = read_file_content("/Error_Pages/403.html");
+            file_content = read_file_content(this->error_pages["403"]);
             send(this->socket_fd, file_content.data(), file_content.length(), 0);
         }
         else
@@ -94,7 +94,7 @@ void Response::serve_root_path(std::string Path, std::string contentType)
         {
             this->response = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n" + this->server_cookies + "\r\n";
             send(this->socket_fd, this->response.data(), this->response.length(), 0);
-            file_content = read_file_content("/Error_Pages/403.html");
+            file_content = read_file_content(this->error_pages["403"]);
             send(this->socket_fd, file_content.data(), file_content.length(), 0);
         }
         else

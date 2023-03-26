@@ -16,14 +16,14 @@ std::string	Response::handel_delete_request(std::string file_path)
 		else
         {
             res = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n" + this->server_cookies + "\r\n";
-            file_content = read_file_content("/Error_Pages/403.html");
+            file_content = read_file_content(this->error_pages["403"]);
             res += file_content;
         }
 	}
 	else
     {
         res = "HTTP/1.1 404 Not Found\r\nContent-type: text/html\r\n" + this->server_cookies + "\r\n";
-        file_content = read_file_content("/Error_Pages/404.html");
+        file_content = read_file_content(this->error_pages["404"]);
         res += file_content;
     }
     return (res);
@@ -58,7 +58,7 @@ std::string Response::handle_get_request(std::string Path, std::string contentTy
     else
     {
         res = check_request_path(Path) + "text/html" + "\r\n" + this->server_cookies + "\r\n";
-        file_content = read_file_content("/Error_Pages/404.html");
+        file_content = read_file_content(this->error_pages["404"]);
         res += file_content;
     }
     return (res);

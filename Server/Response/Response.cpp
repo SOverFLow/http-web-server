@@ -3,7 +3,7 @@
 
 Response::Response(std::string Path, std::string method, std::string contentType, int new_socket,
  bool is_cgi, std::vector<std::string> indexs,
-  bool autoindex, std::string full_path, std::string req_path, bool is_location , std::string cookies_part)
+  bool autoindex, std::string full_path, std::string req_path, bool is_location , std::string cookies_part, std::map<std::string, std::string> error_pages)
 {
     this->socket_fd = new_socket;
     this->index_files = indexs;
@@ -12,13 +12,14 @@ Response::Response(std::string Path, std::string method, std::string contentType
     this->req_path = req_path;
     this->is_location = is_location;
     this->server_cookies = cookies_part;
+    this->error_pages = error_pages;
     (void)is_cgi;
     std::string file_content;
 
     if (method == "No")
     {
         this->res_to_client = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n" + this->server_cookies  +"\r\n";
-        file_content = read_file_content("/Error_Pages/405.html");
+        file_content = read_file_content(this->error_pages["405"]);
         this->res_to_client += file_content;
     }
 

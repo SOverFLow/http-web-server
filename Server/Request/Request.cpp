@@ -34,6 +34,7 @@ std::string chunked_Body(std::string &Body)
 
 Request::Request(std::string req, size_t server_body_size)
 {
+    
     //std::cout << req << std::endl;
     this->Body_Size_From_Config = server_body_size;
     InitMime(this->mime);
@@ -193,6 +194,8 @@ void Request::SetContent()
         it++;
     }
 }
+
+
 
 void Request::InitMime(std::map<std::string, std::string> &mime)
 {

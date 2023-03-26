@@ -3,6 +3,20 @@
 #include <fstream>
 #include <cstring>
 
+void    init_err_pages(std::map<std::string, std::string> &err_pages)
+{
+    err_pages["201"] = "Error_Pages/201.html";
+    err_pages["400"] = "Error_Pages/400.html";
+    err_pages["404"] = "Error_Pages/404.html";
+    err_pages["503"] = "Error_Pages/503.html";
+    err_pages["403"] = "Error_Pages/403.html";
+    err_pages["502"] = "Error_Pages/502.html";
+    err_pages["405"] = "Error_Pages/405.html";
+    err_pages["413"] = "Error_Pages/413.html";
+    err_pages["414"] = "Error_Pages/414.html";
+    err_pages["501"] = "Error_Pages/501.html";
+}
+
 ServerConfig::ServerConfig()
 {
 
@@ -13,13 +27,14 @@ ServerConfig::~ServerConfig()
 
 }
 
-ServerBlock::ServerBlock()
+ServerBlock::~ServerBlock()
 {
 
 }
 
-ServerBlock::~ServerBlock()
+ServerBlock::ServerBlock()
 {
+    init_err_pages(this->error_pages);
     this->CgiStatus = false;
     this->redirect = false;
     this->uploadable = false;
@@ -27,6 +42,7 @@ ServerBlock::~ServerBlock()
 
 Config::Config( std::string Path )
 {
+    
     this->ServerCount = 0;
     ConfigParser( Path );
 }

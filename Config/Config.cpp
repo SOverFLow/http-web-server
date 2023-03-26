@@ -35,14 +35,17 @@ ServerBlock::~ServerBlock()
 ServerBlock::ServerBlock()
 {
     init_err_pages(this->error_pages);
+    this->port = 0;
+    this->root = "";
+    this->client_max_body_size = 0;
     this->CgiStatus = false;
     this->redirect = false;
     this->uploadable = false;
 }
 
+
 Config::Config( std::string Path )
 {
-    
     this->ServerCount = 0;
     ConfigParser( Path );
 }
@@ -327,6 +330,29 @@ void    Config::ConfigParser( std::string Path )
                 this->Servers.push_back(SetServer(ConfigFile, line));
             }
             this->ServerCount++;
+        }
+    }
+    for(size_t i = 0; i < this->Servers.size(); i++)
+    {
+        if (this->Servers[i].root == "")
+        {
+            std::cerr << "No root in Server: " << i << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        if (this->Servers[i].index.size() == 0)
+        {
+            std::cerr << "No indexs in Server: " << i << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        if (this->Servers[i].port == 0)
+        {
+            std::cerr << "No Port in Server: " << i << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        if (this->Servers[i].client_max_body_size == 0)
+        {
+            std::cerr << "No client_max_body_size in Server: " << i << std::endl;
+            exit(EXIT_FAILURE);
         }
     }
 }

@@ -31,6 +31,7 @@ class Server
         std::vector<int> setup_sockets(std::vector<ServerBlock> &servers);
         std::map<std::string, std::string> cookies;
         std::map<std::string, std::string> sessions;
+        std::map<std::string, std::string> error_pages;
         std::string cookies_part;
         void connection(std::vector<ServerBlock> &servers);
         void handle_client_request(int client_socket);

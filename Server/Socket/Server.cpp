@@ -105,7 +105,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
    
     Request req(full_request, server.client_max_body_size);
 
-
+    this->error_pages = server.error_pages;
     this->cookies = parse_cookies(full_request);
     this->cookies_part = manage_cookies_session_server();
     if (!server.server_name.empty())
@@ -114,7 +114,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         if (req.Host.substr(0, num_pos) != server.server_name)
         {
             this->data = "HTTP/1.1 503 Service Unavailable\r\nContent-type: text/html\r\n" + this->cookies_part + "\r\n";
-            this->data += Return_File_Content("/Error_Pages/503.html");
+            this->data += Return_File_Content(server.error_pages["503"]);
             int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
             close(client_socket);
             if (num_sent == -1) 

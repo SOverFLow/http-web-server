@@ -118,7 +118,6 @@ void serve_auto_index(std::string full_path, std::string req_path, int client_so
 
         if ((dir = opendir(all.c_str())) != NULL)
             {
-            std::cout << full_path << std::endl;
             if (full_path != "/")
                 full_path.append("/");
             while ((ent = readdir(dir)) != NULL)

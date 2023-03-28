@@ -1,8 +1,2 @@
 .DS_Store
 /.vscode
-/img
-test.sh
-/utils
-.idea/
-/test
-my_main.cpp

@@ -118,6 +118,9 @@ void serve_auto_index(std::string full_path, std::string req_path, int client_so
 
         if ((dir = opendir(all.c_str())) != NULL)
             {
+            std::cout << full_path << std::endl;
+            if (full_path != "/")
+                full_path.append("/");
             while ((ent = readdir(dir)) != NULL)
             {
                 std::string filename = ent->d_name;
@@ -127,12 +130,12 @@ void serve_auto_index(std::string full_path, std::string req_path, int client_so
                     
                     if (S_ISDIR(ent->d_type))
                     {
-                        response << "<li>" << filename << "</li>\n";
+                        response << "<li><a href=\"" << full_path + filename << "/\">" << full_path + filename << "/</a></li>\n";
                     }
                     else
                     {
 
-                        response << "<li>" << filename << "</li>\n";
+                        response << "<li><a href=\"" <<  full_path + filename << "\">" << full_path + filename << "/</a></li>\n";
                     }
                 }
             }

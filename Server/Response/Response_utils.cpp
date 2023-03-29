@@ -107,7 +107,9 @@ void Response::serve_root_path(std::string Path, std::string contentType)
 void serve_auto_index(std::string full_path, std::string req_path, int client_socket)
 {
     struct stat path_stat;
-    std::string all = "/Users/selhanda/Desktop/webserv" + full_path;
+    char cwd[1024];
+    getcwd(cwd, sizeof(cwd));
+    std::string all = cwd + full_path;
     if (stat( all.c_str(), &path_stat) == 0 && S_ISDIR(path_stat.st_mode))
     {
         std::stringstream response;
@@ -129,12 +131,12 @@ void serve_auto_index(std::string full_path, std::string req_path, int client_so
                     
                     if (S_ISDIR(ent->d_type))
                     {
-                        response << "<li><a href=\"" << full_path + filename << "/\">" << full_path + filename << "/</a></li>\n";
+                        response << "<li><a href=\"" << full_path + filename << "/\">" << filename << "/</a></li>\n";
                     }
                     else
                     {
 
-                        response << "<li><a href=\"" <<  full_path + filename << "\">" << full_path + filename << "/</a></li>\n";
+                        response << "<li><a href=\"" <<  full_path + filename << "\">" << filename << "/</a></li>\n";
                     }
                 }
             }

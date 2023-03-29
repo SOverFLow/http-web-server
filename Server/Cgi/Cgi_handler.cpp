@@ -90,7 +90,7 @@ std::string getCtype(std::string Output)
     int Ctype_p;
     std::string Content_type;
     Ctype_p = Output.find("Content-type:", 0);
-    if (Ctype_p == 0)
+    if (Ctype_p == -1)
         return ("500");
     int end = Ctype_p+14;
     end = Output.find(";", Ctype_p+14);
@@ -157,7 +157,6 @@ std::string     Cgi_Handler(Request &req, std::string Path, char **env, std::str
         perl.close();
     }
     out = get_cgi_output(Path, req, cgiLang, Server);
-
     all = Header_gen(out, req, Cookies);
 
     if (req.cgiStatus == 200)

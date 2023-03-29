@@ -89,6 +89,11 @@ Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string 
             std::getline(ConfigFile, line);
     }
     splited = ft_split(line);
+    while (splited.size() == 0)
+    {
+        std::getline(ConfigFile, line);
+        splited = ft_split(line);
+    }
     while (splited[0] != "}")
     {
         std::vector<std::string>::iterator it = splited.begin();
@@ -178,6 +183,11 @@ Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string 
         }
         std::getline(ConfigFile, line);
         splited = ft_split(line);
+        while(splited.size() == 0)
+        {
+            std::getline(ConfigFile, line);
+            splited = ft_split(line);
+        }
     }
     return (*Instance);
 
@@ -187,7 +197,11 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
 {
     ServerBlock *Instance = new ServerBlock();
     std::vector<std::string> splited = ft_split(line);
-
+    while(splited.size() == 0)
+    {
+        std::getline(ConfigFile, line);
+        splited = ft_split(line);
+    }
     while (splited[0] != "}")
     {
         if (splited[0] == "root")
@@ -299,6 +313,7 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
         }
         else
         {
+            std::cout << splited[0] << std::endl;
             std::cerr << "Config Error unknown directive" << std::endl;
             exit(EXIT_FAILURE);
         }
@@ -318,15 +333,28 @@ void    Config::ConfigParser( std::string Path )
     std::ifstream ConfigFile(Path);
     std::string line;
     std::string token;
+    std::vector <std::string> splited;
     while (std::getline(ConfigFile, line))
     {
-        if (line == "server")
+        splited = ft_split(line);
+        // if ((splited[0] == "server" && splited[1] == "{") || splited[0] == "server{")
+        // {
+        //     std::getline(ConfigFile, line);
+        //     this->Servers.push_back(SetServer(ConfigFile, line));
+        // }
+        if (splited[0] == "server")
         {
             std::getline(ConfigFile, line);
-            if(line == "{")
+            splited = ft_split(line);
+            if(splited[0] == "{")
             {
                 std::getline(ConfigFile, line);
                 this->Servers.push_back(SetServer(ConfigFile, line));
+            }
+            else
+            {
+                std::cerr << "Syntax error" << std::endl;
+                exit(EXIT_FAILURE);
             }
             this->ServerCount++;
         }

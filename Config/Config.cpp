@@ -73,9 +73,9 @@ std::vector<std::string> ft_split( std::string line )
     return (splited);
 }
 
-Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string Name)
+Locations SetLocation(std::ifstream &ConfigFile, std::string line, std::string Name)
 {
-    Locations *Instance = new Locations( Name );
+    Locations Instance = Locations( Name );
     std::vector<std::string> splited = ft_split(line);
     if (splited.size() == 3)
     {
@@ -105,7 +105,7 @@ Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string 
                 std::cerr << "Config Error in root" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            Instance->root = *(++it);
+            Instance.root = *(++it);
         }
         else if (*it == "index")
         {
@@ -114,7 +114,7 @@ Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string 
                 std::cerr << "Config Error in index" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            Instance->index.insert(Instance->index.begin(), splited.begin() + 1, splited.end());
+            Instance.index.insert(Instance.index.begin(), splited.begin() + 1, splited.end());
         }
         else if (*it == "allowed_method")
         {
@@ -123,7 +123,7 @@ Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string 
                 std::cerr << "Config Error in allowed_method" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            Instance->allowed_method.insert(Instance->allowed_method.begin(), splited.begin() + 1, splited.end());
+            Instance.allowed_method.insert(Instance.allowed_method.begin(), splited.begin() + 1, splited.end());
         }
         else if (*it == "cgi")
         {
@@ -132,8 +132,8 @@ Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string 
                 std::cerr << "Config Error in cgi" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            Instance->CgiStatus = true;
-            Instance->CgiLang = splited[1];
+            Instance.CgiStatus = true;
+            Instance.CgiLang = splited[1];
         }
         else if (splited[0] == "autoindex")
         {
@@ -143,9 +143,9 @@ Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string 
                 exit(EXIT_FAILURE);
             }
             if (splited[1] == "on")
-                Instance->autoindex = true;
+                Instance.autoindex = true;
             else 
-                Instance->autoindex = false;
+                Instance.autoindex = false;
         }
         else if (splited[0] == "return")
         {
@@ -154,9 +154,9 @@ Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string 
                 std::cerr << "Config Error in redirection" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            Instance->redirect = true;
-            Instance->redirect_code = std::atoi(splited[1].c_str());
-            Instance->redirect_url = splited[2];
+            Instance.redirect = true;
+            Instance.redirect_code = std::atoi(splited[1].c_str());
+            Instance.redirect_url = splited[2];
         }
         else  if (splited[0] == "upload")
         {
@@ -165,8 +165,8 @@ Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string 
                 std::cerr << "Config Error: no upload path" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            Instance->uploadable = true;
-            Instance->uploadPath = splited[1];
+            Instance.uploadable = true;
+            Instance.uploadPath = splited[1];
         }
         else if (splited[0] == "error_page")
         {
@@ -175,7 +175,7 @@ Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string 
                 std::cerr << "Config Error in error_page" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            Instance->error_pages[splited[1]] = splited[2];
+            Instance.error_pages[splited[1]] = splited[2];
         }
         else
         {
@@ -190,13 +190,13 @@ Locations &SetLocation(std::ifstream &ConfigFile, std::string line, std::string 
             splited = ft_split(line);
         }
     }
-    return (*Instance);
+    return (Instance);
 
 }
 
-ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
+ServerBlock SetServer(std::ifstream &ConfigFile, std::string line)
 {
-    ServerBlock *Instance = new ServerBlock();
+    ServerBlock Instance =  ServerBlock();
     std::vector<std::string> splited = ft_split(line);
     while(splited.size() == 0)
     {
@@ -212,7 +212,7 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
                 std::cerr << "Config Error in root" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            Instance->root = splited[1];
+            Instance.root = splited[1];
         }
         else if (splited[0] == "directory_answer")
         {
@@ -221,7 +221,7 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
                 std::cerr << "Config Error in directory_answer" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            Instance->directory_answer = splited[1];
+            Instance.directory_answer = splited[1];
         }
         else if (splited[0] == "listen")
         {
@@ -230,7 +230,7 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
                 std::cerr << "Config Error in port" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            Instance->port = std::atoi(splited[1].c_str());
+            Instance.port = std::atoi(splited[1].c_str());
         }
         else if (splited[0] == "index")
         {
@@ -239,7 +239,7 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
                 std::cerr << "Config Error in index" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            Instance->index.insert(Instance->index.begin(), splited.begin() + 1, splited.end());
+            Instance.index.insert(Instance.index.begin(), splited.begin() + 1, splited.end());
         }
         else if (splited[0] == "allowed_method")
         {
@@ -248,10 +248,10 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
                 std::cerr << "Config Error in allowed_method" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            Instance->allowed_method.insert(Instance->allowed_method.begin(), splited.begin() + 1, splited.end());
+            Instance.allowed_method.insert(Instance.allowed_method.begin(), splited.begin() + 1, splited.end());
         }
         else if (splited[0] == "location")
-            Instance->Locations.push_back(SetLocation(ConfigFile, line, splited[1]));
+            Instance.Locations.push_back(SetLocation(ConfigFile, line, splited[1]));
         else if (splited[0] == "cgi")
         {
             if (splited.size() != 2)
@@ -259,8 +259,8 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
                 std::cerr << "Config Error in cgi" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            Instance->CgiStatus = true;
-            Instance->CgiLang = splited[1];
+            Instance.CgiStatus = true;
+            Instance.CgiLang = splited[1];
         }
         else if (splited[0] == "autoindex")
         {
@@ -270,9 +270,9 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
                 exit(EXIT_FAILURE);
             }
             if (splited[1] == "on")
-                Instance->autoindex = true;
+                Instance.autoindex = true;
             else 
-                Instance->autoindex = false;
+                Instance.autoindex = false;
         }
         else if (splited[0] == "return")
         {
@@ -281,9 +281,9 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
                 std::cerr << "Config Error in reduction" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            Instance->redirect = true;
-            Instance->redirect_code = std::atoi(splited[1].c_str());
-            Instance->redirect_url = splited[2];
+            Instance.redirect = true;
+            Instance.redirect_code = std::atoi(splited[1].c_str());
+            Instance.redirect_url = splited[2];
         }
         else if (splited[0] == "server_name")
         {
@@ -292,7 +292,7 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
                 std::cerr << "Config Error in server_name" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            Instance->server_name = splited[1];
+            Instance.server_name = splited[1];
         }
         else if (splited[0] == "client_max_body_size")
         {
@@ -301,7 +301,7 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
                 std::cerr << "Config Error in client_max_body_size" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            Instance->client_max_body_size = atoi(splited[1].c_str());
+            Instance.client_max_body_size = atoi(splited[1].c_str());
         }
         else if (splited[0] == "error_page")
         {
@@ -310,7 +310,7 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
                 std::cerr << "Config Error in error_page" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            Instance->error_pages[splited[1]] = splited[2];
+            Instance.error_pages[splited[1]] = splited[2];
         }
         else
         {
@@ -326,7 +326,7 @@ ServerBlock &SetServer(std::ifstream &ConfigFile, std::string line)
             splited = ft_split(line);
         }
     }
-    return (*Instance);
+    return (Instance);
 }
 
 void    Config::ConfigParser( std::string Path )

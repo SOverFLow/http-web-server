@@ -161,6 +161,8 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         this->data += Return_File_Content(server.error_pages["404"]);
                     else if (req.cgiStatus == 403)
                         this->data += Return_File_Content(server.error_pages["403"]);
+                    else if (req.cgiStatus == 500)
+                        this->data += Return_File_Content(server.error_pages["500"]);
                 }
                 int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 close(client_socket);
@@ -225,6 +227,8 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             this->data += Return_File_Content(server.error_pages["404"]);
                         else if (req.cgiStatus == 403)
                             this->data += Return_File_Content(server.error_pages["403"]);
+                        else if (req.cgiStatus == 500)
+                            this->data += Return_File_Content(server.error_pages["500"]);
                     }
                 }
 
@@ -338,6 +342,8 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                 this->data += Return_File_Content(server.error_pages["404"]);
                             else if (req.cgiStatus == 403)
                                 this->data += Return_File_Content(server.error_pages["403"]);
+                            else if (req.cgiStatus == 500)
+                                this->data += Return_File_Content(server.error_pages["500"]);
                         }
                     }
                     }

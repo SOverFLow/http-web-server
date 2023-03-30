@@ -14,6 +14,7 @@ void    init_err_pages(std::map<std::string, std::string> &err_pages)
     err_pages["413"] = "/Error_Pages/413.html";
     err_pages["414"] = "/Error_Pages/414.html";
     err_pages["501"] = "/Error_Pages/501.html";
+    err_pages["500"] = "/Error_Pages/500.html";
 }
 
 ServerConfig::ServerConfig()

@@ -12,6 +12,8 @@
 #include "../../Config/Config.hpp"
 #include <vector>
 #include <fstream>
+#include <sstream>
+
 
 char    **setEnv(Request &req, std::string Path, ServerBlock &Server)
 {

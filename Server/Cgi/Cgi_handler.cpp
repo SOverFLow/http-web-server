@@ -93,6 +93,8 @@ std::string getCtype(std::string Output)
     std::string Content_type;
     Ctype_p = Output.find("Content-type:", 0);
     if (Ctype_p == -1)
+        Ctype_p = Output.find("Content-Type:", 0);
+    if (Ctype_p == -1)
         return ("500");
     int end = Ctype_p+14;
     end = Output.find(";", Ctype_p+14);

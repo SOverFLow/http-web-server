@@ -314,8 +314,10 @@ ServerBlock SetServer(std::ifstream &ConfigFile, std::string line)
         }
         else
         {
-            std::cout << splited[0] << std::endl;
-            std::cerr << "Config Error unknown directive" << std::endl;
+            if (splited[0] == "server")
+                std::cerr << "Syntax Error" << std::endl;
+            else
+                std::cerr << "Config Error unknown directive" << std::endl;
             exit(EXIT_FAILURE);
         }
         std::getline(ConfigFile, line);
@@ -338,12 +340,12 @@ void    Config::ConfigParser( std::string Path )
     while (std::getline(ConfigFile, line))
     {
         splited = ft_split(line);
-        // if ((splited[0] == "server" && splited[1] == "{") || splited[0] == "server{")
-        // {
-        //     std::getline(ConfigFile, line);
-        //     this->Servers.push_back(SetServer(ConfigFile, line));
-        // }
-        if (splited[0] == "server")
+        if ((splited[0] == "server" && splited[1] == "{") || splited[0] == "server{")
+        {
+            std::cerr << "Norm error " << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        else if (splited[0] == "server")
         {
             std::getline(ConfigFile, line);
             splited = ft_split(line);
@@ -357,8 +359,8 @@ void    Config::ConfigParser( std::string Path )
                 std::cerr << "Syntax error" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            this->ServerCount++;
         }
+        this->ServerCount++;
     }
     for(size_t i = 0; i < this->Servers.size(); i++)
     {

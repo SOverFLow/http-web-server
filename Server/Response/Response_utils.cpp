@@ -61,14 +61,60 @@ void Response::serve_index(std::string Path, std::string contentType)
 }
 
 
+
+void send_data_v_2(int sockfd, const char* data, size_t size, size_t chunk_size) 
+{
+    if (size == 0)
+        return;
+    
+    size_t send_size = std::min(chunk_size, size);
+
+    // std::cout << "Sending " << data << std::endl;
+    int sent = send(sockfd, data, send_size, 0);
+    
+    // if (sent == -1) {
+    //     return ;
+    // }
+
+    send_data_v_2(sockfd, data + sent, size - sent, chunk_size);
+}
+
+
+void send_data(int sockfd, const char* data, size_t data_size)
+{
+
+    const char* data_ptr = data;
+    int remaining = data_size;
+    int chunk_size = 1024;
+
+    while (remaining > 0) 
+    {
+        int send_size = std::min(chunk_size, remaining);
+
+        int sent = send(sockfd, data_ptr, send_size, 0);
+
+        remaining -= sent;
+        data_ptr += sent;
+    }
+
+}
+
 void Response::serve_other_files(std::string Path, std::string contentType)
 {
     std::string file_content;
 
-    this->response = check_request_path(Path) + contentType + "\r\n" + this->server_cookies + "\r\n";
-    send(this->socket_fd, this->response.data(), this->response.length(), 0);
-    file_content = read_file_content(Path);
-    send(this->socket_fd, file_content.data(), file_content.length(), 0);
+    try
+    {
+        this->response = check_request_path(Path) + contentType + "\r\n" + this->server_cookies + "\r\n";
+        send(this->socket_fd, this->response.data(), this->response.length(), 0);
+        file_content = read_file_content(Path);
+        send_data(this->socket_fd, file_content.data(), file_content.length());
+    }
+    catch(const std::exception &e)
+    {
+        std::cout << e.what() << std::endl;
+    }
+   
 }
 
 

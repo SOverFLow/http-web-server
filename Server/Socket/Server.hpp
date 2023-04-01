@@ -35,7 +35,7 @@ class Server
         std::string cookies_part;
         void connection(std::vector<ServerBlock> &servers);
         void handle_client_request(int client_socket);
-        int parse_upload_post_data(std::string full_request, std::string body, std::string upload_path);
+        int parse_upload_post_data(std::string full_request, std::string body, std::string upload_path, int connfd, size_t content_length, int bytes_received, char *buffer);
         void respond_to_clients(int client_socket, std::string root_path, ServerBlock server, int tmp);
         std::string Return_Error_For_Bad_Request(int status);
         std::map<std::string, std::string> parse_cookies(std::string request);

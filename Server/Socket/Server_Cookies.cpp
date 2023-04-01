@@ -35,7 +35,7 @@ std::map<std::string, std::string> Server::parse_cookies(std::string request) {
                 
                 if (name_pos != std::string::npos)
                 {
-                    name_pos += 2; // skip the "; "
+                    name_pos += 2;
                 }
             } 
             else 

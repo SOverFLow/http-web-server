@@ -93,20 +93,27 @@ std::vector<int> Server::setup_sockets(std::vector<ServerBlock> &servers)
 
 void Server::respond_to_clients(int client_socket, std::string root_path, ServerBlock server, int tmp)
 {
-    std::string full_request;
+    std::string request_message;
     int bytes_received;
-    char buffer[8000000];
+    char buffer[1024];
     std::string full_path;
 
-    while ((bytes_received = recv(client_socket, buffer, sizeof(buffer), 0)) > 0) {
-            full_request += std::string(buffer, bytes_received);
-    }
+    bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
+    request_message = std::string(buffer, bytes_received);
+    // while ((bytes_received = recv(client_socket, buffer, sizeof(buffer), 0)) > 0) {
+        
+    //     request_message += std::string(buffer, bytes_received);
+    // }
    
-   
-    Request req(full_request, server.client_max_body_size);
+    Request req(request_message, server.client_max_body_size);
+
+    
+
+
+
 
     this->error_pages = server.error_pages;
-    this->cookies = parse_cookies(full_request);
+    this->cookies = parse_cookies(request_message);
     this->cookies_part = manage_cookies_session_server();
     if (!server.server_name.empty())
     {
@@ -202,11 +209,16 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         {
                             int check;
                             std::string dir_path = get_root_location(str.substr(1), server.Locations) + Get_upload_Location_Path(str.substr(1),server.Locations);
-                            check = parse_upload_post_data(full_request, req.Body, dir_path);
+                            check = parse_upload_post_data(request_message, req.Body, dir_path, client_socket, req.Content_Lenght, bytes_received, buffer);
                             if (check)
                             {
                                 this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                                 this->data += Return_File_Content("/Error_Pages/201.html");
+                            }
+                            else if (check == -1)
+                            {
+                                this->data = "HTTP/1.1 500 Internal Server Error\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
+                                this->data += Return_File_Content("/Error_Pages/500.html");
                             }
                             else
                             {
@@ -314,11 +326,16 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         {
                             int check;
                             std::string dir_path = get_root_location(req.Path.substr(1), server.Locations) + Get_upload_Location_Path(req.Path.substr(1),server.Locations);
-                            check = parse_upload_post_data(full_request, req.Body, dir_path);
+                            check = parse_upload_post_data(request_message, req.Body, dir_path, client_socket, req.Content_Lenght, bytes_received, buffer);
                             if (check)
                             {
                                 this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                                 this->data += Return_File_Content("/Error_Pages/201.html");
+                            }
+                            else if (check == -1)
+                            {
+                                this->data = "HTTP/1.1 500 Internal Server Error\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
+                                this->data += Return_File_Content("/Error_Pages/500.html");
                             }
                             else
                             {
@@ -356,11 +373,16 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         {
                             int check;
                             std::string dir_path = get_root_location(req.Path.substr(1), server.Locations) + Get_upload_Location_Path(req.Path.substr(1),server.Locations);
-                            check = parse_upload_post_data(full_request, req.Body, dir_path);
+                            check = parse_upload_post_data(request_message, req.Body, dir_path, client_socket, req.Content_Lenght, bytes_received, buffer);
                             if (check)
                             {
                                 this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                                 this->data += Return_File_Content("/Error_Pages/201.html");
+                            }
+                            else if (check == -1)
+                            {
+                                this->data = "HTTP/1.1 500 Internal Server Error\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
+                                this->data += Return_File_Content("/Error_Pages/500.html");
                             }
                             else
                             {

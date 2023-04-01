@@ -2,21 +2,30 @@
 #include <vector>
 #include <fstream>
 
-int Server::parse_upload_post_data(std::string full_request, std::string body, std::string upload_path) {
-    
+int Server::parse_upload_post_data(std::string full_request, std::string body, std::string upload_path, int connfd, size_t content_length, int bytes_received, char *buffer)
+{
+
+    size_t total_bytes_received = 0;
+     while (total_bytes_received < content_length) {
+            bytes_received = recv(connfd, buffer, 1024, 0);
+            if (bytes_received == 0)
+                break;
+            if (bytes_received == -1)
+                break;
+            full_request += std::string(buffer, bytes_received);
+            total_bytes_received += bytes_received;
+            std::cout << "bytes: " << total_bytes_received << std::endl;
+    }
     std::string data(full_request);
     std::string boundary("boundary=");
     (void)body;
 
-    // Find the boundary string in the request
     size_t pos = data.find(boundary);
     if (pos == std::string::npos)
         return (0);
 
-    // Get the boundary value
     std::string boundary_value = "--" + data.substr(pos + boundary.length(), 16);
 
-    // Split the request data by the boundary
     
     std::vector<std::string> parts;
     size_t prev_pos = data.find(boundary_value);
@@ -30,12 +39,10 @@ int Server::parse_upload_post_data(std::string full_request, std::string body, s
         prev_pos = next_pos;
     }
 
-    // Parse the parts
+   
 
     for (std::vector<std::string>::iterator it = parts.begin(); it != parts.end(); ++it)
     {
-        // Find the content-type and content-disposition headers
-
         std::string content_type_header("Content-Type:");
         std::string content_disposition_header("Content-Disposition:");
         size_t content_type_pos = it->find(content_type_header);
@@ -44,14 +51,10 @@ int Server::parse_upload_post_data(std::string full_request, std::string body, s
             continue;
         }
 
-        // Parse the content-type and content-disposition headers
-
+    
         std::string content_type_value = it->substr(content_type_pos + content_type_header.length(), it->find("\r\n", content_type_pos) - (content_type_pos + content_type_header.length()));
         std::string content_disposition_value = it->substr(content_disposition_pos + content_disposition_header.length(), it->find("\r\n", content_disposition_pos) - (content_disposition_pos + content_disposition_header.length()));
 
-
-
-        // Find the file name and file data in the part
         std::string filename_header("filename=\"");
         size_t filename_pos = content_disposition_value.find(filename_header);
         if (filename_pos == std::string::npos) {
@@ -66,7 +69,7 @@ int Server::parse_upload_post_data(std::string full_request, std::string body, s
 
         if (filename_value.empty())
             return (0);
-        // Save the file to disk
+  
         char cwd[1024];
         getcwd(cwd, sizeof(cwd));
         std::string directory = cwd + upload_path;
@@ -80,9 +83,30 @@ int Server::parse_upload_post_data(std::string full_request, std::string body, s
                 std::cout << "Directory created successfully" << std::endl;
             }
         }
+      
+        // size_t total_bytes_received = 0;
         std::ofstream outfile(directory + filename_value, std::ios::binary);
+        // while (total_bytes_received < content_length) {
+        //     bytes_received = recv(connfd, buffer, 1024, 0);
+        //     // if (bytes_received == -1) {
+        //     //     std::cerr << "Error reading from socket" << std::endl;
+        //     //     break;
+        //     // }
+        //     outfile.write(buffer, bytes_received);
+        //     total_bytes_received += bytes_received;
+        //     //std::cout << "Total bytes received: " << total_bytes_received << std::endl;
+        // }
+        // outfile.close();
+
         outfile.write(file_data.c_str(), file_data.length());
         outfile.close();
+
+
+        if (total_bytes_received == content_length)
+            return (1);
+        else
+            return (-1);
+
     }
     return (1);
 }

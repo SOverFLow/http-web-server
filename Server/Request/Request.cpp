@@ -38,8 +38,8 @@ Request::Request(std::string req, size_t server_body_size)
     //std::cout << req << std::endl;
     this->Body_Size_From_Config = server_body_size;
     InitMime(this->mime);
-    SetBody(req);
     SetMethod(req);
+    SetBody(req);
     SetPath(req);
     this->StatusCode = Is_Request_Well_Formed(req);
     SetContent();
@@ -55,10 +55,18 @@ Request::Request(std::string req, size_t server_body_size)
 
 void Request::SetBody(std::string req)
 {
-    size_t BodyPos;
-    BodyPos = req.find("\r\n\r\n", 0);
-    this->Body = req.substr(BodyPos+4);
-    this->Content_Lenght = Body.size();
+    if (this->Method == "POST")
+    {
+        std::size_t content_length_start = req.find("Content-Length: ") + 16;
+        std::size_t content_length_end = req.find("\r\n", content_length_start);
+        std::string content_length_str = req.substr(content_length_start, content_length_end - content_length_start);
+        
+        int content_length = std::stoi(content_length_str);
+        this->Content_Lenght = content_length;
+        size_t BodyPos;
+        BodyPos = req.find("\r\n\r\n", 0);
+        this->Body = req.substr(BodyPos+4);
+    }
 }
 
 bool Check_Is_Chunked(std::string req)

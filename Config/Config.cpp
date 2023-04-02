@@ -73,6 +73,17 @@ std::vector<std::string> ft_split( std::string line )
     return (splited);
 }
 
+size_t get_max_body_size(std::string body_size)
+{
+    int last;
+    last = body_size.length() - 1;
+    if (body_size[last] == 'M')
+        return (atoi(body_size.c_str()) * 1000000);
+    else if (body_size[last] == 'M')
+        return (atoi(body_size.c_str()) * 1000);
+    return (atoi(body_size.c_str()));
+}
+
 Locations SetLocation(std::ifstream &ConfigFile, std::string line, std::string Name)
 {
     Locations Instance = Locations( Name );
@@ -301,7 +312,7 @@ ServerBlock SetServer(std::ifstream &ConfigFile, std::string line)
                 std::cerr << "Config Error in client_max_body_size" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            Instance.client_max_body_size = atoi(splited[1].c_str());
+            Instance.client_max_body_size = get_max_body_size(splited[1]);
         }
         else if (splited[0] == "error_page")
         {

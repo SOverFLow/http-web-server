@@ -4,7 +4,6 @@
 
 int Server::parse_upload_post_data(std::string full_request, std::string body, std::string upload_path, int connfd, size_t content_length, int bytes_received, char *buffer)
 {
-
     size_t total_bytes_received = 0;
      while (total_bytes_received < content_length) {
             bytes_received = recv(connfd, buffer, 1024, 0);

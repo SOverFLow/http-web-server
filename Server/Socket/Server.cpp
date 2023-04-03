@@ -98,19 +98,24 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     char buffer[1024];
     std::string full_path;
 
+    set_nonblocking(client_socket);
     bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
-    request_message = std::string(buffer, bytes_received);
-    // while ((bytes_received = recv(client_socket, buffer, sizeof(buffer), 0)) > 0) {
-        
-    //     request_message += std::string(buffer, bytes_received);
-    // }
-   
+    request_message = std::string(buffer, bytes_received); 
     Request req(request_message, server.client_max_body_size);
 
+    // if (req.StatusCode != 200)
+    // {
+    //     this->data = Return_Error_For_Bad_Request(req.StatusCode);
+    //     int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+    //     close(client_socket);
+    //     if (num_sent == -1) 
+    //     {
+    //         std::cout << "Error sending data to client";
+    //         close(client_socket);
+    //         return;
+    //     }
+    // }
     
-
-
-
 
     this->error_pages = server.error_pages;
     this->cookies = parse_cookies(request_message);
@@ -432,7 +437,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
             }
             
     }
-
     
     int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
     close(client_socket);

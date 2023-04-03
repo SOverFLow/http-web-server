@@ -34,8 +34,8 @@ std::string chunked_Body(std::string &Body)
 
 Request::Request(std::string req, size_t server_body_size)
 {
-    
-    //std::cout << req << std::endl;
+  
+    this->Content_Lenght = 0;
     this->Body_Size_From_Config = server_body_size;
     InitMime(this->mime);
     SetMethod(req);
@@ -130,7 +130,7 @@ int Request::Is_Request_Well_Formed(std::string req)
         return (400);
     if (Check_Is_Uri_Large(this->Path))
         return (414);
-    if (Check_Request_Body_Size(this->Body_Size_From_Config, this->Body.size()))
+    if (Check_Request_Body_Size(this->Body_Size_From_Config, this->Content_Lenght))
         return (413);
 
     return (200);

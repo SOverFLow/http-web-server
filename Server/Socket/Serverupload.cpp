@@ -6,6 +6,7 @@ int Server::parse_upload_post_data(std::string full_request, std::string body, s
 {
     size_t total_bytes_received = 0;
      while (total_bytes_received < content_length) {
+            set_nonblocking(connfd);
             bytes_received = recv(connfd, buffer, 1024, 0);
             if (bytes_received == 0)
                 break;
@@ -13,7 +14,7 @@ int Server::parse_upload_post_data(std::string full_request, std::string body, s
                 break;
             full_request += std::string(buffer, bytes_received);
             total_bytes_received += bytes_received;
-            std::cout << "bytes: " << total_bytes_received << std::endl;
+            // std::cout << "bytes: " << total_bytes_received << std::endl;
     }
     std::string data(full_request);
     std::string boundary("boundary=");

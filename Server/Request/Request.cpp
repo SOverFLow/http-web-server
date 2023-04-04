@@ -34,7 +34,6 @@ std::string chunked_Body(std::string &Body)
 
 Request::Request(std::string req, size_t server_body_size)
 {
-  
     this->Content_Lenght = 0;
     this->Body_Size_From_Config = server_body_size;
     InitMime(this->mime);
@@ -48,8 +47,11 @@ Request::Request(std::string req, size_t server_body_size)
         this->is_Cgi = true;
     else
         this->is_Cgi = false;
-    if (req.find("Transfer-Encoding: chunked", 0))
+    if (req.find("Transfer-Encoding: chunked", 0) != std::string::npos)
+    {
+        std::cout << "yes" << std::endl;
         this->Body = chunked_Body(this->Body);
+    }
 }
 
 

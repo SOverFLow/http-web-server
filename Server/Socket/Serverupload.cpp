@@ -4,25 +4,37 @@
 
 int Server::parse_upload_post_data(std::string full_request, std::string body, std::string upload_path, int connfd, size_t content_length, int bytes_received, char *buffer)
 {
+    //std::cout << body << std::endl;
+    char new_buffer[1024];
     size_t total_bytes_received = 0;
      while (total_bytes_received < content_length) {
-            set_nonblocking(connfd);
-            bytes_received = recv(connfd, buffer, 1024, 0);
+            //set_nonblocking(connfd);
+            //std::cout << content_length << std::endl;
+            bytes_received = recv(connfd, new_buffer, 1024, 0);
             if (bytes_received == 0)
                 break;
             if (bytes_received == -1)
                 break;
-            full_request += std::string(buffer, bytes_received);
-            total_bytes_received += bytes_received;
-            // std::cout << "bytes: " << total_bytes_received << std::endl;
+            if (bytes_received != -1)
+            {
+                full_request += std::string(new_buffer, bytes_received);
+                total_bytes_received += bytes_received;
+                //std::cout << "bytes: " << total_bytes_received << std::endl;
+            }
+
     }
+    // (void)connfd;
+    (void)buffer;
+    // (void)content_length;
+    // (void)bytes_received;
+    // full_request = body;
     std::string data(full_request);
     std::string boundary("boundary=");
     (void)body;
 
     size_t pos = data.find(boundary);
-    if (pos == std::string::npos)
-        return (0);
+    // if (pos == std::string::npos)
+    //     return (0);
 
     std::string boundary_value = "--" + data.substr(pos + boundary.length(), 16);
 
@@ -102,10 +114,10 @@ int Server::parse_upload_post_data(std::string full_request, std::string body, s
         outfile.close();
 
 
-        if (total_bytes_received == content_length)
-            return (1);
-        else
-            return (-1);
+        // if (total_bytes_received == content_length)
+        //     return (1);
+        // else
+        //     return (-1);
 
     }
     return (1);

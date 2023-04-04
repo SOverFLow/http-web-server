@@ -22,25 +22,25 @@ void Server::connection(std::vector<ServerBlock> &servers)
         }
         for (size_t i = 0; i < pollfds.size(); i++) {
             
-            if (pollfds[i].revents & POLLIN) {
-                if (i < servers.size())
+            if (pollfds[i].revents & POLLIN) 
+            {
+                if (pollfds[i].fd == servers[i].sock_fd) 
                 {
-                    if (pollfds[i].fd == servers[i].sock_fd) 
-                    {
-                        handle_new_connection(servers[i].sock_fd, pollfds);
-                        tmp = i;
-                    }
+                    handle_new_connection(servers[i].sock_fd, pollfds);
+                    tmp = i;
                 }
                 else 
+                    respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp);
+            }
+            else
+            {
+                try
                 {
-                    try 
-                    {
-                        respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp);
-                    }
-                    catch(const std::exception &e)
-                    {
-                        continue;
-                    }
+                    respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp);
+                }
+                catch(const std::exception& e)
+                {
+                    continue;
                 }
             }
         }
@@ -98,28 +98,18 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     char buffer[1024];
     std::string full_path;
 
-    set_nonblocking(client_socket);
-    bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
-    request_message = std::string(buffer, bytes_received); 
-    Request req(request_message, server.client_max_body_size);
-
-    // if (req.StatusCode != 200)
-    // {
-    //     this->data = Return_Error_For_Bad_Request(req.StatusCode);
-    //     int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
-    //     close(client_socket);
-    //     if (num_sent == -1) 
-    //     {
-    //         std::cout << "Error sending data to client";
-    //         close(client_socket);
-    //         return;
-    //     }
-    // }
+    bytes_received = recv(client_socket, buffer, 1024, 0);
+    if (bytes_received != -1)
+    {
+        request_message = std::string(buffer,bytes_received);
+        Request req(request_message, server.client_max_body_size);
+    
     
 
-    this->error_pages = server.error_pages;
-    this->cookies = parse_cookies(request_message);
-    this->cookies_part = manage_cookies_session_server();
+        
+        this->error_pages = server.error_pages;
+        this->cookies = parse_cookies(request_message);
+        this->cookies_part = manage_cookies_session_server();
     // if (!server.server_name.empty())
     // {
     //     size_t num_pos = req.Host.find(":");
@@ -290,11 +280,20 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 return ;
             }
             
-            full_path = get_root_location(req.Path.substr(1), server.Locations);
-            tmp_path = full_path;
-            tmp_index = get_index_location(req.Path.substr(1), server.Locations);
-            tmp_methods = get_allowed_methods(req.Path.substr(1), server.Locations);
-            path_check = tmp;
+            try
+            {
+                full_path = get_root_location(req.Path.substr(1), server.Locations);
+                tmp_path = full_path;
+                tmp_index = get_index_location(req.Path.substr(1), server.Locations);
+                tmp_methods = get_allowed_methods(req.Path.substr(1), server.Locations);
+                path_check = tmp;
+            }
+            catch(const std::exception& e)
+            {
+                std::cerr << e.what() << '\n';
+            }
+            
+            
         }
         else if (tmp == path_check && req.Path != "/")
         {
@@ -420,9 +419,18 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
             }
             else if (Check_is_method_allowed(req.Method, server.allowed_method) && !check_if_url_is_location(req.Path.substr(1), server.Locations))
             {
-                Response res(full_path, req.Method, req.Content_Type,
-                client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false, cookies_part, server.error_pages);
-                this->data = res.res_to_client;
+                try
+                {
+                    Response res(full_path, req.Method, req.Content_Type,
+                    client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false, cookies_part, server.error_pages);
+                    this->data = res.res_to_client;
+                }
+                catch(const std::exception& e)
+                {
+                    std::cerr << e.what() << '\n';
+                }
+                
+                
             }
             else if (Check_is_method_allowed(req.Method, get_location(req.Path.substr(1), server.Locations).allowed_method) && check_if_url_is_location(req.Path.substr(1), server.Locations))
             {
@@ -437,14 +445,16 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
             }
             
     }
-    
     int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+    
     close(client_socket);
     if (num_sent == -1) 
     {
-        std::cout << "Error sending data to client";
+        std::cout << "Error sending data to client ";
         close(client_socket);
         return;
+    }
+
     }
 }
 

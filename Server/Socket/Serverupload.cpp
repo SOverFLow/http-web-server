@@ -19,7 +19,7 @@ int Server::parse_upload_post_data(std::string full_request, std::string body, s
             {
                 full_request += std::string(new_buffer, bytes_received);
                 total_bytes_received += bytes_received;
-                //std::cout << "bytes: " << total_bytes_received << std::endl;
+                std::cout << "bytes: " << total_bytes_received << std::endl;
             }
 
     }
@@ -96,19 +96,9 @@ int Server::parse_upload_post_data(std::string full_request, std::string body, s
             }
         }
       
-        // size_t total_bytes_received = 0;
+        
         std::ofstream outfile(directory + filename_value, std::ios::binary);
-        // while (total_bytes_received < content_length) {
-        //     bytes_received = recv(connfd, buffer, 1024, 0);
-        //     // if (bytes_received == -1) {
-        //     //     std::cerr << "Error reading from socket" << std::endl;
-        //     //     break;
-        //     // }
-        //     outfile.write(buffer, bytes_received);
-        //     total_bytes_received += bytes_received;
-        //     //std::cout << "Total bytes received: " << total_bytes_received << std::endl;
-        // }
-        // outfile.close();
+       
 
         outfile.write(file_data.c_str(), file_data.length());
         outfile.close();

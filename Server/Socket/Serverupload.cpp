@@ -51,7 +51,6 @@ int Server::parse_upload_post_data(std::string full_request, std::string body, s
         prev_pos = next_pos;
     }
 
-   
 
     for (std::vector<std::string>::iterator it = parts.begin(); it != parts.end(); ++it)
     {

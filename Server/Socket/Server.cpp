@@ -29,8 +29,18 @@ void Server::connection(std::vector<ServerBlock> &servers)
                     handle_new_connection(servers[i].sock_fd, pollfds);
                     tmp = i;
                 }
-                else 
-                    respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp);
+                else
+                {
+                    try
+                    {
+                        respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp);
+                    }
+                    catch(const std::exception& e)
+                    {
+                        continue;
+                    }
+                }
+                    
             }
             else
             {
@@ -104,9 +114,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         request_message = std::string(buffer,bytes_received);
         Request req(request_message, server.client_max_body_size);
     
-    
-
-        
         this->error_pages = server.error_pages;
         this->cookies = parse_cookies(request_message);
         this->cookies_part = manage_cookies_session_server();
@@ -204,7 +211,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         {
                             int check;
                             std::string dir_path = get_root_location(str.substr(1), server.Locations) + Get_upload_Location_Path(str.substr(1),server.Locations);
-                            check = parse_upload_post_data(request_message, req.Body, dir_path, client_socket, req.Content_Lenght, bytes_received, buffer);
+                            check = parse_upload_post_data(request_message, dir_path, client_socket, req.Content_Lenght, bytes_received);
                             if (check)
                             {
                                 this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
@@ -330,7 +337,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         {
                             int check;
                             std::string dir_path = get_root_location(req.Path.substr(1), server.Locations) + Get_upload_Location_Path(req.Path.substr(1),server.Locations);
-                            check = parse_upload_post_data(request_message, req.Body, dir_path, client_socket, req.Content_Lenght, bytes_received, buffer);
+                            check = parse_upload_post_data(request_message, dir_path, client_socket, req.Content_Lenght, bytes_received);
                             if (check)
                             {
                                 this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
@@ -377,7 +384,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         {
                             int check;
                             std::string dir_path = get_root_location(req.Path.substr(1), server.Locations) + Get_upload_Location_Path(req.Path.substr(1),server.Locations);
-                            check = parse_upload_post_data(request_message, req.Body, dir_path, client_socket, req.Content_Lenght, bytes_received, buffer);
+                            check = parse_upload_post_data(request_message, dir_path, client_socket, req.Content_Lenght, bytes_received);
                             if (check)
                             {
                                 this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";

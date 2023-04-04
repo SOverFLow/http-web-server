@@ -2,17 +2,13 @@
 #include <vector>
 #include <fstream>
 
-int Server::parse_upload_post_data(std::string full_request, std::string body, std::string upload_path, int connfd, size_t content_length, int bytes_received, char *buffer)
+int Server::parse_upload_post_data(std::string full_request, std::string upload_path, int connfd, size_t content_length, int bytes_received)
 {
-    //std::cout << body << std::endl;
     char new_buffer[1024];
     size_t total_bytes_received = 0;
     int i = 0;
      while (total_bytes_received < content_length) {
-            //set_nonblocking(connfd);
-            //std::cout << content_length << std::endl;
-            //bytes_received = recv(connfd, new_buffer, 1024, 0);
-            bytes_received = recv(connfd, new_buffer, 255, 0);
+            bytes_received = recv(connfd, new_buffer, 200, 0);
             i += bytes_received;
             std::cout << bytes_received << " all readed " << i  << std::endl;
             if (bytes_received == 0)
@@ -27,14 +23,9 @@ int Server::parse_upload_post_data(std::string full_request, std::string body, s
             }
 
     }
-    // (void)connfd;
-    (void)buffer;
-    // (void)content_length;
-    // (void)bytes_received;
-    // full_request = body;
+
     std::string data(full_request);
     std::string boundary("boundary=");
-    (void)body;
 
     size_t pos = data.find(boundary);
     // if (pos == std::string::npos)

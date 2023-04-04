@@ -7,10 +7,14 @@ int Server::parse_upload_post_data(std::string full_request, std::string body, s
     //std::cout << body << std::endl;
     char new_buffer[1024];
     size_t total_bytes_received = 0;
+    int i = 0;
      while (total_bytes_received < content_length) {
             //set_nonblocking(connfd);
             //std::cout << content_length << std::endl;
-            bytes_received = recv(connfd, new_buffer, 1024, 0);
+            //bytes_received = recv(connfd, new_buffer, 1024, 0);
+            bytes_received = recv(connfd, new_buffer, 255, 0);
+            i += bytes_received;
+            std::cout << bytes_received << " all readed " << i  << std::endl;
             if (bytes_received == 0)
                 break;
             if (bytes_received == -1)

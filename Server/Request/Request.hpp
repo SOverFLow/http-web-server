@@ -12,7 +12,6 @@ class Request
 {
     private:
         std::map <std::string, std::string> mime;
-
         void InitMime(std::map<std::string, std::string> &mime);
         void SetMethod(std::string req);
         void SetContent();
@@ -20,6 +19,7 @@ class Request
         void SetBody(std::string req);
         void SetHost(std::string req);
     public:
+        Request();
         Request(std::string req, size_t server_body_size);
         int Is_Request_Well_Formed(std::string req);
         ~Request();

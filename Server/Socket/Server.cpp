@@ -2,6 +2,7 @@
 
 Server::Server(Config config)
 {
+
     path_check = 0;
     client_first_read = false;
     check_upload_status = 0;
@@ -117,12 +118,10 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     if (bytes_received != -1)
     {
         request_message = std::string(buffer,bytes_received);
-        Request req(request_message, server.client_max_body_size);
-        if (client_first_read == true)
+        if (client_first_read == false)
         {
-            req.Path = "/upload";
-            req.Method = "POST";
-            req.Content_Type = "text/html";
+            Request req(request_message, server.client_max_body_size);
+            this->req = req;
         }
     
         this->error_pages = server.error_pages;

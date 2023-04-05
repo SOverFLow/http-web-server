@@ -1,5 +1,11 @@
 #include "Request.hpp"
 
+
+Request::Request()
+{
+}
+
+
 std::string GetMime(std::string Path)
 {
     int index = 0;

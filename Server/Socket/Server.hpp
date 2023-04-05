@@ -20,6 +20,20 @@ class Server
     public:
         Server(Config config);
     private:
+        // std::string Method_client;
+        // int StatusCode_client;
+        // int cgiStatus_client;
+        // std::string Content_Type_client;
+        // size_t Content_Lenght_client;
+        // size_t Body_Size_From_Config_client;
+        // std::string Body_client;
+        // std::string Host_client;
+        // std::string Qurey_String_client;
+        // std::string Path_client;
+        // bool    is_Cgi_client;
+        Request req;
+
+
         bool client_first_read;
         int check_upload_status;
         size_t file_bytes_received;

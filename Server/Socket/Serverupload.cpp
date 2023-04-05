@@ -4,8 +4,6 @@
 
 int Server::parse_upload_post_data(std::string full_request, std::string upload_path)
 {
-    
-    std::cout << "lwla" << std::endl;
     std::string data(full_request);
     std::string boundary("boundary=");
 
@@ -48,7 +46,7 @@ int Server::parse_upload_post_data(std::string full_request, std::string upload_
         }
         std::string filename_value = content_disposition_value.substr(filename_pos + filename_header.length(), content_disposition_value.find("\"", filename_pos + filename_header.length()) - (filename_pos + filename_header.length()));
         size_t file_data_pos = it->find("\r\n\r\n") + 4;
-        std::string file_data = it->substr(file_data_pos, it->length() - file_data_pos - boundary_value.length());
+        std::string file_data = it->substr(file_data_pos, it->length() - boundary_value.length());
 
 
 
@@ -70,15 +68,11 @@ int Server::parse_upload_post_data(std::string full_request, std::string upload_
             }
         }
       
-        
         std::ofstream outfile(directory + filename_value, std::ios::binary);
        
-
         outfile << file_data;
         outfile.close();
 
-
-        std::cout << "lakhr lwla" << std::endl;
         this->file_name_upload = filename_value;
         this->file_bondary_upload = boundary_value;
         this->first_read_data_size = file_data.length();
@@ -98,27 +92,25 @@ int Server::parse_upload_post_data_part_two(std::string full_request, std::strin
     std::string boundary("-----------------------------");
 
     size_t pos = full_request.find(boundary);
+
    
-    std::ofstream outfile(directory + this->file_name_upload, std::ios::binary);
+    std::ofstream outfile(directory + this->file_name_upload, std::ios::app);
 
     if (pos != std::string::npos)
     {
-        std::cout << "1" << std::endl;
         std::string file_data = full_request.substr(0, pos);
         outfile << file_data;
-        file_bytes_received  += file_data.length();
+        end_of_file = true;
+        // file_bytes_received  += file_data.length();
+        //file_bytes_received  += full_request.length();
     }
     else
     {
-        std::cout << "2" << std::endl;
         outfile << full_request;
-        file_bytes_received  += full_request.length();
+        //file_bytes_received  += full_request.length();
     }
 
-
     outfile.close();
-
-    std::cout << "lakhr tanya" << std::endl;
 
     return (1);
 }

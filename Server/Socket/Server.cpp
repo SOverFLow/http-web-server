@@ -5,6 +5,7 @@ Server::Server(Config config)
 
     path_check = 0;
     client_first_read = false;
+    end_of_file = false;
     check_upload_status = 0;
     this->file_bytes_received = 0;
     connection(config.Servers);
@@ -437,22 +438,22 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                 file_content_length = req.Content_Lenght;
                                 client_first_read = true;
                                 file_bytes_received = this->first_read_data_size;
-                                std::cout << "here" << file_bytes_received <<   std::endl;
+                                //std::cout << "here" << file_bytes_received <<   std::endl;
                                 return ;
                             }
                             else if (check_upload_status && client_first_read == true)
                             {
                                 
-                                std::cout << "Uploading :" << file_bytes_received << std::endl;
-                                    // file_bytes_received += bytes_received;
+                                //std::cout << "Uploading :" << file_bytes_received << std::endl;
+                                    file_bytes_received += bytes_received;
                                     check_upload_status = parse_upload_post_data_part_two(request_message, dir_path);
                                     if (check_upload_status)
                                     {
-                                        std::cout << "ah" << std::endl;
+                                        //std::cout << "ah" << std::endl;
                                         std::cout << "r>"<<file_bytes_received << std::endl;
                                         std::cout << "l>"<< file_content_length << std::endl;
                                         std::cout << "total>" << file_content_length - file_bytes_received<< std::endl;
-                                        if (file_bytes_received == file_content_length)
+                                        if (end_of_file)
                                         {
                                             client_first_read = false;
                                             this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";

@@ -46,8 +46,7 @@ Request::Request(std::string req, size_t server_body_size)
     SetMethod(req);
     SetBody(req);
     SetPath(req);
-    // this->StatusCode = Is_Request_Well_Formed(req);
-    this->StatusCode = 200;
+    this->StatusCode = Is_Request_Well_Formed(req);
     SetContent();
     SetHost(req);
     if (GetMime(this->Path) == "php" || GetMime(this->Path) == "cgi")
@@ -56,7 +55,6 @@ Request::Request(std::string req, size_t server_body_size)
         this->is_Cgi = false;
     if (req.find("Transfer-Encoding: chunked", 0) != std::string::npos)
     {
-        std::cout << "yes" << std::endl;
         this->Body = chunked_Body(this->Body);
     }
 }

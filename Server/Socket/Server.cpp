@@ -227,21 +227,23 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                 check_upload_status = parse_upload_post_data(request_message, dir_path);
                                 file_content_length = req.Content_Lenght;
                                 client_first_read = true;
-                                file_bytes_received = 1024;
+                                file_bytes_received = this->first_read_data_size;
                                 return ;
                             }
                             else if (check_upload_status && client_first_read == true)
                             {
-                                    file_bytes_received += recv(client_socket, buffer, 1024, 0);
-                                    request_message = std::string(buffer,file_bytes_received);
+                                    file_bytes_received += bytes_received;
                                     check_upload_status = parse_upload_post_data_part_two(request_message, dir_path);
                                     if (check_upload_status)
                                     {
-                                        if (file_bytes_received == file_content_length)
+                                        std::cout << "upload >>"<< file_bytes_received << std::endl;
+                            
+                                        if (end_of_file)
                                         {
                                             client_first_read = false;
                                             this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                                             this->data += Return_File_Content("/Error_Pages/201.html");
+                                            end_of_file = false;
                                         }
                                         else
                                             return ;
@@ -372,21 +374,23 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                 check_upload_status = parse_upload_post_data(request_message, dir_path);
                                 file_content_length = req.Content_Lenght;
                                 client_first_read = true;
-                                file_bytes_received = 1024;
+                                file_bytes_received = this->first_read_data_size;
                                 return ;
                             }
                             else if (check_upload_status && client_first_read == true)
                             {
-                                    file_bytes_received += recv(client_socket, buffer, 1024, 0);
-                                    request_message = std::string(buffer,file_bytes_received);
+                                    file_bytes_received += bytes_received;
                                     check_upload_status = parse_upload_post_data_part_two(request_message, dir_path);
                                     if (check_upload_status)
                                     {
-                                        if (file_bytes_received == file_content_length)
+                                        std::cout << "upload >>"<< file_bytes_received << std::endl;
+                            
+                                        if (end_of_file)
                                         {
                                             client_first_read = false;
                                             this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                                             this->data += Return_File_Content("/Error_Pages/201.html");
+                                            end_of_file = false;
                                         }
                                         else
                                             return ;

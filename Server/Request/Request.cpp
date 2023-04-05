@@ -40,7 +40,8 @@ Request::Request(std::string req, size_t server_body_size)
     SetMethod(req);
     SetBody(req);
     SetPath(req);
-    this->StatusCode = Is_Request_Well_Formed(req);
+    // this->StatusCode = Is_Request_Well_Formed(req);
+    this->StatusCode = 200;
     SetContent();
     SetHost(req);
     if (GetMime(this->Path) == "php" || GetMime(this->Path) == "cgi")

@@ -20,6 +20,13 @@ class Server
     public:
         Server(Config config);
     private:
+        bool client_first_read;
+        int check_upload_status;
+        size_t file_bytes_received;
+        size_t file_content_length;
+        size_t first_read_data_size;
+        std::string file_name_upload;
+        std::string file_bondary_upload;
         std::string data;
         int max_socket;
         std::string tmp_path;
@@ -35,7 +42,8 @@ class Server
         std::string cookies_part;
         void connection(std::vector<ServerBlock> &servers);
         void handle_client_request(int client_socket);
-        int parse_upload_post_data(std::string full_request, std::string upload_path, int connfd, size_t content_length, int bytes_received);
+        int parse_upload_post_data(std::string full_request, std::string upload_path);
+        int parse_upload_post_data_part_two(std::string full_request, std::string upload_path);
         void respond_to_clients(int client_socket, std::string root_path, ServerBlock server, int tmp);
         std::string Return_Error_For_Bad_Request(int status);
         std::map<std::string, std::string> parse_cookies(std::string request);

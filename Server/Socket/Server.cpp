@@ -3,6 +3,9 @@
 Server::Server(Config config)
 {
     path_check = 0;
+    client_first_read = false;
+    check_upload_status = 0;
+    this->file_bytes_received = 0;
     connection(config.Servers);
 }
 
@@ -46,7 +49,9 @@ void Server::connection(std::vector<ServerBlock> &servers)
             {
                 try
                 {
+                    //std::cout << "before :" << pollfds[i].fd  << std::endl;
                     respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp);
+                    //std::cout << "OK :" << pollfds[i].fd << std::endl;
                 }
                 catch(const std::exception& e)
                 {
@@ -113,10 +118,17 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     {
         request_message = std::string(buffer,bytes_received);
         Request req(request_message, server.client_max_body_size);
+        if (client_first_read == true)
+        {
+            req.Path = "/upload";
+            req.Method = "POST";
+            req.Content_Type = "text/html";
+        }
     
         this->error_pages = server.error_pages;
         this->cookies = parse_cookies(request_message);
         this->cookies_part = manage_cookies_session_server();
+
     // if (!server.server_name.empty())
     // {
     //     size_t num_pos = req.Host.find(":");
@@ -209,18 +221,37 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 {
                         if (Check_upload_Location_Status(str.substr(1), server.Locations))
                         {
-                            int check;
                             std::string dir_path = get_root_location(str.substr(1), server.Locations) + Get_upload_Location_Path(str.substr(1),server.Locations);
-                            check = parse_upload_post_data(request_message, dir_path, client_socket, req.Content_Lenght, bytes_received);
-                            if (check)
+                            if(client_first_read == false)
                             {
-                                this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
-                                this->data += Return_File_Content("/Error_Pages/201.html");
+                                check_upload_status = parse_upload_post_data(request_message, dir_path);
+                                file_content_length = req.Content_Lenght;
+                                client_first_read = true;
+                                file_bytes_received = 1024;
+                                return ;
                             }
-                            else if (check == -1)
+                            else if (check_upload_status && client_first_read == true)
                             {
-                                this->data = "HTTP/1.1 500 Internal Server Error\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
-                                this->data += Return_File_Content("/Error_Pages/500.html");
+                                    file_bytes_received += recv(client_socket, buffer, 1024, 0);
+                                    request_message = std::string(buffer,file_bytes_received);
+                                    check_upload_status = parse_upload_post_data_part_two(request_message, dir_path);
+                                    if (check_upload_status)
+                                    {
+                                        if (file_bytes_received == file_content_length)
+                                        {
+                                            client_first_read = false;
+                                            this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
+                                            this->data += Return_File_Content("/Error_Pages/201.html");
+                                        }
+                                        else
+                                            return ;
+                                    }
+                                    else if (check_upload_status == -1)
+                                    {
+                                        client_first_read = false;
+                                        this->data = "HTTP/1.1 500 Internal Server Error\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
+                                        this->data += Return_File_Content("/Error_Pages/500.html");
+                                    }
                             }
                             else
                             {
@@ -260,7 +291,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         }
 
         try {
-
             full_path = root_path + req.Path.substr(1);
         }
         catch(const std::exception &e)
@@ -335,22 +365,41 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     {
                         if (Check_upload_Location_Status(req.Path.substr(1), server.Locations))
                         {
-                            int check;
                             std::string dir_path = get_root_location(req.Path.substr(1), server.Locations) + Get_upload_Location_Path(req.Path.substr(1),server.Locations);
-                            check = parse_upload_post_data(request_message, dir_path, client_socket, req.Content_Lenght, bytes_received);
-                            if (check)
+                            
+                            if(client_first_read == false)
                             {
-                                this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
-                                this->data += Return_File_Content("/Error_Pages/201.html");
+                                check_upload_status = parse_upload_post_data(request_message, dir_path);
+                                file_content_length = req.Content_Lenght;
+                                client_first_read = true;
+                                file_bytes_received = 1024;
+                                return ;
                             }
-                            else if (check == -1)
+                            else if (check_upload_status && client_first_read == true)
                             {
-                                this->data = "HTTP/1.1 500 Internal Server Error\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
-                                this->data += Return_File_Content("/Error_Pages/500.html");
+                                    file_bytes_received += recv(client_socket, buffer, 1024, 0);
+                                    request_message = std::string(buffer,file_bytes_received);
+                                    check_upload_status = parse_upload_post_data_part_two(request_message, dir_path);
+                                    if (check_upload_status)
+                                    {
+                                        if (file_bytes_received == file_content_length)
+                                        {
+                                            client_first_read = false;
+                                            this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
+                                            this->data += Return_File_Content("/Error_Pages/201.html");
+                                        }
+                                        else
+                                            return ;
+                                    }
+                                    else if (check_upload_status == -1)
+                                    {
+                                        client_first_read = false;
+                                        this->data = "HTTP/1.1 500 Internal Server Error\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
+                                        this->data += Return_File_Content("/Error_Pages/500.html");
+                                    }
                             }
                             else
                             {
-        
                                 this->data = Cgi_Handler(req, all_path, NULL, get_location(req.Path.substr(1), server.Locations).CgiLang, server, this->cookies_part);
                             }
                         }
@@ -382,18 +431,43 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     {
                         if (Check_upload_Location_Status(req.Path.substr(1), server.Locations))
                         {
-                            int check;
                             std::string dir_path = get_root_location(req.Path.substr(1), server.Locations) + Get_upload_Location_Path(req.Path.substr(1),server.Locations);
-                            check = parse_upload_post_data(request_message, dir_path, client_socket, req.Content_Lenght, bytes_received);
-                            if (check)
+                           if(client_first_read == false)
                             {
-                                this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
-                                this->data += Return_File_Content("/Error_Pages/201.html");
+                                check_upload_status = parse_upload_post_data(request_message, dir_path);
+                                file_content_length = req.Content_Lenght;
+                                client_first_read = true;
+                                file_bytes_received = this->first_read_data_size;
+                                std::cout << "here" << file_bytes_received <<   std::endl;
+                                return ;
                             }
-                            else if (check == -1)
+                            else if (check_upload_status && client_first_read == true)
                             {
-                                this->data = "HTTP/1.1 500 Internal Server Error\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
-                                this->data += Return_File_Content("/Error_Pages/500.html");
+                                
+                                std::cout << "Uploading :" << file_bytes_received << std::endl;
+                                    // file_bytes_received += bytes_received;
+                                    check_upload_status = parse_upload_post_data_part_two(request_message, dir_path);
+                                    if (check_upload_status)
+                                    {
+                                        std::cout << "ah" << std::endl;
+                                        std::cout << "r>"<<file_bytes_received << std::endl;
+                                        std::cout << "l>"<< file_content_length << std::endl;
+                                        std::cout << "total>" << file_content_length - file_bytes_received<< std::endl;
+                                        if (file_bytes_received == file_content_length)
+                                        {
+                                            client_first_read = false;
+                                            this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
+                                            this->data += Return_File_Content("/Error_Pages/201.html");
+                                        }
+                                        else
+                                            return ;
+                                    }
+                                    else if (check_upload_status == -1)
+                                    {
+                                        client_first_read = false;
+                                        this->data = "HTTP/1.1 500 Internal Server Error\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
+                                        this->data += Return_File_Content("/Error_Pages/500.html");
+                                    }
                             }
                             else
                             {

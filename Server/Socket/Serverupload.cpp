@@ -2,34 +2,14 @@
 #include <vector>
 #include <fstream>
 
-int Server::parse_upload_post_data(std::string full_request, std::string upload_path, int connfd, size_t content_length, int bytes_received)
+int Server::parse_upload_post_data(std::string full_request, std::string upload_path)
 {
-    char new_buffer[1024];
-    size_t total_bytes_received = 0;
-    int i = 0;
-     while (total_bytes_received < content_length) {
-            bytes_received = recv(connfd, new_buffer, 200, 0);
-            i += bytes_received;
-            std::cout << bytes_received << " all readed " << i  << std::endl;
-            if (bytes_received == 0)
-                break;
-            if (bytes_received == -1)
-                break;
-            if (bytes_received != -1)
-            {
-                full_request += std::string(new_buffer, bytes_received);
-                total_bytes_received += bytes_received;
-                std::cout << "bytes: " << total_bytes_received << std::endl;
-            }
-
-    }
-
+    
+    std::cout << "lwla" << std::endl;
     std::string data(full_request);
     std::string boundary("boundary=");
 
     size_t pos = data.find(boundary);
-    // if (pos == std::string::npos)
-    //     return (0);
 
     std::string boundary_value = "--" + data.substr(pos + boundary.length(), 16);
 
@@ -94,16 +74,51 @@ int Server::parse_upload_post_data(std::string full_request, std::string upload_
         std::ofstream outfile(directory + filename_value, std::ios::binary);
        
 
-        outfile.write(file_data.c_str(), file_data.length());
+        outfile << file_data;
         outfile.close();
 
 
-        // if (total_bytes_received == content_length)
-        //     return (1);
-        // else
-        //     return (-1);
+        std::cout << "lakhr lwla" << std::endl;
+        this->file_name_upload = filename_value;
+        this->file_bondary_upload = boundary_value;
+        this->first_read_data_size = file_data.length();
 
     }
     return (1);
 }
 
+
+
+int Server::parse_upload_post_data_part_two(std::string full_request, std::string upload_path)
+{
+    char cwd[1024];
+    getcwd(cwd, sizeof(cwd));
+    std::string directory = cwd + upload_path;
+
+    std::string boundary("-----------------------------");
+
+    size_t pos = full_request.find(boundary);
+   
+    std::ofstream outfile(directory + this->file_name_upload, std::ios::binary);
+
+    if (pos != std::string::npos)
+    {
+        std::cout << "1" << std::endl;
+        std::string file_data = full_request.substr(0, pos);
+        outfile << file_data;
+        file_bytes_received  += file_data.length();
+    }
+    else
+    {
+        std::cout << "2" << std::endl;
+        outfile << full_request;
+        file_bytes_received  += full_request.length();
+    }
+
+
+    outfile.close();
+
+    std::cout << "lakhr tanya" << std::endl;
+
+    return (1);
+}

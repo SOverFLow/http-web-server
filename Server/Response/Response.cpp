@@ -6,6 +6,7 @@ Response::Response(std::string Path, std::string method, std::string contentType
   bool autoindex, std::string full_path, std::string req_path, bool is_location , std::string cookies_part, std::map<std::string, std::string> error_pages)
 {
     this->socket_fd = new_socket;
+    this->is_header_send = false;
     this->index_files = indexs;
     this->auto_index = autoindex;
     this->full_path = full_path;

@@ -28,6 +28,7 @@ private:
    std::string req_path;
    std::string server_cookies;
    bool is_location;
+   bool is_header_send;
    std::map<std::string, std::string> error_pages;
 public:
     Response(std::string Path, std::string method, std::string contentType, int new_socket, 

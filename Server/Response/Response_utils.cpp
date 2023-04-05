@@ -42,18 +42,19 @@ void Response::serve_index(std::string Path, std::string contentType)
     if (index)
     {
         this->response = check_request_path("/"+s) + contentType + "\r\n" + this->server_cookies + "\r\n";
-        send(this->socket_fd, this->response.data(), this->response.length(), 0);
         file_content = read_file_content("/"+s);
-        send(this->socket_fd, file_content.data(), file_content.length(), 0);
+        this->response += file_content;
+        send(this->socket_fd, this->response.data(), this->response.length(), 0);
+        return ;
     }
     else
     {
         if (!auto_index)
         {
             this->response = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n" + this->server_cookies + "\r\n";
-            send(this->socket_fd, this->response.data(), this->response.length(), 0);
             file_content = read_file_content(this->error_pages["403"]);
-            send(this->socket_fd, file_content.data(), file_content.length(), 0);
+            this->response += file_content;
+            send(this->socket_fd, this->response.data(), this->response.length(), 0);
         }
         else
             serve_auto_index(this->full_path, this->req_path, this->socket_fd);
@@ -102,6 +103,7 @@ void send_data(int sockfd, const char* data, size_t data_size)
 void Response::serve_other_files(std::string Path, std::string contentType)
 {
     std::string file_content;
+    std::cout << "other files" << std::endl;
 
     try
     {
@@ -129,19 +131,27 @@ void Response::serve_root_path(std::string Path, std::string contentType)
     std::ifstream index(correct_index, std::ios::binary);
     if (index)
     {
-        this->response = check_request_path("/"+correct_index) + contentType + "\r\n" + this->server_cookies + "\r\n";
-        send(this->socket_fd, this->response.data(), this->response.length(), 0); 
-        file_content = read_file_content("/"+correct_index);
-        send(this->socket_fd, file_content.data(), file_content.length(), 0);
+       
+        if (is_header_send == false)
+        {
+            this->response = check_request_path("/"+correct_index) + contentType + "\r\n" + this->server_cookies + "\r\n";
+            file_content = read_file_content("/"+correct_index);
+            this->response += file_content;
+            send(this->socket_fd, this->response.data(), this->response.length(), 0);
+            is_header_send = true;
+            return ;
+        }
     }
     else
     {
         if (!auto_index)
         {
             this->response = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n" + this->server_cookies + "\r\n";
-            send(this->socket_fd, this->response.data(), this->response.length(), 0);
             file_content = read_file_content(this->error_pages["403"]);
-            send(this->socket_fd, file_content.data(), file_content.length(), 0);
+            this->response += file_content;
+            send(this->socket_fd, this->response.data(), this->response.length(), 0);
+            return ;
+            
         }
         else
             serve_auto_index(this->full_path, this->req_path, this->socket_fd);

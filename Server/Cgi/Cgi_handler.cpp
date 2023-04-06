@@ -43,11 +43,13 @@ char    **setEnv(Request &req, std::string Path, ServerBlock &Server)
 std::string get_cgi_output(std::string path, Request &req, std::string cgiLang, ServerBlock &Server)
 {
     std::string res;
-    int fd_req[2];
-    char c;
-    char **env;
+    int         status;
+    int         fd_req[2];
+    char        c;
+    char        **env;
     std::string cgi_bin;
-    pid_t pid;
+    pid_t       pid;
+
     pipe(fd_req);
     if ((pid = fork()) < 0)
         std::cerr << "fork error!" << std::endl;
@@ -81,7 +83,9 @@ std::string get_cgi_output(std::string path, Request &req, std::string cgiLang, 
         }
     }
     close(fd_req[1]);
-    waitpid(pid, NULL, 0);
+    waitpid(pid, &status, 0);
+    if (status != 0)
+        throw 500;
     while(read(fd_req[0], &c, 1))
         res += c;
     return res;
@@ -160,10 +164,16 @@ std::string     Cgi_Handler(Request &req, std::string Path, char **env, std::str
         }
         perl.close();
     }
-    out = get_cgi_output(Path, req, cgiLang, Server);
-    all = Header_gen(out, req, Cookies);
-
-    if (req.cgiStatus == 200)
+    try
+    {
+        out = get_cgi_output(Path, req, cgiLang, Server);
+        all = Header_gen(out, req, Cookies);
+        if (req.cgiStatus == 200)
         all += getBody(out);
+    }
+    catch(int)
+    {
+        all = "HTTP/1.1 500 Internal Server Error\r\nContent-type: text/html\r\n"  + Cookies + "\r\n";
+    }
     return all;
 }

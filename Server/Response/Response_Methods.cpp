@@ -10,12 +10,12 @@ int	Response::handel_delete_request(std::string file_path)
 
 	if (CheckIsFile(file_path.substr(1)))
 	{
-		if (remove(file_path.substr(1).c_str()) == 0)
+        if (access(file_path.substr(1).data(), W_OK) == 0) 
         {
-            res = "HTTP/1.1 204 No Content\r\nContent-type: text/html\r\n" + this->server_cookies + "\r\n";
-
-        }
-		else
+            if (remove(file_path.substr(1).c_str()) == 0)
+                res = "HTTP/1.1 204 No Content\r\nContent-type: text/html\r\n" + this->server_cookies + "\r\n";
+        } 
+        else 
         {
             res = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n" + this->server_cookies + "\r\n";
             file_content = read_file_content(this->error_pages["403"]);

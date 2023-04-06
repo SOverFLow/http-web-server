@@ -84,10 +84,11 @@ std::string get_cgi_output(std::string path, Request &req, std::string cgiLang, 
     }
     close(fd_req[1]);
     waitpid(pid, &status, 0);
-    if (status != 0)
-        throw 500;
     while(read(fd_req[0], &c, 1))
         res += c;
+    if (res.find("Status: ", 0) != std::string::npos);
+    else if (status != 0)
+        throw 500;
     return res;
 }
 
@@ -174,6 +175,7 @@ std::string     Cgi_Handler(Request &req, std::string Path, char **env, std::str
     catch(int)
     {
         all = "HTTP/1.1 500 Internal Server Error\r\nContent-type: text/html\r\n"  + Cookies + "\r\n";
+        req.cgiStatus = 500;
     }
     return all;
 }

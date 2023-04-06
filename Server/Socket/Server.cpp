@@ -184,19 +184,13 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 if (lang == "pl" || lang == "cgi")
                     lang = ".cgi";
                 root_plus_file = server.root + req.Path.substr(1);
-                std::ifstream file(root_plus_file.substr(1), std::ios::binary);
-                if (file)
-                    this->data = Cgi_Handler(req, root_plus_file, NULL, lang, server, this->cookies_part);
-                else
-                {
-                    this->data = Cgi_Handler(req, root_plus_file, NULL, lang, server, this->cookies_part);
+                this->data = Cgi_Handler(req, root_plus_file, NULL, lang, server, this->cookies_part);
                     if (req.cgiStatus == 404)
                         this->data += Return_File_Content(server.error_pages["404"]);
                     else if (req.cgiStatus == 403)
                         this->data += Return_File_Content(server.error_pages["403"]);
                     else if (req.cgiStatus == 500)
                         this->data += Return_File_Content(server.error_pages["500"]);
-                }
                 num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 close(client_socket);
                 if (num_sent == -1) 

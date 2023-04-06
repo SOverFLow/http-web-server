@@ -36,18 +36,18 @@ public:
     std::string full_path, std::string req_path, bool is_location, std::string cookies_part, std::map<std::string, std::string> error_pages);
     std::string check_request_path(std::string Path);
     std::string read_file_content(std::string Path);
-    std::string handle_get_request(std::string Path, std::string contentType);
-    void handle_cgi_request(std::string cgi_path, std::string query);
-    std::string	handel_delete_request(std::string file_path);
-    void serve_index(std::string Path, std::string contentType);
-    void serve_other_files(std::string Path, std::string contentType);
-    void serve_root_path(std::string Path, std::string contentType);
+    int handle_get_request(std::string Path, std::string contentType);
+    int	handel_delete_request(std::string file_path);
+    int serve_index(std::string Path, std::string contentType);
+    int serve_other_files(std::string Path, std::string contentType);
+    int serve_root_path(std::string Path, std::string contentType);
     std::string res_to_client;
+    int num_sent;
 };
 
 void   cookie_handler(std::string http_request);
 std::string get_index_file_name(std::vector<std::string> index, std::string path);
 int		CheckIsFile(const std::string& path);
-void serve_auto_index(std::string full_path, std::string req_path, int client_socket);
+int serve_auto_index(std::string full_path, std::string req_path, int client_socket);
 
 #endif

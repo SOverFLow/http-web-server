@@ -29,8 +29,9 @@ std::string get_index_file_name(std::vector<std::string> index, std::string path
 }
 
 
-void Response::serve_index(std::string Path, std::string contentType)
+int Response::serve_index(std::string Path, std::string contentType)
 {
+    int ret = 0;
     std::string correct_index;
     correct_index = get_index_file_name(this->index_files, Path);
     std::string file_content;
@@ -41,11 +42,12 @@ void Response::serve_index(std::string Path, std::string contentType)
     std::ifstream index(s, std::ios::binary);
     if (index)
     {
+        //std::cout << "PATH=" << Path << std::endl;
         this->response = check_request_path("/"+s) + contentType + "\r\n" + this->server_cookies + "\r\n";
         file_content = read_file_content("/"+s);
         this->response += file_content;
-        send(this->socket_fd, this->response.data(), this->response.length(), 0);
-        return ;
+        ret = send(this->socket_fd, this->response.data(), this->response.length(), 0);
+        return (ret);
     }
     else
     {
@@ -54,11 +56,13 @@ void Response::serve_index(std::string Path, std::string contentType)
             this->response = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n" + this->server_cookies + "\r\n";
             file_content = read_file_content(this->error_pages["403"]);
             this->response += file_content;
-            send(this->socket_fd, this->response.data(), this->response.length(), 0);
+            ret = send(this->socket_fd, this->response.data(), this->response.length(), 0);
+            return (ret);
         }
         else
-            serve_auto_index(this->full_path, this->req_path, this->socket_fd);
+            ret = serve_auto_index(this->full_path, this->req_path, this->socket_fd);
     }
+    return (ret);
 }
 
 
@@ -100,33 +104,84 @@ void send_data(int sockfd, const char* data, size_t data_size)
 
 }
 
-void Response::serve_other_files(std::string Path, std::string contentType)
+
+
+// int	send_reponse(struct pollfd *ptr_tab_poll) {
+
+// 	int ret;
+// 	int	fd = ptr_tab_poll->fd;
+// 	size_t	rsize = g_reponse[fd].size();
+
+// 	size_t i;
+// 	for (i = 0; i < rsize && i < BUFFER_SIZE; i++) {
+
+// 		buf[i] = g_reponse[fd][i];
+
+// 	}	
+// 	buf[i] = '\0';
+
+// 	ret = send(fd, buf, (BUFFER_SIZE < rsize ? BUFFER_SIZE : rsize), 0);
+
+// 	if (ret < 0)
+// 		return ret;
+// 	else
+// 		std::cout << "send() successfully sent " << ret << " bytes, " << rsize - ret << " left" << std::endl;
+
+// 	g_reponse[fd].erase(g_reponse[fd].begin(), g_reponse[fd].begin() + ret);
+
+// 	if (g_reponse[fd].size() == 0)
+// 		ptr_tab_poll->events = POLLIN;
+
+// 	return ret;
+// }
+
+
+
+
+
+
+
+
+int Response::serve_other_files(std::string Path, std::string contentType)
 {
+    int ret = 0;
     std::string file_content;
     std::cout << "other files" << std::endl;
 
     try
     {
+        //std::cout << "Path:"<< Path << std::endl;
         this->response = check_request_path(Path) + contentType + "\r\n" + this->server_cookies + "\r\n";
         file_content = read_file_content(Path);
-        this->response += file_content;
-        send(this->socket_fd, this->response.data(), this->response.length(), 0);
+        //std::cout << "file content=" << file_content.length() << std::endl;
+        if (file_content.length() > 30000)
+        {
+            std::cout << "send file content" << std::endl;
+            //send_data(this->socket_fd, file_content.data(), file_content.length());
+
+        }
+        else
+        {
+            this->response += file_content;
+        }
+        ret = send(this->socket_fd, this->response.data(), this->response.length(), 0);
         
-        //send_data(this->socket_fd, file_content.data(), file_content.length());
     }
     catch(const std::exception &e)
     {
         std::cout << e.what() << std::endl;
     }
+    return (ret);
    
 }
 
 
-void Response::serve_root_path(std::string Path, std::string contentType)
+int Response::serve_root_path(std::string Path, std::string contentType)
 {
     std::string res;
     std::string file_content;
     std::string correct_index;
+    int ret = 0;
 
     correct_index = get_index_file_name(this->index_files, Path);
 
@@ -139,9 +194,9 @@ void Response::serve_root_path(std::string Path, std::string contentType)
             this->response = check_request_path("/"+correct_index) + contentType + "\r\n" + this->server_cookies + "\r\n";
             file_content = read_file_content("/"+correct_index);
             this->response += file_content;
-            send(this->socket_fd, this->response.data(), this->response.length(), 0);
+            ret = send(this->socket_fd, this->response.data(), this->response.length(), 0);
             is_header_send = true;
-            return ;
+            return (ret);
         }
     }
     else
@@ -151,23 +206,25 @@ void Response::serve_root_path(std::string Path, std::string contentType)
             this->response = "HTTP/1.1 403 Forbidden\r\nContent-type: text/html\r\n" + this->server_cookies + "\r\n";
             file_content = read_file_content(this->error_pages["403"]);
             this->response += file_content;
-            send(this->socket_fd, this->response.data(), this->response.length(), 0);
-            return ;
+            ret = send(this->socket_fd, this->response.data(), this->response.length(), 0);
+            return (ret);
             
         }
         else
             serve_auto_index(this->full_path, this->req_path, this->socket_fd);
     }
+    return (ret);
 }
 
 
 
-void serve_auto_index(std::string full_path, std::string req_path, int client_socket)
+int serve_auto_index(std::string full_path, std::string req_path, int client_socket)
 {
     struct stat path_stat;
     char cwd[1024];
     getcwd(cwd, sizeof(cwd));
     std::string all = cwd + full_path;
+    int ret = 0;
     if (stat( all.c_str(), &path_stat) == 0 && S_ISDIR(path_stat.st_mode))
     {
         std::stringstream response;
@@ -202,7 +259,7 @@ void serve_auto_index(std::string full_path, std::string req_path, int client_so
         }
         response << "</ul>\n<hr />\n</body>\n</html>\n";
         std::string response_str = response.str();
-        send(client_socket, response_str.c_str(), response_str.length(), 0);
-        return;
+        ret = send(client_socket, response_str.c_str(), response_str.length(), 0);
 }
+    return (ret);
 }

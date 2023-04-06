@@ -1,11 +1,12 @@
 #include "Response.hpp"
 #include <thread>
 
-std::string	Response::handel_delete_request(std::string file_path)
+int	Response::handel_delete_request(std::string file_path)
 {
 
     std::string res;
     std::string file_content;
+    int ret = 0;
 
 	if (CheckIsFile(file_path.substr(1)))
 	{
@@ -27,42 +28,43 @@ std::string	Response::handel_delete_request(std::string file_path)
         file_content = read_file_content(this->error_pages["404"]);
         res += file_content;
     }
-    send(this->socket_fd, res.data(), res.length(), 0);
-    return (res);
+    ret = send(this->socket_fd, res.data(), res.length(), 0);
+    return (ret);
 }
 
 
-std::string Response::handle_get_request(std::string Path, std::string contentType)
+int Response::handle_get_request(std::string Path, std::string contentType)
 {
     std::ifstream file(Path.substr(1), std::ios::binary);
     std::string file_content;
     std::string res;
+    int ret = 0;
 
 
     if (file)
     {
         if (Path.find(".", 0) == std::string::npos)
         {
-            serve_index(Path, contentType);
-            return (res);
+            ret = serve_index(Path, contentType);
+            return (ret);
         }
         else
         {
-            serve_other_files(Path, contentType);   
-            return (res);
+            ret = serve_other_files(Path, contentType);   
+            return (ret);
         }
     }
     else if (Path == "/")
     {
-        serve_root_path(Path, contentType);
-        return (res);
+        ret = serve_root_path(Path, contentType);
+        return (ret);
     }
     else
     {
         res = check_request_path(Path) + "text/html" + "\r\n" + this->server_cookies + "\r\n";
         file_content = read_file_content(this->error_pages["404"]);
         res += file_content;
-        send(this->socket_fd, res.data(), res.length(), 0);
+        ret = send(this->socket_fd, res.data(), res.length(), 0);
     }
-    return (res);
+    return (ret);
 }

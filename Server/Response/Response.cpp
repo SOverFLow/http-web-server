@@ -6,6 +6,7 @@ Response::Response(std::string Path, std::string method, std::string contentType
   bool autoindex, std::string full_path, std::string req_path, bool is_location , std::string cookies_part, std::map<std::string, std::string> error_pages)
 {
     this->socket_fd = new_socket;
+    this->is_header_send = false;
     this->index_files = indexs;
     this->auto_index = autoindex;
     this->full_path = full_path;
@@ -21,18 +22,19 @@ Response::Response(std::string Path, std::string method, std::string contentType
         this->res_to_client = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n" + this->server_cookies  +"\r\n";
         file_content = read_file_content(this->error_pages["405"]);
         this->res_to_client += file_content;
+        this->num_sent = send(this->socket_fd, this->res_to_client.data(), this->res_to_client.length(), 0);
     }
 
     else if (method == "GET")
     {
-        this->res_to_client = handle_get_request(Path, contentType);
+        this->num_sent = handle_get_request(Path, contentType);
     }
     else if (method == "POST")
     {
-        this->res_to_client = handle_get_request(Path, contentType);
+        this->num_sent = handle_get_request(Path, contentType);
     }
     else if (method == "DELETE")
-        this->res_to_client = handel_delete_request(Path);
+        this->num_sent = handel_delete_request(Path);
 }
 
 std::string Response::read_file_content(std::string Path)

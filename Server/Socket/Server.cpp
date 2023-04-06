@@ -51,9 +51,7 @@ void Server::connection(std::vector<ServerBlock> &servers)
             {
                 try
                 {
-                    //std::cout << "before :" << pollfds[i].fd  << std::endl;
                     respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp);
-                    //std::cout << "OK :" << pollfds[i].fd << std::endl;
                 }
                 catch(const std::exception& e)
                 {
@@ -114,6 +112,8 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     int bytes_received;
     char buffer[1024];
     std::string full_path;
+    bool alreadysent = false;
+    int num_sent  = 0;
 
     bytes_received = recv(client_socket, buffer, 1024, 0);
     if (bytes_received != -1)
@@ -185,7 +185,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     else if (req.cgiStatus == 500)
                         this->data += Return_File_Content(server.error_pages["500"]);
                 }
-                int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 close(client_socket);
                 if (num_sent == -1) 
                 {
@@ -204,7 +204,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     std::string msg = return_redirect_msg(code);
                     
                     this->data = "HTTP/1.1 " + std::to_string(code) + " " + msg + "\r\nLocation: " + get_redirect_url_for_location(str.substr(1), server.Locations) + "\r\n\r\n";
-                    int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                    num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                     if (num_sent == -1) 
                     {
                         std::cout << "Error sending data to client";
@@ -227,21 +227,23 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                 check_upload_status = parse_upload_post_data(request_message, dir_path);
                                 file_content_length = req.Content_Lenght;
                                 client_first_read = true;
-                                file_bytes_received = 1024;
+                                file_bytes_received = this->first_read_data_size;
                                 return ;
                             }
                             else if (check_upload_status && client_first_read == true)
                             {
-                                    file_bytes_received += recv(client_socket, buffer, 1024, 0);
-                                    request_message = std::string(buffer,file_bytes_received);
+                                    file_bytes_received += bytes_received;
                                     check_upload_status = parse_upload_post_data_part_two(request_message, dir_path);
                                     if (check_upload_status)
                                     {
-                                        if (file_bytes_received == file_content_length)
+                                        std::cout << "upload >>"<< file_bytes_received << std::endl;
+                            
+                                        if (end_of_file)
                                         {
                                             client_first_read = false;
                                             this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                                             this->data += Return_File_Content("/Error_Pages/201.html");
+                                            end_of_file = false;
                                         }
                                         else
                                             return ;
@@ -278,7 +280,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 }
 
 
-                int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 if (num_sent == -1) 
                 {
                     std::cout << "Error sending data to client";
@@ -306,7 +308,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 std::string msg = return_redirect_msg(code);
                     
                 this->data = "HTTP/1.1 " + std::to_string(code) + " " + msg + "\r\nLocation: " + get_redirect_url_for_location(req.Path.substr(1), server.Locations) + "\r\n\r\n";
-                int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 if (num_sent == -1) 
                 {
                     std::cout << "Error sending data to client";
@@ -347,7 +349,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         std::string msg = return_redirect_msg(code);
                     
                         this->data = "HTTP/1.1 " + std::to_string(code) + " " + msg + "\r\nLocation: " + get_redirect_url_for_location(req.Path.substr(1), server.Locations) + "\r\n\r\n";
-                        int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                        num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                         if (num_sent == -1) 
                         {
                             std::cout << "Error sending data to client";
@@ -372,21 +374,23 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                 check_upload_status = parse_upload_post_data(request_message, dir_path);
                                 file_content_length = req.Content_Lenght;
                                 client_first_read = true;
-                                file_bytes_received = 1024;
+                                file_bytes_received = this->first_read_data_size;
                                 return ;
                             }
                             else if (check_upload_status && client_first_read == true)
                             {
-                                    file_bytes_received += recv(client_socket, buffer, 1024, 0);
-                                    request_message = std::string(buffer,file_bytes_received);
+                                    file_bytes_received += bytes_received;
                                     check_upload_status = parse_upload_post_data_part_two(request_message, dir_path);
                                     if (check_upload_status)
                                     {
-                                        if (file_bytes_received == file_content_length)
+                                        std::cout << "upload >>"<< file_bytes_received << std::endl;
+                            
+                                        if (end_of_file)
                                         {
                                             client_first_read = false;
                                             this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                                             this->data += Return_File_Content("/Error_Pages/201.html");
+                                            end_of_file = false;
                                         }
                                         else
                                             return ;
@@ -469,21 +473,24 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             {
                                 Response res(full_path, "GET", req.Content_Type,
                                 client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part, server.error_pages);
-                                this->data = res.res_to_client;
+                                num_sent = res.num_sent;
+                                alreadysent = true;
                             }
                         }
                         else
                         {
                             Response res(full_path, "GET", req.Content_Type,
                             client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part, server.error_pages);
-                            this->data = res.res_to_client;
+                            num_sent = res.num_sent;
+                            alreadysent = true;
                         }
                     }
                     else 
                     {
                         Response res(full_path, req.Method, req.Content_Type,
                         client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true, cookies_part, server.error_pages);
-                        this->data = res.res_to_client;
+                        num_sent = res.num_sent;
+                        alreadysent = true;
                     }
                 }
 
@@ -500,7 +507,8 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 {
                     Response res(full_path, req.Method, req.Content_Type,
                     client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false, cookies_part, server.error_pages);
-                    this->data = res.res_to_client;
+                    num_sent = res.num_sent;
+                    alreadysent = true;
                 }
                 catch(const std::exception& e)
                 {
@@ -513,7 +521,8 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
             {
                 Response res(full_path, req.Method, req.Content_Type,
                 client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part, server.error_pages);
-                this->data = res.res_to_client;
+                num_sent = res.num_sent;
+                alreadysent = true;
             }
             else
             {
@@ -522,8 +531,12 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
             }
             
     }
-    int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+
+    if (alreadysent == false)
+         num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
     
+
+    std::cout << "num_sent:" << num_sent << std::endl;
     close(client_socket);
     if (num_sent == -1) 
     {

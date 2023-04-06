@@ -51,9 +51,7 @@ void Server::connection(std::vector<ServerBlock> &servers)
             {
                 try
                 {
-                    //std::cout << "before :" << pollfds[i].fd  << std::endl;
                     respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp);
-                    //std::cout << "OK :" << pollfds[i].fd << std::endl;
                 }
                 catch(const std::exception& e)
                 {
@@ -114,6 +112,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     int bytes_received;
     char buffer[1024];
     std::string full_path;
+    bool alreadysent = false;
 
     bytes_received = recv(client_socket, buffer, 1024, 0);
     if (bytes_received != -1)
@@ -474,6 +473,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                 Response res(full_path, "GET", req.Content_Type,
                                 client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part, server.error_pages);
                                 this->data = res.res_to_client;
+                                alreadysent = true;
                             }
                         }
                         else
@@ -481,6 +481,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             Response res(full_path, "GET", req.Content_Type,
                             client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part, server.error_pages);
                             this->data = res.res_to_client;
+                            alreadysent = true;
                         }
                     }
                     else 
@@ -488,6 +489,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         Response res(full_path, req.Method, req.Content_Type,
                         client_socket, req.is_Cgi, tmp_index, server.autoindex, full_path, req.Path, true, cookies_part, server.error_pages);
                         this->data = res.res_to_client;
+                        alreadysent = true;
                     }
                 }
 
@@ -505,6 +507,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     Response res(full_path, req.Method, req.Content_Type,
                     client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false, cookies_part, server.error_pages);
                     this->data = res.res_to_client;
+                    alreadysent = true;
                 }
                 catch(const std::exception& e)
                 {
@@ -518,6 +521,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 Response res(full_path, req.Method, req.Content_Type,
                 client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part, server.error_pages);
                 this->data = res.res_to_client;
+                alreadysent = true;
             }
             else
             {
@@ -526,7 +530,9 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
             }
             
     }
-    int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+    int num_sent = 0;
+    if (alreadysent == false)
+         num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
     
     close(client_socket);
     if (num_sent == -1) 

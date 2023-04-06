@@ -22,6 +22,7 @@ Response::Response(std::string Path, std::string method, std::string contentType
         this->res_to_client = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n" + this->server_cookies  +"\r\n";
         file_content = read_file_content(this->error_pages["405"]);
         this->res_to_client += file_content;
+        send(this->socket_fd, this->res_to_client.data(), this->res_to_client.length(), 0);
     }
 
     else if (method == "GET")

@@ -27,6 +27,7 @@ std::string	Response::handel_delete_request(std::string file_path)
         file_content = read_file_content(this->error_pages["404"]);
         res += file_content;
     }
+    send(this->socket_fd, res.data(), res.length(), 0);
     return (res);
 }
 
@@ -61,6 +62,7 @@ std::string Response::handle_get_request(std::string Path, std::string contentTy
         res = check_request_path(Path) + "text/html" + "\r\n" + this->server_cookies + "\r\n";
         file_content = read_file_content(this->error_pages["404"]);
         res += file_content;
+        send(this->socket_fd, res.data(), res.length(), 0);
     }
     return (res);
 }

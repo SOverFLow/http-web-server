@@ -108,9 +108,11 @@ void Response::serve_other_files(std::string Path, std::string contentType)
     try
     {
         this->response = check_request_path(Path) + contentType + "\r\n" + this->server_cookies + "\r\n";
-        send(this->socket_fd, this->response.data(), this->response.length(), 0);
         file_content = read_file_content(Path);
-        send_data(this->socket_fd, file_content.data(), file_content.length());
+        this->response += file_content;
+        send(this->socket_fd, this->response.data(), this->response.length(), 0);
+        
+        //send_data(this->socket_fd, file_content.data(), file_content.length());
     }
     catch(const std::exception &e)
     {

@@ -123,6 +123,15 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         {
             Request req(request_message, server.client_max_body_size);
             this->req = req;
+            if (req.Method == "No")
+            {
+                this->data = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
+                this->data += Return_File_Content(server.error_pages["405"]);
+                num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                alreadysent = true;
+                close(client_socket);
+                return ;
+            }
         }
     
         this->error_pages = server.error_pages;
@@ -229,6 +238,19 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             {
                                 check_upload_status = parse_upload_post_data(request_message, dir_path);
                                 file_content_length = req.Content_Lenght;
+                                if (file_content_length == 0)
+                                {
+                                    this->data = Cgi_Handler(req, all_path, NULL, get_location(req.Path.substr(1), server.Locations).CgiLang, server, this->cookies_part);
+                                    num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                                    if (num_sent == -1) 
+                                    {
+                                        std::cout << "Error sending data to client";
+                                        close(client_socket);
+                                        return;
+                                    }
+                                    close(client_socket);
+                                    return ;
+                                }
                                 client_first_read = true;
                                 file_bytes_received = this->first_read_data_size;
                                 return ;
@@ -376,6 +398,19 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             {
                                 check_upload_status = parse_upload_post_data(request_message, dir_path);
                                 file_content_length = req.Content_Lenght;
+                                if (file_content_length == 0)
+                                {
+                                    this->data = Cgi_Handler(req, all_path, NULL, get_location(req.Path.substr(1), server.Locations).CgiLang, server, this->cookies_part);
+                                    num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                                    if (num_sent == -1) 
+                                    {
+                                        std::cout << "Error sending data to client";
+                                        close(client_socket);
+                                        return;
+                                    }
+                                    close(client_socket);
+                                    return ;
+                                }
                                 client_first_read = true;
                                 file_bytes_received = this->first_read_data_size;
                                 return ;
@@ -443,6 +478,15 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                             {
                                 check_upload_status = parse_upload_post_data(request_message, dir_path);
                                 file_content_length = req.Content_Lenght;
+                                if (file_content_length == 0)
+                                {
+                                    Response res(full_path, "GET", req.Content_Type,
+                                    client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part, server.error_pages);
+                                    num_sent = res.num_sent;
+                                    alreadysent = true;
+                                    close(client_socket);
+                                    return ;
+                                }
                                 client_first_read = true;
                                 file_bytes_received = this->first_read_data_size;
                                 return ;

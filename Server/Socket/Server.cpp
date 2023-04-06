@@ -149,7 +149,10 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
 
 
     if (req.StatusCode != 200)
+    {
+        std::cout << "Error sending" << std::endl;
         this->data = Return_Error_For_Bad_Request(req.StatusCode);
+    }
 
     else 
     {
@@ -496,10 +499,15 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
 
 
             }
-            else if (req.Path == "/" && !Check_is_method_allowed(req.Method, server.allowed_method))
+            else if (!Check_is_method_allowed(req.Method, server.allowed_method))
             {
                 this->data = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                 this->data += Return_File_Content(server.error_pages["405"]);
+                num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                alreadysent = true;
+                close(client_socket);
+                return ;
+    
             }
             else if (Check_is_method_allowed(req.Method, server.allowed_method) && !check_if_url_is_location(req.Path.substr(1), server.Locations))
             {
@@ -533,10 +541,10 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     }
 
     if (alreadysent == false)
-         num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+    {
+        num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+    }
     
-
-    std::cout << "num_sent:" << num_sent << std::endl;
     close(client_socket);
     if (num_sent == -1) 
     {
@@ -544,7 +552,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         close(client_socket);
         return;
     }
-
     }
 }
 

@@ -42,7 +42,6 @@ int Response::serve_index(std::string Path, std::string contentType)
     std::ifstream index(s, std::ios::binary);
     if (index)
     {
-        //std::cout << "PATH=" << Path << std::endl;
         this->response = check_request_path("/"+s) + contentType + "\r\n" + this->server_cookies + "\r\n";
         file_content = read_file_content("/"+s);
         this->response += file_content;
@@ -67,24 +66,6 @@ int Response::serve_index(std::string Path, std::string contentType)
 
 
 
-void send_data_v_2(int sockfd, const char* data, size_t size, size_t chunk_size) 
-{
-    if (size == 0)
-        return;
-    
-    size_t send_size = std::min(chunk_size, size);
-
-    // std::cout << "Sending " << data << std::endl;
-    int sent = send(sockfd, data, send_size, 0);
-    
-    // if (sent == -1) {
-    //     return ;
-    // }
-
-    send_data_v_2(sockfd, data + sent, size - sent, chunk_size);
-}
-
-
 void send_data(int sockfd, const char* data, size_t data_size)
 {
 
@@ -106,65 +87,17 @@ void send_data(int sockfd, const char* data, size_t data_size)
 
 
 
-// int	send_reponse(struct pollfd *ptr_tab_poll) {
-
-// 	int ret;
-// 	int	fd = ptr_tab_poll->fd;
-// 	size_t	rsize = g_reponse[fd].size();
-
-// 	size_t i;
-// 	for (i = 0; i < rsize && i < BUFFER_SIZE; i++) {
-
-// 		buf[i] = g_reponse[fd][i];
-
-// 	}	
-// 	buf[i] = '\0';
-
-// 	ret = send(fd, buf, (BUFFER_SIZE < rsize ? BUFFER_SIZE : rsize), 0);
-
-// 	if (ret < 0)
-// 		return ret;
-// 	else
-// 		std::cout << "send() successfully sent " << ret << " bytes, " << rsize - ret << " left" << std::endl;
-
-// 	g_reponse[fd].erase(g_reponse[fd].begin(), g_reponse[fd].begin() + ret);
-
-// 	if (g_reponse[fd].size() == 0)
-// 		ptr_tab_poll->events = POLLIN;
-
-// 	return ret;
-// }
-
-
-
-
-
-
-
-
 int Response::serve_other_files(std::string Path, std::string contentType)
 {
     int ret = 0;
     std::string file_content;
-    std::cout << "other files" << std::endl;
 
     try
     {
-        //std::cout << "Path:"<< Path << std::endl;
         this->response = check_request_path(Path) + contentType + "\r\n" + this->server_cookies + "\r\n";
         file_content = read_file_content(Path);
-        //std::cout << "file content=" << file_content.length() << std::endl;
-        if (file_content.length() > 30000)
-        {
-            std::cout << "send file content" << std::endl;
-            //send_data(this->socket_fd, file_content.data(), file_content.length());
-
-        }
-        else
-        {
-            this->response += file_content;
-        }
-        ret = send(this->socket_fd, this->response.data(), this->response.length(), 0);
+        this->response += file_content;
+        send_data(this->socket_fd, this->response.data(), this->response.length());
         
     }
     catch(const std::exception &e)

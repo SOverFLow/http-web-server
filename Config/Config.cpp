@@ -111,7 +111,7 @@ Locations SetLocation(std::ifstream &ConfigFile, std::string line, std::string N
         std::vector<std::string>::iterator it = splited.begin();
         if (*it == "root")
         {
-            if (splited.size() != 2)
+            if (splited.size() != 3)
             {
                 std::cerr << "Config Error in root" << std::endl;
                 exit(EXIT_FAILURE);

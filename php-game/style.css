@@ -1,0 +1,100 @@
+@import url(//fonts.googleapis.com/css?family=Roboto&display=swap);
+@import url(//cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css);
+
+body {
+    padding: 0;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+body, input, button {
+    font-family: 'Roboto', Arial, Helvetica, sans-serif;
+    font-size: 12pt;
+    color: #333;
+}
+
+input[type=text] {
+    border-radius: 10px;
+    border: 1px solid #eee;
+    margin: 3px 0;
+    width: 265px;
+    padding: 8px 5px;
+}
+
+button {
+    background-color:blue;
+    color: white;
+    border: 0;
+    border-radius: 10px;
+    padding: 1em 2em;
+    cursor: pointer;
+}
+
+button[disabled] {
+    cursor: not-allowed;
+    opacity: .5;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.welcome h1,
+.welcome h2 {
+    text-align: center;
+    color: blue;
+    font-family: arial black; 
+}
+
+.welcome input {
+    width: 100%;
+border-color: blue;
+}
+
+.wrapper td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.tic-tac-toe {
+    margin: 5em;
+}
+
+.tic-tac-toe td {
+    border: 2px solid blue;
+    width: 100px;
+    height: 100px;
+}
+
+.tic-tac-toe .vertical-border {
+    border-left-color: blue;
+    border-right-color: blue;
+}
+
+.tic-tac-toe .horizontal-border {
+    border-top-color: blue;
+    border-bottom-color: blue;
+}
+
+.tic-tac-toe .center-border {
+    border-color:blue;
+}
+
+.welcome .p-name {
+    margin: 40px 0;
+    font-family: arial black;
+    color: blue;
+}
+
+.reset-btn {
+    display: inline-block;
+    font-size: 10pt;
+    color: blue;
+    margin-top: 50px;
+}

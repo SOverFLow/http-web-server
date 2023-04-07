@@ -115,10 +115,12 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     bool alreadysent = false;
     int num_sent  = 0;
 
+    buffer[0] = '\0';
     bytes_received = recv(client_socket, buffer, 1024, 0);
     if (bytes_received != -1)
     {
         request_message = std::string(buffer,bytes_received);
+        
         if (client_first_read == false)
         {
             Request req(request_message, server.client_max_body_size);
@@ -138,23 +140,30 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         this->cookies = parse_cookies(request_message);
         this->cookies_part = manage_cookies_session_server();
 
-    // if (!server.server_name.empty())
-    // {
-    //     size_t num_pos = req.Host.find(":");
-    //     if (req.Host.substr(0, num_pos) != server.server_name)
-    //     {
-    //         this->data = "HTTP/1.1 503 Service Unavailable\r\nContent-type: text/html\r\n" + this->cookies_part + "\r\n";
-    //         this->data += Return_File_Content(server.error_pages["503"]);
-    //         int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
-    //         close(client_socket);
-    //         if (num_sent == -1) 
-    //         {
-    //             std::cout << "Error sending data to client";
-    //             close(client_socket);
-    //             return;
-    //         }
-    //     }
-    // }
+    if (!server.server_name.empty())
+    {
+        size_t num_pos = req.Host.find(":");
+        std::string host;
+        if (num_pos != std::string::npos)
+            host = req.Host.substr(0, num_pos);
+        else
+            host = req.Host;
+        
+        if (host != server.server_name && host[0] != '1')
+        {
+            this->data = "HTTP/1.1 503 Service Unavailable\r\nContent-type: text/html\r\n" + this->cookies_part + "\r\n";
+            this->data += Return_File_Content(server.error_pages["503"]);
+            int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+            close(client_socket);
+            return ;
+            if (num_sent == -1) 
+            {
+                std::cout << "Error sending data to client";
+                close(client_socket);
+                return;
+            }
+        }
+    }
 
 
     if (req.StatusCode != 200)

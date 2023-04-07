@@ -18,19 +18,24 @@ void Server::connection(std::vector<ServerBlock> &servers)
 {
     this->sockets = setup_sockets(servers);
     this->pollfds = create_pollfds(servers);
-    int remove_client = 1;
 
     int tmp = 0;
     while(1)
     {
         int ready_count = poll(&pollfds[0], pollfds.size(), -1);
         if (ready_count == -1) {
-            std::cout << "Error in poll" << std::endl;
+            std::cout << "Error in poll " << strerror(errno) << std::endl;
             exit(1);
         }
+        std::cout << pollfds.size() << std::endl;
         for (size_t i = 0; i < pollfds.size(); i++) {
             
-            if (pollfds[i].revents & POLLIN) 
+            if (pollfds[i].revents & (POLLERR | POLLHUP | POLLNVAL)) 
+            {
+                    close(pollfds[i].fd);
+                    pollfds[i].fd = -1;
+            }
+            else if (pollfds[i].revents & POLLIN) 
             {
                 if (pollfds[i].fd == servers[i].sock_fd) 
                 {
@@ -57,6 +62,7 @@ void Server::connection(std::vector<ServerBlock> &servers)
                     
             }
         }
+        //pollfds.erase(std::remove_if(pollfds.begin(), pollfds.end(), [](pollfd const& p) { return p.fd == -1; }), pollfds.end());
     }
 }
 

@@ -30,12 +30,7 @@ void Server::connection(std::vector<ServerBlock> &servers)
         std::cout << pollfds.size() << std::endl;
         for (size_t i = 0; i < pollfds.size(); i++) {
             
-            if (pollfds[i].revents & (POLLERR | POLLHUP | POLLNVAL)) 
-            {
-                    close(pollfds[i].fd);
-                    pollfds[i].fd = -1;
-            }
-            else if (pollfds[i].revents & POLLIN) 
+            if (pollfds[i].revents & POLLIN) 
             {
                 if (pollfds[i].fd == servers[i].sock_fd) 
                 {
@@ -60,6 +55,11 @@ void Server::connection(std::vector<ServerBlock> &servers)
                     }
                 }
                     
+            }
+            else if (pollfds[i].revents & POLLOUT) 
+            {
+                close(pollfds[i].fd);
+                pollfds[i].fd = -1;
             }
         }
         //pollfds.erase(std::remove_if(pollfds.begin(), pollfds.end(), [](pollfd const& p) { return p.fd == -1; }), pollfds.end());

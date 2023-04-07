@@ -57,7 +57,7 @@ ServerBlock::ServerBlock()
     init_err_pages(this->error_pages);
     this->port = 0;
     this->root = "";
-    this->client_max_body_size = 0;
+    this->client_max_body_size = 1000000;
     this->CgiStatus = false;
     this->redirect = false;
     this->uploadable = false;
@@ -99,8 +99,12 @@ size_t get_max_body_size(std::string body_size)
     last = body_size.length() - 1;
     if (body_size[last] == 'M')
         return (atoi(body_size.c_str()) * 1000000);
-    else if (body_size[last] == 'M')
+    else if (body_size[last] == 'K')
         return (atoi(body_size.c_str()) * 1000);
+    else if (body_size[last] == 'B')
+        return (atoi(body_size.c_str()) * 1);
+    else if (body_size[last] == 'G')
+        return (atoi(body_size.c_str()) * 1000000000);
     return (atoi(body_size.c_str()));
 }
 

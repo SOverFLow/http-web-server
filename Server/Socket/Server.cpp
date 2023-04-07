@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include <errno.h>
 
 Server::Server(Config config)
 {
@@ -8,6 +9,7 @@ Server::Server(Config config)
     end_of_file = false;
     check_upload_status = 0;
     this->file_bytes_received = 0;
+    remove_client = false;
     connection(config.Servers);
 }
 
@@ -16,6 +18,7 @@ void Server::connection(std::vector<ServerBlock> &servers)
 {
     this->sockets = setup_sockets(servers);
     this->pollfds = create_pollfds(servers);
+    int remove_client = 1;
 
     int tmp = 0;
     while(1)
@@ -39,7 +42,11 @@ void Server::connection(std::vector<ServerBlock> &servers)
                     try
                     {
                         respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp, i);
-                        //pollfds.erase(pollfds.begin() + i);
+                        if (remove_client == true)
+                        {
+                            pollfds.erase(pollfds.begin() + i);
+                            remove_client = false;
+                        }
                     }
                     catch(const std::exception& e)
                     {
@@ -48,19 +55,6 @@ void Server::connection(std::vector<ServerBlock> &servers)
                     }
                 }
                     
-            }
-            else
-            {
-                try
-                {
-                    respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp, i);
-                    //pollfds.erase(pollfds.begin() + i);
-                }
-                catch(const std::exception& e)
-                {
-                    close(pollfds[i].fd);
-                    continue;
-                }
             }
         }
     }
@@ -82,6 +76,7 @@ std::vector<int> Server::setup_sockets(std::vector<ServerBlock> &servers)
             std::cout << "error in the socket" << std::endl;
             exit(1);
         }
+        fcntl(servers[i].sock_fd, F_SETFL, O_NONBLOCK);
         setsockopt(servers[i].sock_fd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
         
         address.sin_family = AF_INET;
@@ -100,7 +95,6 @@ std::vector<int> Server::setup_sockets(std::vector<ServerBlock> &servers)
             std::cout << "error in listening" << std::endl;
             exit(1);  
         }
-        set_nonblocking(servers[i].sock_fd);
         ret_sockets.push_back(servers[i].sock_fd);
         root_paths.push_back(servers[i].root);
         std::cout << "listening on port => " << servers[i].port << std::endl;
@@ -273,6 +267,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                         if (end_of_file)
                                         {
                                             client_first_read = false;
+                                            remove_client =  true;
                                             this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                                             this->data += Return_File_Content("/Error_Pages/201.html");
                                             end_of_file = false;
@@ -433,6 +428,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                         if (end_of_file)
                                         {
                                             client_first_read = false;
+                                            remove_client =  true;
                                             this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                                             this->data += Return_File_Content("/Error_Pages/201.html");
                                             end_of_file = false;
@@ -509,6 +505,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                         if (end_of_file)
                                         {
                                             client_first_read = false;
+                                            remove_client =  true;
                                             this->data = "HTTP/1.1 201 Created\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                                             this->data += Return_File_Content("/Error_Pages/201.html");
                                             end_of_file = false;
@@ -607,8 +604,10 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     else
     {
         (void)i;
+        //std::cout << bytes_received << std::endl;
         //close(client_socket);
         // pollfds.erase(pollfds.begin() + i);
+        printf("Error receiving data: %s\n", strerror(errno));
         return ;
     }
 }

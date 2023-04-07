@@ -1,13 +1,5 @@
 #include "Server.hpp"
 
-int set_nonblocking(int fd) {
-    int flags = fcntl(fd, F_GETFL, 0);
-    if (flags == -1) {
-        flags = 0;
-    }
-    return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
-}
-
 std::vector<pollfd> create_pollfds(std::vector<ServerBlock>& servers) {
     std::vector<pollfd> pollfds;
     for (std::vector<ServerBlock>::iterator it = servers.begin(); it != servers.end(); ++it) 
@@ -24,7 +16,7 @@ void handle_new_connection(int listening_socket, std::vector<pollfd> &fds) {
         perror("Error accepting new connection");
         return;
     }
-    set_nonblocking(client_socket);
+    fcntl(client_socket, F_SETFL, O_NONBLOCK);
     pollfd pfd = {client_socket, POLLIN, 0};
     fds.push_back(pfd);
 }

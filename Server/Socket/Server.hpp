@@ -26,6 +26,7 @@ class Server
         std::vector<pollfd> pollfds;
         bool client_first_read;
         int check_upload_status;
+        bool remove_client;
         size_t file_bytes_received;
         size_t file_content_length;
         size_t first_read_data_size;
@@ -55,7 +56,6 @@ class Server
 };
 
 std::string Return_File_Content(std::string Path);
-int set_nonblocking(int fd);
 std::vector<pollfd> create_pollfds(std::vector<ServerBlock>& servers);
 void handle_new_connection(int listening_socket, std::vector<pollfd> &fds);
 int check_if_url_is_location(std::string url, std::vector<Locations> locations);

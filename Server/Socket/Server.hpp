@@ -23,7 +23,7 @@ class Server
         bool end_of_file;
         Request req;
 
-
+        std::vector<pollfd> pollfds;
         bool client_first_read;
         int check_upload_status;
         size_t file_bytes_received;
@@ -48,7 +48,7 @@ class Server
         void handle_client_request(int client_socket);
         int parse_upload_post_data(std::string full_request, std::string upload_path);
         int parse_upload_post_data_part_two(std::string full_request, std::string upload_path);
-        void respond_to_clients(int client_socket, std::string root_path, ServerBlock server, int tmp);
+        void respond_to_clients(int client_socket, std::string root_path, ServerBlock server, int tmp, int i);
         std::string Return_Error_For_Bad_Request(int status);
         std::map<std::string, std::string> parse_cookies(std::string request);
         std::string manage_cookies_session_server();

@@ -15,7 +15,7 @@ Server::Server(Config config)
 void Server::connection(std::vector<ServerBlock> &servers)
 {
     this->sockets = setup_sockets(servers);
-    std::vector<pollfd> pollfds = create_pollfds(servers);
+    this->pollfds = create_pollfds(servers);
 
     int tmp = 0;
     while(1)
@@ -38,10 +38,12 @@ void Server::connection(std::vector<ServerBlock> &servers)
                 {
                     try
                     {
-                        respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp);
+                        respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp, i);
+                        //pollfds.erase(pollfds.begin() + i);
                     }
                     catch(const std::exception& e)
                     {
+                        close(pollfds[i].fd);
                         continue;
                     }
                 }
@@ -51,10 +53,12 @@ void Server::connection(std::vector<ServerBlock> &servers)
             {
                 try
                 {
-                    respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp);
+                    respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp, i);
+                    //pollfds.erase(pollfds.begin() + i);
                 }
                 catch(const std::exception& e)
                 {
+                    close(pollfds[i].fd);
                     continue;
                 }
             }
@@ -106,7 +110,7 @@ std::vector<int> Server::setup_sockets(std::vector<ServerBlock> &servers)
 }
 
 
-void Server::respond_to_clients(int client_socket, std::string root_path, ServerBlock server, int tmp)
+void Server::respond_to_clients(int client_socket, std::string root_path, ServerBlock server, int tmp, int i)
 {
     std::string request_message;
     int bytes_received;
@@ -599,6 +603,13 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         close(client_socket);
         return;
     }
+    }
+    else
+    {
+        (void)i;
+        //close(client_socket);
+        // pollfds.erase(pollfds.begin() + i);
+        return ;
     }
 }
 

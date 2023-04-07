@@ -115,6 +115,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     bool alreadysent = false;
     int num_sent  = 0;
 
+    buffer[0] = '\0';
     bytes_received = recv(client_socket, buffer, 1024, 0);
     if (bytes_received != -1)
     {

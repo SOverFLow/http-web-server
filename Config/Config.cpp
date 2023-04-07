@@ -17,6 +17,26 @@ void    init_err_pages(std::map<std::string, std::string> &err_pages)
     err_pages["500"] = "/Error_Pages/500.html";
 }
 
+void syntax_cheaker(int size, int must_be, std::string directive, bool eqal_cheak)
+{
+    if (eqal_cheak)
+    {
+        if (size != must_be)
+        {
+            std::cerr << "Config Error: " << directive << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    }
+    else
+    {
+        if (size < must_be)
+        {
+            std::cerr << "Config Error: " << directive << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    }
+}
+
 ServerConfig::ServerConfig()
 {
 
@@ -111,48 +131,28 @@ Locations SetLocation(std::ifstream &ConfigFile, std::string line, std::string N
         std::vector<std::string>::iterator it = splited.begin();
         if (*it == "root")
         {
-            if (splited.size() != 2)
-            {
-                std::cerr << "Config Error in root" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            syntax_cheaker(splited.size(), 2, "root", true);
             Instance.root = *(++it);
         }
         else if (*it == "index")
         {
-            if (splited.size() < 2)
-            {
-                std::cerr << "Config Error in index" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            syntax_cheaker(splited.size(), 2, "index", false);
             Instance.index.insert(Instance.index.begin(), splited.begin() + 1, splited.end());
         }
         else if (*it == "allowed_method")
         {
-            if (splited.size() < 2)
-            {
-                std::cerr << "Config Error in allowed_method" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            syntax_cheaker(splited.size(), 2, "allowed_method", false);
             Instance.allowed_method.insert(Instance.allowed_method.begin(), splited.begin() + 1, splited.end());
         }
         else if (*it == "cgi")
         {
-            if (splited.size() != 2)
-            {
-                std::cerr << "Config Error in cgi" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            syntax_cheaker(splited.size(), 2, "cgi", true);
             Instance.CgiStatus = true;
             Instance.CgiLang = splited[1];
         }
         else if (splited[0] == "autoindex")
         {
-            if (splited.size() != 2)
-            {
-                std::cerr << "Config Error in autoindex" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            syntax_cheaker(splited.size(), 2, "autoindex", true);
             if (splited[1] == "on")
                 Instance.autoindex = true;
             else 
@@ -160,32 +160,20 @@ Locations SetLocation(std::ifstream &ConfigFile, std::string line, std::string N
         }
         else if (splited[0] == "return")
         {
-            if (splited.size() != 3)
-            {
-                std::cerr << "Config Error in redirection" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            syntax_cheaker(splited.size(), 3, "redirection", true);
             Instance.redirect = true;
             Instance.redirect_code = std::atoi(splited[1].c_str());
             Instance.redirect_url = splited[2];
         }
         else  if (splited[0] == "upload")
         {
-            if (splited.size() != 2)
-            {
-                std::cerr << "Config Error: no upload path" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            syntax_cheaker(splited.size(), 2, "no upload path", true);
             Instance.uploadable = true;
             Instance.uploadPath = splited[1];
         }
         else if (splited[0] == "error_page")
         {
-            if (splited.size() != 3)
-            {
-                std::cerr << "Config Error in error_page" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            syntax_cheaker(splited.size(), 2, "error_page", true);
             Instance.error_pages[splited[1]] = splited[2];
         }
         else
@@ -218,68 +206,35 @@ ServerBlock SetServer(std::ifstream &ConfigFile, std::string line)
     {
         if (splited[0] == "root")
         {
-            if (splited.size() != 2)
-            {
-                std::cerr << "Config Error in root" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            syntax_cheaker(splited.size(), 2, "root", true);
             Instance.root = splited[1];
-        }
-        else if (splited[0] == "directory_answer")
-        {
-            if (splited.size() != 2)
-            {
-                std::cerr << "Config Error in directory_answer" << std::endl;
-                exit(EXIT_FAILURE);
-            }
-            Instance.directory_answer = splited[1];
         }
         else if (splited[0] == "listen")
         {
-            if (splited.size() != 2)
-            {
-                std::cerr << "Config Error in port" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            syntax_cheaker(splited.size(), 2, "listen", true);
             Instance.port = std::atoi(splited[1].c_str());
         }
         else if (splited[0] == "index")
         {
-            if (splited.size() < 2)
-            {
-                std::cerr << "Config Error in index" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            syntax_cheaker(splited.size(), 2, "index", false);
             Instance.index.insert(Instance.index.begin(), splited.begin() + 1, splited.end());
         }
         else if (splited[0] == "allowed_method")
         {
-            if (splited.size() < 2)
-            {
-                std::cerr << "Config Error in allowed_method" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            syntax_cheaker(splited.size(), 2, "allowed_method", false);
             Instance.allowed_method.insert(Instance.allowed_method.begin(), splited.begin() + 1, splited.end());
         }
         else if (splited[0] == "location")
             Instance.Locations.push_back(SetLocation(ConfigFile, line, splited[1]));
         else if (splited[0] == "cgi")
         {
-            if (splited.size() != 2)
-            {
-                std::cerr << "Config Error in cgi" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            syntax_cheaker(splited.size(), 2, "cgi", true);
             Instance.CgiStatus = true;
             Instance.CgiLang = splited[1];
         }
         else if (splited[0] == "autoindex")
         {
-            if (splited.size() != 2)
-            {
-                std::cerr << "Config Error in autoindex" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            syntax_cheaker(splited.size(), 2, "autoindex", true);
             if (splited[1] == "on")
                 Instance.autoindex = true;
             else 
@@ -287,40 +242,25 @@ ServerBlock SetServer(std::ifstream &ConfigFile, std::string line)
         }
         else if (splited[0] == "return")
         {
-            if (splited.size() != 3)
-            {
-                std::cerr << "Config Error in reduction" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            syntax_cheaker(splited.size(), 3, "return", true);
             Instance.redirect = true;
             Instance.redirect_code = std::atoi(splited[1].c_str());
             Instance.redirect_url = splited[2];
         }
         else if (splited[0] == "server_name")
         {
+            syntax_cheaker(splited.size(), 2, "server_name", true);
             if (splited.size() != 2)
-            {
-                std::cerr << "Config Error in server_name" << std::endl;
-                exit(EXIT_FAILURE);
-            }
             Instance.server_name = splited[1];
         }
         else if (splited[0] == "client_max_body_size")
         {
-            if (splited.size() != 2)
-            {
-                std::cerr << "Config Error in client_max_body_size" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            syntax_cheaker(splited.size(), 2, "client_max_body_size", true);
             Instance.client_max_body_size = get_max_body_size(splited[1]);
         }
         else if (splited[0] == "error_page")
         {
-            if (splited.size() != 3)
-            {
-                std::cerr << "Config Error in error_page" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            syntax_cheaker(splited.size(), 3, "error_page", true);
             Instance.error_pages[splited[1]] = splited[2];
         }
         else
@@ -328,7 +268,7 @@ ServerBlock SetServer(std::ifstream &ConfigFile, std::string line)
             if (splited[0] == "server")
                 std::cerr << "Syntax Error" << std::endl;
             else
-                std::cerr << "Config Error unknown directive" << std::endl;
+                std::cerr << "Config Error unknown directive " << splited[0] << std::endl;
             exit(EXIT_FAILURE);
         }
         std::getline(ConfigFile, line);

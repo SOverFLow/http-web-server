@@ -7,34 +7,42 @@
 
 int main(int argc, char **argv)
 {
-    if (argc == 2)
+    if (argc > 2)
     {
-        int fd = open(argv[1], O_RDONLY);
-        if (fd < 0)
+        std::cout << "Error : number of param is wrong" << std::endl;
+        return 0;
+    }
+    else if (argc == 2)
+    {
+        std::ifstream file(argv[1], std::ios::binary);
+        
+        if (file)
         {
-            std::cout << "Error : config file not found" << std::endl;
-            return 0;
+            file.close();
+            Config config(argv[1]);
+            Server server(config);
+            
         }
         else
         {
-            close(fd);
-            Config config(argv[1]);
-            Server server(config);
+            std::cout << "Error : config file not found" << std::endl;
+            return 0;
         }
     }
     else
     {
-        int fd = open("Config/Default.conf", O_RDONLY);
-        if (fd < 0)
+        std::ifstream file("Config/Default.conf", std::ios::binary);
+        if (file)
         {
-            std::cout << "Error : config file not found" << std::endl;
-            return 0;
+            file.close();
+            Config config("Config/Default.conf");
+            Server server(config);
+            
         }
         else
         {
-            close(fd);
-            Config config("Config/Default.conf");
-            Server server(config);
+            std::cout << "Error : config file not found" << std::endl;
+            return 0;   
         }
     }
     return (0);

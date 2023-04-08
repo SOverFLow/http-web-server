@@ -22,14 +22,14 @@ void Server::connection(std::vector<ServerBlock> &servers)
     int tmp = 0;
     while(1)
     {
-        int ready_count = poll(&pollfds[0], pollfds.size(), -1);
+        int ready_count = poll(&pollfds[0], pollfds.size(), 1000);
         if (ready_count == -1) {
             std::cout << "Error in poll " << strerror(errno) << std::endl;
             exit(1);
         }
-        std::cout << pollfds.size() << std::endl;
-        for (size_t i = 0; i < pollfds.size(); i++) {
-            
+        
+        for (size_t i = 0; i < pollfds.size() && ready_count > 0 ; i++) {
+    
             if (pollfds[i].revents & POLLIN) 
             {
                 if (pollfds[i].fd == servers[i].sock_fd) 
@@ -44,9 +44,10 @@ void Server::connection(std::vector<ServerBlock> &servers)
                         respond_to_clients(pollfds[i].fd, root_paths[tmp], servers[tmp], tmp, i);
                         if (remove_client == true)
                         {
-                            pollfds.erase(pollfds.begin() + i);
+                            this->pollfds[i].fd = -1;
                             remove_client = false;
                         }
+                        
                     }
                     catch(const std::exception& e)
                     {
@@ -56,13 +57,15 @@ void Server::connection(std::vector<ServerBlock> &servers)
                 }
                     
             }
-            else if (pollfds[i].revents & POLLOUT) 
+        }
+
+        for (std::vector<pollfd>::iterator it = pollfds.begin(); it != pollfds.end(); ++it) {
+            if (it->fd == -1) 
             {
-                close(pollfds[i].fd);
-                pollfds[i].fd = -1;
+                pollfds.erase(it);
+                --it;
             }
         }
-        //pollfds.erase(std::remove_if(pollfds.begin(), pollfds.end(), [](pollfd const& p) { return p.fd == -1; }), pollfds.end());
     }
 }
 
@@ -121,6 +124,8 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
 
     buffer[0] = '\0';
     bytes_received = recv(client_socket, buffer, 1024, 0);
+    if (bytes_received == 0)
+        this->remove_client = true;
     if (bytes_received != -1)
     {
         request_message = std::string(buffer,bytes_received);
@@ -571,6 +576,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     client_socket, req.is_Cgi, server.index, server.autoindex, full_path, req.Path, false, cookies_part, server.error_pages);
                     num_sent = res.num_sent;
                     alreadysent = true;
+                    this->remove_client = true;
                 }
                 catch(const std::exception& e)
                 {
@@ -598,8 +604,9 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     {
         num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
     }
+
+    close(this->pollfds[i].fd);
     
-    close(client_socket);
     if (num_sent == -1) 
     {
         std::cout << "Error sending data to client ";
@@ -610,9 +617,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     else
     {
         (void)i;
-        //std::cout << bytes_received << std::endl;
-        //close(client_socket);
-        // pollfds.erase(pollfds.begin() + i);
+        this->remove_client = true;
         printf("Error receiving data: %s\n", strerror(errno));
         return ;
     }

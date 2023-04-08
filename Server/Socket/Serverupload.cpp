@@ -101,13 +101,10 @@ int Server::parse_upload_post_data_part_two(std::string full_request, std::strin
         std::string file_data = full_request.substr(0, pos);
         outfile << file_data;
         end_of_file = true;
-        // file_bytes_received  += file_data.length();
-        //file_bytes_received  += full_request.length();
     }
     else
     {
         outfile << full_request;
-        //file_bytes_received  += full_request.length();
     }
 
     outfile.close();

@@ -75,6 +75,10 @@ std::vector<int> Server::setup_sockets(std::vector<ServerBlock> &servers)
 {
     std::vector<int> ret_sockets;
 
+
+    std::cout << "==============================\n";
+    std::cout << "======= webserv running ======\n";
+    std::cout << "==============================\n";
     for (size_t i =0; i < servers.size(); i++)
     {
         struct sockaddr_in address;
@@ -124,8 +128,12 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
 
     buffer[0] = '\0';
     bytes_received = recv(client_socket, buffer, 1024, 0);
-    if (bytes_received == 0)
+    if (bytes_received <= 0)
+    {
         this->remove_client = true;
+        printf("Error receiving data: %s\n", strerror(errno));
+        return ;
+    }
     if (bytes_received != -1)
     {
         request_message = std::string(buffer,bytes_received);
@@ -139,6 +147,12 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 this->data = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                 this->data += Return_File_Content(server.error_pages["405"]);
                 num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                if (num_sent <= 0) 
+                {
+                    std::cout << "Error sending data to client";
+                    close(client_socket);
+                    return;
+                }
                 alreadysent = true;
                 close(client_socket);
                 return ;
@@ -162,10 +176,10 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         {
             this->data = "HTTP/1.1 503 Service Unavailable\r\nContent-type: text/html\r\n" + this->cookies_part + "\r\n";
             this->data += Return_File_Content(server.error_pages["503"]);
-            int num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+            num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
             close(client_socket);
             return ;
-            if (num_sent == -1) 
+            if (num_sent <= 0) 
             {
                 std::cout << "Error sending data to client";
                 close(client_socket);
@@ -177,8 +191,16 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
 
     if (req.StatusCode != 200)
     {
-        std::cout << "Error sending" << std::endl;
         this->data = Return_Error_For_Bad_Request(req.StatusCode);
+        num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+        close(client_socket);
+        return ;
+        if (num_sent <= 0) 
+        {
+            std::cout << "Error sending data to client";
+            close(client_socket);
+            return;
+        }
     }
 
     else 
@@ -211,7 +233,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         this->data += Return_File_Content(server.error_pages["500"]);
                 num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 close(client_socket);
-                if (num_sent == -1) 
+                if (num_sent <= 0) 
                 {
                     std::cout << "Error sending data to client";
                     close(client_socket);
@@ -229,7 +251,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     
                     this->data = "HTTP/1.1 " + std::to_string(code) + " " + msg + "\r\nLocation: " + get_redirect_url_for_location(str.substr(1), server.Locations) + "\r\n\r\n";
                     num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
-                    if (num_sent == -1) 
+                    if (num_sent <= 0) 
                     {
                         std::cout << "Error sending data to client";
                         close(client_socket);
@@ -254,7 +276,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                 {
                                     this->data = Cgi_Handler(req, all_path, NULL, get_location(req.Path.substr(1), server.Locations).CgiLang, server, this->cookies_part);
                                     num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
-                                    if (num_sent == -1) 
+                                    if (num_sent <= 0) 
                                     {
                                         std::cout << "Error sending data to client";
                                         close(client_socket);
@@ -319,7 +341,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
 
 
                 num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
-                if (num_sent == -1) 
+                if (num_sent <= 0) 
                 {
                     std::cout << "Error sending data to client";
                     close(client_socket);
@@ -347,7 +369,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     
                 this->data = "HTTP/1.1 " + std::to_string(code) + " " + msg + "\r\nLocation: " + get_redirect_url_for_location(req.Path.substr(1), server.Locations) + "\r\n\r\n";
                 num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
-                if (num_sent == -1) 
+                if (num_sent <=  0) 
                 {
                     std::cout << "Error sending data to client";
                     close(client_socket);
@@ -388,7 +410,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     
                         this->data = "HTTP/1.1 " + std::to_string(code) + " " + msg + "\r\nLocation: " + get_redirect_url_for_location(req.Path.substr(1), server.Locations) + "\r\n\r\n";
                         num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
-                        if (num_sent == -1) 
+                        if (num_sent <= 0) 
                         {
                             std::cout << "Error sending data to client";
                             close(client_socket);
@@ -415,7 +437,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                 {
                                     this->data = Cgi_Handler(req, all_path, NULL, get_location(req.Path.substr(1), server.Locations).CgiLang, server, this->cookies_part);
                                     num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
-                                    if (num_sent == -1) 
+                                    if (num_sent <= 0) 
                                     {
                                         std::cout << "Error sending data to client";
                                         close(client_socket);
@@ -497,6 +519,12 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                     Response res(full_path, "GET", req.Content_Type,
                                     client_socket, req.is_Cgi, tmp_index, get_location(req.Path.substr(1), server.Locations).autoindex, full_path, req.Path, true, cookies_part, server.error_pages);
                                     num_sent = res.num_sent;
+                                    if (num_sent <= 0) 
+                                    {
+                                        std::cout << "Error sending data to client";
+                                        close(client_socket);
+                                        return;
+                                    }
                                     alreadysent = true;
                                     close(client_socket);
                                     return ;
@@ -563,6 +591,12 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 this->data = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
                 this->data += Return_File_Content(server.error_pages["405"]);
                 num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                if (num_sent <= 0) 
+                {
+                    std::cout << "Error sending data to client";
+                    close(client_socket);
+                    return;
+                }
                 alreadysent = true;
                 close(client_socket);
                 return ;
@@ -607,19 +641,12 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
 
     close(this->pollfds[i].fd);
     
-    if (num_sent == -1) 
+    if (num_sent <= 0) 
     {
         std::cout << "Error sending data to client ";
         close(client_socket);
         return;
     }
-    }
-    else
-    {
-        (void)i;
-        this->remove_client = true;
-        printf("Error receiving data: %s\n", strerror(errno));
-        return ;
     }
 }
 

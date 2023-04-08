@@ -1,5 +1,4 @@
 #include "Server.hpp"
-#include <errno.h>
 
 Server::Server(Config config)
 {
@@ -24,7 +23,7 @@ void Server::connection(std::vector<ServerBlock> &servers)
     {
         int ready_count = poll(&pollfds[0], pollfds.size(), 1000);
         if (ready_count == -1) {
-            std::cout << "Error in poll " << strerror(errno) << std::endl;
+            std::cout << "Error in poll" << std::endl;
             exit(1);
         }
         
@@ -131,7 +130,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     if (bytes_received <= 0)
     {
         this->remove_client = true;
-        printf("Error receiving data: %s\n", strerror(errno));
         return ;
     }
     if (bytes_received != -1)
@@ -149,7 +147,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 if (num_sent <= 0) 
                 {
-                    std::cout << "Error sending data to client";
                     close(client_socket);
                     return;
                 }
@@ -181,7 +178,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
             return ;
             if (num_sent <= 0) 
             {
-                std::cout << "Error sending data to client";
                 close(client_socket);
                 return;
             }
@@ -197,7 +193,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         return ;
         if (num_sent <= 0) 
         {
-            std::cout << "Error sending data to client";
             close(client_socket);
             return;
         }
@@ -235,7 +230,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 close(client_socket);
                 if (num_sent <= 0) 
                 {
-                    std::cout << "Error sending data to client";
                     close(client_socket);
                     return;
                 }
@@ -253,7 +247,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                     if (num_sent <= 0) 
                     {
-                        std::cout << "Error sending data to client";
                         close(client_socket);
                         return;
                     }
@@ -278,7 +271,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                     num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                                     if (num_sent <= 0) 
                                     {
-                                        std::cout << "Error sending data to client";
                                         close(client_socket);
                                         return;
                                     }
@@ -343,7 +335,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 if (num_sent <= 0) 
                 {
-                    std::cout << "Error sending data to client";
                     close(client_socket);
                     return;
                 }
@@ -371,7 +362,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 if (num_sent <=  0) 
                 {
-                    std::cout << "Error sending data to client";
                     close(client_socket);
                     return;
                 }
@@ -412,7 +402,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                         if (num_sent <= 0) 
                         {
-                            std::cout << "Error sending data to client";
                             close(client_socket);
                             return;
                         }
@@ -439,7 +428,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                     num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                                     if (num_sent <= 0) 
                                     {
-                                        std::cout << "Error sending data to client";
                                         close(client_socket);
                                         return;
                                     }
@@ -521,7 +509,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                     num_sent = res.num_sent;
                                     if (num_sent <= 0) 
                                     {
-                                        std::cout << "Error sending data to client";
                                         close(client_socket);
                                         return;
                                     }
@@ -593,7 +580,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 if (num_sent <= 0) 
                 {
-                    std::cout << "Error sending data to client";
                     close(client_socket);
                     return;
                 }
@@ -643,7 +629,6 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     
     if (num_sent <= 0) 
     {
-        std::cout << "Error sending data to client ";
         close(client_socket);
         return;
     }

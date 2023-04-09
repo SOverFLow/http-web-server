@@ -176,6 +176,11 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                 client_socket, req.is_Cgi, tmp_index, get_location(str.substr(1), server.Locations).autoindex, root_plus_file, root_plus_file, true, cookies_part, server.error_pages);
                         num_sent = res.num_sent;
                         alreadysent = true;
+                        if (num_sent <= 0) 
+                        {
+                            close(client_socket);
+                            return;
+                        }
                         close(client_socket);
                         return ;
                     }

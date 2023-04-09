@@ -102,7 +102,7 @@ std::vector<int> Server::setup_sockets(std::vector<ServerBlock> &servers)
         }
 
 
-        if (listen(servers[i].sock_fd, 10) < 0)
+        if (listen(servers[i].sock_fd, 10000) < 0)
         {
             std::cout << "error in listening" << std::endl;
             exit(1);  

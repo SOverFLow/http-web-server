@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <vector>
 
 void    init_err_pages(std::map<std::string, std::string> &err_pages)
 {
@@ -15,6 +16,19 @@ void    init_err_pages(std::map<std::string, std::string> &err_pages)
     err_pages["414"] = "/Error_Pages/414.html";
     err_pages["501"] = "/Error_Pages/501.html";
     err_pages["500"] = "/Error_Pages/500.html";
+}
+
+void    method_checker(std::vector<std::string> method)
+{
+    for (size_t i = 0; i < method.size(); i++)
+    {
+        if (method[i] == "GET" || method[i] == "DELETE" | method[i] == "POST");
+        else
+        {
+            std::cerr << "Config error: Unknown method " << method[i] << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    }
 }
 
 void syntax_cheaker(int size, int must_be, std::string directive, bool eqal_cheak)
@@ -147,6 +161,7 @@ Locations SetLocation(std::ifstream &ConfigFile, std::string line, std::string N
         {
             syntax_cheaker(splited.size(), 2, "allowed_method", false);
             Instance.allowed_method.insert(Instance.allowed_method.begin(), splited.begin() + 1, splited.end());
+            method_checker(Instance.allowed_method);
         }
         else if (*it == "cgi")
         {
@@ -227,6 +242,7 @@ ServerBlock SetServer(std::ifstream &ConfigFile, std::string line)
         {
             syntax_cheaker(splited.size(), 2, "allowed_method", false);
             Instance.allowed_method.insert(Instance.allowed_method.begin(), splited.begin() + 1, splited.end());
+            method_checker(Instance.allowed_method);
         }
         else if (splited[0] == "location")
             Instance.Locations.push_back(SetLocation(ConfigFile, line, splited[1]));

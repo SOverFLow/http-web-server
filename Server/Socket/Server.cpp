@@ -154,6 +154,47 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 close(client_socket);
                 return ;
             }
+            else if (req.Method == "DELETE")
+            {
+                std::string str = req.Path;
+                std::string filename;
+                std::string root_plus_file;
+                std::string root_location;
+                std::size_t found = str.find_last_of("/");
+                if (found != std::string::npos) {
+                    filename = str.substr(found + 1);
+                    str = str.substr(0, found);
+                }
+                if (check_if_url_is_location(str.substr(1), server.Locations))
+                {
+                    if (Check_is_method_allowed(req.Method, get_location(str.substr(1), server.Locations).allowed_method))
+                    {
+                        root_location = get_root_location(str.substr(1), server.Locations);
+                        root_plus_file = root_location + filename;
+                       
+                        Response res(root_plus_file, "DELETE", req.Content_Type,
+                                client_socket, req.is_Cgi, tmp_index, get_location(str.substr(1), server.Locations).autoindex, root_plus_file, root_plus_file, true, cookies_part, server.error_pages);
+                        num_sent = res.num_sent;
+                        alreadysent = true;
+                        close(client_socket);
+                        return ;
+                    }
+                    else
+                    {
+                        this->data = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n" + cookies_part + "\r\n";
+                        this->data += Return_File_Content(server.error_pages["405"]);
+                        num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
+                        if (num_sent <= 0) 
+                        {
+                            close(client_socket);
+                            return;
+                        }
+                        alreadysent = true;
+                        close(client_socket);
+                        return ;
+                    }
+                }
+            }
         }
     
         this->error_pages = server.error_pages;

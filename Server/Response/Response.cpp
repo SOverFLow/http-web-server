@@ -17,6 +17,7 @@ Response::Response(std::string Path, std::string method, std::string contentType
     (void)is_cgi;
     std::string file_content;
 
+
     if (method == "No")
     {
         this->res_to_client = "HTTP/1.1 405 Method Not Allowed\r\nContent-type: text/html\r\n" + this->server_cookies  +"\r\n";

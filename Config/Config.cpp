@@ -4,6 +4,15 @@
 #include <cstring>
 #include <vector>
 
+bool    error_page_checker(std::string Path)
+{
+    std::fstream file;
+    file.open(Path.substr(1));
+    bool is_open = file.is_open();
+    file.close();
+    return (is_open);
+}
+
 void    init_err_pages(std::map<std::string, std::string> &err_pages)
 {
     err_pages["400"] = "/Error_Pages/400.html";
@@ -193,7 +202,8 @@ Locations SetLocation(std::ifstream &ConfigFile, std::string line, std::string N
         else if (splited[0] == "error_page")
         {
             syntax_cheaker(splited.size(), 2, "error_page", true);
-            Instance.error_pages[splited[1]] = splited[2];
+            if (error_page_checker(splited[2]))
+                Instance.error_pages[splited[1]] = splited[2];
         }
         else
         {
@@ -281,7 +291,8 @@ ServerBlock SetServer(std::ifstream &ConfigFile, std::string line)
         else if (splited[0] == "error_page")
         {
             syntax_cheaker(splited.size(), 3, "error_page", true);
-            Instance.error_pages[splited[1]] = splited[2];
+            if (error_page_checker(splited[2]))
+                Instance.error_pages[splited[1]] = splited[2];
         }
         else
         {

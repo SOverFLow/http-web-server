@@ -280,7 +280,7 @@ ServerBlock SetServer(std::ifstream &ConfigFile, std::string line)
         else if (splited[0] == "server_name")
         {
             syntax_cheaker(splited.size(), 2, "server_name", true);
-            if (splited.size() != 2)
+            // if (splited.size() != 2)
             Instance.server_name = splited[1];
         }
         else if (splited[0] == "client_max_body_size")

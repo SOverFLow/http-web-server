@@ -147,6 +147,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 if (num_sent <= 0) 
                 {
+                    this->remove_client = true;
                     close(client_socket);
                     return;
                 }
@@ -178,6 +179,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         alreadysent = true;
                         if (num_sent <= 0) 
                         {
+                            this->remove_client = true;
                             close(client_socket);
                             return;
                         }
@@ -191,6 +193,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                         if (num_sent <= 0) 
                         {
+                            this->remove_client = true;
                             close(client_socket);
                             return;
                         }
@@ -205,31 +208,49 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         this->error_pages = server.error_pages;
         this->cookies = parse_cookies(request_message);
         this->cookies_part = manage_cookies_session_server();
-
-    if (!server.server_name.empty())
-    {
-        size_t num_pos = req.Host.find(":");
-        std::string host;
-        if (num_pos != std::string::npos)
-            host = req.Host.substr(0, num_pos);
-        else
-            host = req.Host;
         
-        if (host != server.server_name && host[0] != '1')
+        
+        size_t size_of_server_names = server.server_name.size();
+        bool server_name_check = false;
+        if (size_of_server_names > 0)
         {
-            this->data = "HTTP/1.1 503 Service Unavailable\r\nContent-type: text/html\r\n" + this->cookies_part + "\r\n";
-            this->data += Return_File_Content(server.error_pages["503"]);
-            num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
-            close(client_socket);
-            return ;
-            if (num_sent <= 0) 
+            std::vector<std::string>::iterator server_name_iter = server.server_name.begin();
+            size_t num_pos = req.Host.find(":");
+            std::string host;
+            if (num_pos != std::string::npos)
+                host = req.Host.substr(0, num_pos);
+            else
+                host = req.Host;
+            while (server_name_iter != server.server_name.end())
             {
+                if (host == *server_name_iter)
+                {
+                    server_name_check = true;
+                    break ;
+                }
+                if (host[0] == '1' || host[0] == '0')
+                {
+                    server_name_check = true;
+                    break ;
+                }
+                server_name_iter++;
+            }
+            if (server_name_check == false)
+            {
+                this->data = "HTTP/1.1 503 Service Unavailable\r\nContent-type: text/html\r\n" + this->cookies_part + "\r\n";
+                this->data += Return_File_Content(server.error_pages["503"]);
+                num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 close(client_socket);
-                return;
+                return ;
+                if (num_sent <= 0) 
+                {
+                    this->remove_client = true;
+                    close(client_socket);
+                    return;
+                }
             }
         }
-    }
-
+        
 
     if (req.StatusCode != 200)
     {

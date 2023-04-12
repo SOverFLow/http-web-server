@@ -18,7 +18,7 @@ class ServerConfig
         std::string uploadPath;
         std::string redirect_url;
         std::string host;
-        std::string server_name;
+        std::vector<std::string> server_name;
         size_t client_max_body_size;
         std::vector<std::string> index;
         std::vector<std::string> allowed_method;

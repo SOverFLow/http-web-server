@@ -90,7 +90,7 @@ std::vector<int> Server::setup_sockets(std::vector<ServerBlock> &servers)
         }
         fcntl(servers[i].sock_fd, F_SETFL, O_NONBLOCK);
         setsockopt(servers[i].sock_fd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
-        
+        setsockopt(servers[i].sock_fd, SOL_SOCKET, SO_NOSIGPIPE, &option, sizeof(option));
         address.sin_family = AF_INET;
         address.sin_addr.s_addr = INADDR_ANY;
         address.sin_port = htons(servers[i].port);

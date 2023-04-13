@@ -260,6 +260,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
         return ;
         if (num_sent <= 0) 
         {
+            this->remove_client = true;
             close(client_socket);
             return;
         }
@@ -297,6 +298,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 close(client_socket);
                 if (num_sent <= 0) 
                 {
+                    this->remove_client = true;
                     close(client_socket);
                     return;
                 }
@@ -314,6 +316,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                     num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                     if (num_sent <= 0) 
                     {
+                        this->remove_client = true;
                         close(client_socket);
                         return;
                     }
@@ -338,6 +341,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                     num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                                     if (num_sent <= 0) 
                                     {
+                                        this->remove_client = true;
                                         close(client_socket);
                                         return;
                                     }
@@ -402,6 +406,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 if (num_sent <= 0) 
                 {
+                    this->remove_client = true;
                     close(client_socket);
                     return;
                 }
@@ -429,6 +434,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 if (num_sent <=  0) 
                 {
+                    this->remove_client = true;
                     close(client_socket);
                     return;
                 }
@@ -469,6 +475,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                         num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                         if (num_sent <= 0) 
                         {
+                            this->remove_client = true;
                             close(client_socket);
                             return;
                         }
@@ -495,6 +502,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                     num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                                     if (num_sent <= 0) 
                                     {
+                                        this->remove_client = true;
                                         close(client_socket);
                                         return;
                                     }
@@ -576,6 +584,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                                     num_sent = res.num_sent;
                                     if (num_sent <= 0) 
                                     {
+                                        this->remove_client = true;
                                         close(client_socket);
                                         return;
                                     }
@@ -647,6 +656,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
                 num_sent = send(client_socket, this->data.c_str(), this->data.size(), 0);
                 if (num_sent <= 0) 
                 {
+                    this->remove_client = true;
                     close(client_socket);
                     return;
                 }
@@ -696,6 +706,7 @@ void Server::respond_to_clients(int client_socket, std::string root_path, Server
     
     if (num_sent <= 0) 
     {
+        this->remove_client = true;
         close(client_socket);
         return;
     }

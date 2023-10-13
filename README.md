@@ -36,6 +36,6 @@ The server will now be running locally.
 
 Usage
 
-    - Request Handling: The server listens for incoming HTTP requests and efficiently processes them, ensuring timely responses.
+- Request Handling: The server listens for incoming HTTP requests and efficiently processes them, ensuring timely responses.
 
-    - Interactive Web Pages: Utilize the CGI functionality to create dynamic and interactive web pages for enhanced user engagement.
+- Interactive Web Pages: Utilize the CGI functionality to create dynamic and interactive web pages for enhanced user engagement.
